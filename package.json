@@ -9,7 +9,8 @@
     "packages/*"
   ],
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "lerna-changelog": "^2.2.0"
   },
   "scripts": {
     "build": "lerna run build --stream",
@@ -28,11 +29,5 @@
     "storybook:serve": "lerna run storybook:serve --stream",
     "test": "lerna run test --scope=pyxis-elm",
     "tokens:build": "lerna run tokens:build --stream && yarn prettify:token"
-  },
-  "changelog": {
-    "labels": {
-      "feature": "New Feature",
-      "bug": "Bug Fix"
-    }
   }
 }
