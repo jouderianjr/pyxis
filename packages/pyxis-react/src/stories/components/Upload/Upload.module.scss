@@ -1,0 +1,9 @@
+@use "src/stories/pyxis";
+
+.wrapper {
+  @include pyxis.rowGap(l);
+  justify-items: center;
+  display: grid;
+  max-width: 360px;
+  margin: 0 auto;
+}

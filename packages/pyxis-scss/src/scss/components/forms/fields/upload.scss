@@ -1,0 +1,128 @@
+@use "../../../foundations";
+@use "../../../lib";
+@use "../variables";
+
+.form-field--upload {
+  border-style: dashed;
+  cursor: default;
+  display: grid;
+  padding: foundations.spacing(m);
+  row-gap: foundations.spacing(m);
+
+  .form-field__wrapper {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.form-field--upload__description {
+  @include foundations.text(s, book, neutral25);
+}
+
+.form-upload-wrapper {
+  display: grid;
+  row-gap: foundations.spacing(2xs);
+}
+
+.form-upload__item-wrapper {
+  display: grid;
+  row-gap: foundations.spacing(4xs);
+}
+
+.form-upload__item {
+  @include foundations.radius(xs);
+  @include foundations.text(m, book);
+  align-items: center;
+  background-color: foundations.color(neutralLight);
+  border: variables.$borderWidth solid foundations.color(neutral85);
+  color: foundations.color(neutralBase);
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: auto 1fr auto;
+  justify-content: space-between;
+  min-height: variables.$fieldHeightSmall + variables.$borderWidth * 2;
+  position: relative;
+  width: 100%;
+}
+
+.form-upload__item--error {
+  border-color: foundations.color(errorBase);
+}
+
+.form-upload__item--loading:after {
+  $horizontalOffset: lib.rem(6px);
+  $verticalOffset: lib.rem(-2px);
+
+  @include foundations.radius(2xs);
+  background-color: foundations.color(actionBase);
+  bottom: $verticalOffset;
+  content: "";
+  display: block;
+  height: lib.rem(2px);
+  left: $horizontalOffset;
+  position: absolute;
+  right: $horizontalOffset;
+  width: calc(var(--loading-status) - (#{$horizontalOffset * 2}));
+}
+
+.form-upload__item__name {
+  overflow-wrap: break-word;
+  overflow: hidden;
+}
+
+.form-upload__item__addon {
+  align-items: center;
+  column-gap: foundations.spacing(2xs);
+  display: flex;
+  grid-auto-flow: column;
+  justify-content: center;
+  min-width: variables.$fieldHeightSmall;
+  padding: 0 foundations.spacing(3xs);
+}
+
+.form-upload__item__addon__button {
+  $size: lib.rem(24px);
+
+  @include foundations.radius(xl);
+  background-color: foundations.color(neutral95);
+  color: foundations.color(neutralBase);
+  cursor: pointer;
+  display: grid;
+  height: $size;
+  place-items: center;
+  transition: background-color foundations.duration(fast) foundations.timing(base);
+  width: $size;
+
+  &:hover {
+    background-color: foundations.color(neutral85);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 variables.$borderWidth rgba(foundations.color(actionBase), 0.8);
+    outline: none;
+  }
+}
+
+.form-upload__item-error-message {
+  @include foundations.text(s, book, errorBase);
+}
+
+.form-upload__item__addon__loading {
+  $size: lib.rem(20px);
+
+  @include foundations.radius(s);
+  animation: uploadLoading foundations.duration(slowest) infinite linear;
+  border: variables.$borderWidth solid foundations.color(actionLight);
+  border-top-color: foundations.color(actionBase);
+  height: $size;
+  width: $size;
+
+  @keyframes uploadLoading {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
