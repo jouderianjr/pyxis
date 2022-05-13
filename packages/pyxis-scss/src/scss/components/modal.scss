@@ -133,10 +133,9 @@ $_sizesOnBp: (
   @include foundations.padding(m);
   align-items: center;
   background: foundations.color(neutralLight);
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: foundations.spacing(xs);
-  justify-content: end;
+  grid-auto-flow: column;
   z-index: 1;
 
   @include foundations.mq(base, xsmall) {
@@ -157,16 +156,17 @@ $_sizesOnBp: (
 }
 
 .modal__footer__text {
-  flex: 1 min-content;
+  flex: 1;
 }
 
 .modal__footer__buttons {
   align-items: center;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: foundations.spacing(xs);
+  grid-auto-flow: column;
   height: fit-content;
-  justify-content: end;
+  justify-content: flex-end;
+  width: 100%;
 
   @include foundations.mq(xsmall) {
     gap: foundations.spacing(s);
@@ -175,13 +175,8 @@ $_sizesOnBp: (
 
 .modal__footer__buttons--full-width {
   @include foundations.mq(base, xsmall) {
-    display: grid;
+    grid-auto-flow: row;
     grid-template-columns: 1fr;
-    width: 100%;
-  }
-
-  .button:first-child:not(:only-child) {
-    grid-row: end;
   }
 }
 

@@ -36,7 +36,8 @@ $_sliderSize: $_height - $_sliderOffset * 2;
   @include foundations.columnGap(s);
   align-items: center;
   cursor: pointer;
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   width: fit-content;
 }
 

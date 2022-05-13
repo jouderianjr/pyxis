@@ -29,7 +29,6 @@
 }
 
 .accordion-item__header {
-  @include foundations.columnGap(s);
   @include foundations.radius(m);
   @include foundations.horizontalPadding(s);
   @include foundations.verticalPadding(xs);
@@ -71,6 +70,7 @@
   @include _setColorAlt;
   color: foundations.color(brandBase);
   flex: 0 0 fit-content;
+  margin-right: foundations.spacing(s);
 
   @include foundations.mq(base, xsmall) {
     max-width: lib.rem(48px);
@@ -97,7 +97,6 @@
   align-items: center;
   color: foundations.color(actionBase);
   display: grid;
-  flex: fit-content 0 0;
   grid-auto-flow: column;
   user-select: none;
 }

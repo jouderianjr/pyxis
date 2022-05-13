@@ -129,6 +129,7 @@ type Icon
     | PrimaLogo
     | Property
     | QuestionCircle
+    | Reload
     | Riparaprima
     | SafeShield
     | Save
@@ -525,6 +526,9 @@ toString icon =
 
         QuestionCircle ->
             questionCircle
+
+        Reload ->
+            reload
 
         Riparaprima ->
             riparaprima
@@ -988,6 +992,9 @@ toLabel icon =
         QuestionCircle ->
             "question-circle"
 
+        Reload ->
+            "reload"
+
         Riparaprima ->
             "riparaprima"
 
@@ -1092,7 +1099,7 @@ toLabel icon =
 -}
 allIcons : List Icon
 allIcons =
-    [ AccessKey, Alarm, Alert, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Baloon, Bell, BookVocabulary, Book, CalendarClock, CalendarMail, Calendar, Camera, Car, CartScreen, Cart, ChartPie, Chat, CheckBox, CheckCircle, CheckThick, CheckThin, ChevronCricleDown, ChevronCricleLeft, ChevronCricleRight, ChevronCricleUp, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Chrome, Clock24, Clock, CloseCircle, Close, Computer, Devices, Diamond, DocumentAlert, DocumentEmpty, Document, Download, EllipsisCircle, ExclamationCircle, ExternalLink, EyeOff, EyeOn, FacebookFull, Facebook, FirefoxFull, Firefox, Folder, FootballField, FootballJersey, FootballShoe, Garage, Gear, Gift, Grid, HomeDamageEbike, HomeDamageFamily, HomeDamagePets, HomeDamageThirdPartiesProperty, HomeDamageThirdParties, HomeDomesticThefts, HomeEmergenciesRepairs, HomeFireExplosion, HomeFurnitureContent, HomeInjuriesFamily, HomeInjuriesFreetime, HomeInsuranceFamily, HomeInsuranceHome, HomeLegalProtection, HomeNaturalEvents, HomeRobberiesOutside, HomeTelephoneLegalAdvice, HomeTheftValuable, Home, Hourglass, IdCard, InfoCircleFull, InfoCircle, InsuranceFamily, InsuranceHome, InternetExplorer, Jobs, Key, ListCircle, List, Loader, Lock, LockerOpen, MagicWand, Mail, MapMarker, Medal, MinusCircle, Moped, Motorcycle, Odometer, OnlineHandshake, PaperPlane, Paperclip, PenEdit, PenFormUser, PenForm, Pen, Phone24, PhoneCall, Planimetry, Plate, PlusCircle, PlusSquare, Plus, PrimaLogo, Property, QuestionCircle, Riparaprima, SafeShield, Save, Search, SignedForm, Smartphone, SteeringWheel, Switch, Tablet, ThumbUp, TrashBin, TwitterFull, Twitter, UmbrellaFlash, Umbrella, UserCheck, UserClose, User, Van, VehicleCollisionKasko, VehicleDriverInjuries, VehicleFullKasko, VehicleGlasses, VehicleLegalProtection, VehicleNaturalEvents, VehicleRicourseWaiver, VehicleRoadsideAssistance, VehicleSecuredBonus, VehicleTheftFire, VehicleVandalism, Wallet, WhatsappFull, Whatsapp ]
+    [ AccessKey, Alarm, Alert, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Baloon, Bell, BookVocabulary, Book, CalendarClock, CalendarMail, Calendar, Camera, Car, CartScreen, Cart, ChartPie, Chat, CheckBox, CheckCircle, CheckThick, CheckThin, ChevronCricleDown, ChevronCricleLeft, ChevronCricleRight, ChevronCricleUp, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Chrome, Clock24, Clock, CloseCircle, Close, Computer, Devices, Diamond, DocumentAlert, DocumentEmpty, Document, Download, EllipsisCircle, ExclamationCircle, ExternalLink, EyeOff, EyeOn, FacebookFull, Facebook, FirefoxFull, Firefox, Folder, FootballField, FootballJersey, FootballShoe, Garage, Gear, Gift, Grid, HomeDamageEbike, HomeDamageFamily, HomeDamagePets, HomeDamageThirdPartiesProperty, HomeDamageThirdParties, HomeDomesticThefts, HomeEmergenciesRepairs, HomeFireExplosion, HomeFurnitureContent, HomeInjuriesFamily, HomeInjuriesFreetime, HomeInsuranceFamily, HomeInsuranceHome, HomeLegalProtection, HomeNaturalEvents, HomeRobberiesOutside, HomeTelephoneLegalAdvice, HomeTheftValuable, Home, Hourglass, IdCard, InfoCircleFull, InfoCircle, InsuranceFamily, InsuranceHome, InternetExplorer, Jobs, Key, ListCircle, List, Loader, Lock, LockerOpen, MagicWand, Mail, MapMarker, Medal, MinusCircle, Moped, Motorcycle, Odometer, OnlineHandshake, PaperPlane, Paperclip, PenEdit, PenFormUser, PenForm, Pen, Phone24, PhoneCall, Planimetry, Plate, PlusCircle, PlusSquare, Plus, PrimaLogo, Property, QuestionCircle, Reload, Riparaprima, SafeShield, Save, Search, SignedForm, Smartphone, SteeringWheel, Switch, Tablet, ThumbUp, TrashBin, TwitterFull, Twitter, UmbrellaFlash, Umbrella, UserCheck, UserClose, User, Van, VehicleCollisionKasko, VehicleDriverInjuries, VehicleFullKasko, VehicleGlasses, VehicleLegalProtection, VehicleNaturalEvents, VehicleRicourseWaiver, VehicleRoadsideAssistance, VehicleSecuredBonus, VehicleTheftFire, VehicleVandalism, Wallet, WhatsappFull, Whatsapp ]
 
 
 {-| The `access-key` icon
@@ -1926,6 +1933,13 @@ property =
 questionCircle : String
 questionCircle =
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path d=\"M12 23.848A11.848 11.848 0 1 1 23.848 12 11.861 11.861 0 0 1 12 23.848zm0-22.696A10.848 10.848 0 1 0 22.848 12 10.86 10.86 0 0 0 12 1.152zM9.456 9.226a.601.601 0 0 1-.574-.603.757.757 0 0 1 .157-.417 3.773 3.773 0 0 1 3.076-1.366 3.064 3.064 0 0 1 2.17.776 2.524 2.524 0 0 1 .834 1.969 2.931 2.931 0 0 1-.704 2.084 7.553 7.553 0 0 1-2.342 1.538.876.876 0 0 1-.431.1.555.555 0 0 1-.546-.546.606.606 0 0 1 .402-.575 6.702 6.702 0 0 0 1.912-1.135 1.933 1.933 0 0 0 .532-1.437 1.619 1.619 0 0 0-1.825-1.639 2.5 2.5 0 0 0-2.17.992.601.601 0 0 1-.489.258zm1.639 6.597a.589.589 0 0 1 .589-.575.571.571 0 0 1 .589.575v.761a.571.571 0 0 1-.589.575.608.608 0 0 1-.589-.575z\"/></svg>"
+
+
+{-| The `reload` icon
+-}
+reload : String
+reload =
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path d=\"M23.6,11c-0.2-0.2-0.5-0.2-0.7,0l-0.8,0.8c-0.1-4.3-2.7-8.2-6.7-9.8C11.3,0.2,6.6,1.1,3.5,4.3c-3.1,3.1-4.1,7.8-2.4,11.9s5.7,6.7,10.1,6.7c0.2,0,0.4,0,0.6,0c0.3,0,0.5-0.3,0.5-0.5c0-0.3-0.3-0.5-0.5-0.5c-0.2,0-0.4,0-0.6,0c-4,0-7.6-2.4-9.2-6.1S1.3,7.8,4.2,5C7,2.1,11.3,1.3,15,2.8c3.7,1.5,6.1,5.1,6.1,9.1l-1-1c-0.2-0.2-0.5-0.2-0.7,0s-0.2,0.5,0,0.7l1.7,1.7c0.1,0.1,0.2,0.1,0.4,0.1s0.3-0.1,0.4-0.1l1.7-1.7C23.8,11.5,23.8,11.2,23.6,11z\"/></svg>\n"
 
 
 {-| The `riparaprima` icon

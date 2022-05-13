@@ -4,7 +4,6 @@
 @use "variables";
 
 .form-card {
-  @include foundations.columnGap(xs);
   @include foundations.radius(s);
   @include mixins.fieldStateDefault;
   align-items: center;
@@ -94,10 +93,12 @@
 .form-card__addon {
   @include foundations.text(m, bold, neutralBase);
   display: inline-flex;
+  margin-right: foundations.spacing(xs);
 
   .form-card--large & {
     grid-area: addon;
     justify-self: center;
+    margin-right: 0;
     padding-top: foundations.spacing(2xs);
     width: fit-content;
   }

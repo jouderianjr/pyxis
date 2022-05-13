@@ -16,7 +16,7 @@
 
   &:focus,
   &:focus-within,
-  &:hover:not(&--disabled, :disabled, [disabled], :checked) {
+  &:hover:not(&--disabled, &--error, :disabled, [disabled], :checked) {
     border-color: foundations.color(actionBase);
   }
 

@@ -173,7 +173,7 @@ $_sizes: (
 
 .button {
   cursor: pointer;
-  display: inline-grid;
+  display: inline-flex;
   grid-auto-flow: column;
   justify-content: center;
   place-items: center;
@@ -200,9 +200,9 @@ $_sizes: (
   .button--#{$size} {
     $dimension: lib.get($properties, dimension);
     $padding: lib.get($properties, padding);
-    $iconSpacing: foundations.spacing(lib.get($properties, iconSpacing));
+    $iconPadding: foundations.spacing(lib.get($properties, iconSpacing));
+    $iconMargin: foundations.spacing(lib.get($properties, columnGap));
 
-    @include foundations.columnGap(lib.get($properties, columnGap));
     @include foundations.text(lib.get($properties, textSize), bold);
     height: $dimension;
 
@@ -221,11 +221,19 @@ $_sizes: (
     }
 
     &.button--append-icon {
-      padding-right: $iconSpacing;
+      padding-right: $iconPadding;
+
+      .icon {
+        margin-left: $iconMargin;
+      }
     }
 
     &.button--prepend-icon {
-      padding-left: $iconSpacing;
+      padding-left: $iconPadding;
+
+      .icon {
+        margin-right: $iconMargin;
+      }
     }
 
     &.button--icon-only {

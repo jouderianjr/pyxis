@@ -2,25 +2,15 @@
 @use "../../../lib";
 @use "../variables";
 
-// Set the correct width when an addon is present.
-//
-// @param {Number} $width - Input width
-@mixin _fieldWithAddon() {
-  :where(
-  .form-field--with-prepend-icon,
-  .form-field--with-append-icon,
-  .form-field--with-prepend-text,
-  .form-field--with-append-text
-) & {
-    @content; }
-}
-
 .form-field__text {
   @include foundations.horizontalPadding(s);
   height: variables.$fieldHeight;
   width: 100%;
 
-  @include _fieldWithAddon {
+  .form-field--with-prepend-icon &,
+  .form-field--with-append-icon &,
+  .form-field--with-prepend-text &,
+  .form-field--with-append-text & {
     width: variables.$fieldWidth;
   }
 
@@ -37,7 +27,10 @@
   @include foundations.horizontalPadding(xs);
   height: variables.$fieldHeightSmall;
 
-  @include _fieldWithAddon {
+  .form-field--with-prepend-icon &,
+  .form-field--with-append-icon &,
+  .form-field--with-prepend-text &,
+  .form-field--with-append-text & {
     width: variables.$fieldWidthSmall;
   }
 }

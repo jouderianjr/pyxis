@@ -120,6 +120,7 @@ import { ReactComponent as Plus } from '@pyxis/icons/plus.svg';
 import { ReactComponent as PrimaLogo } from '@pyxis/icons/prima-logo.svg';
 import { ReactComponent as Property } from '@pyxis/icons/property.svg';
 import { ReactComponent as QuestionCircle } from '@pyxis/icons/question-circle.svg';
+import { ReactComponent as Reload } from '@pyxis/icons/reload.svg';
 import { ReactComponent as Riparaprima } from '@pyxis/icons/riparaprima.svg';
 import { ReactComponent as SafeShield } from '@pyxis/icons/safe-shield.svg';
 import { ReactComponent as Save } from '@pyxis/icons/save.svg';
@@ -273,6 +274,7 @@ export const IconPlus: FC<IconProps> = (props) => <Icon {...props}><Plus /></Ico
 export const IconPrimaLogo: FC<IconProps> = (props) => <Icon {...props}><PrimaLogo /></Icon>;
 export const IconProperty: FC<IconProps> = (props) => <Icon {...props}><Property /></Icon>;
 export const IconQuestionCircle: FC<IconProps> = (props) => <Icon {...props}><QuestionCircle /></Icon>;
+export const IconReload: FC<IconProps> = (props) => <Icon {...props}><Reload /></Icon>;
 export const IconRiparaprima: FC<IconProps> = (props) => <Icon {...props}><Riparaprima /></Icon>;
 export const IconSafeShield: FC<IconProps> = (props) => <Icon {...props}><SafeShield /></Icon>;
 export const IconSave: FC<IconProps> = (props) => <Icon {...props}><Save /></Icon>;

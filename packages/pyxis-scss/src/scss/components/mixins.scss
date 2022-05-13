@@ -68,6 +68,7 @@
   @include foundations.fixed($top: initial);
   @include foundations.hideScrollbar;
   background-color: foundations.color(neutralLight);
+  grid-auto-rows: min-content;
   height: min-content;
   max-height: calc(100vh - #{foundations.spacing(2xl)});
   min-height: $minHeight;

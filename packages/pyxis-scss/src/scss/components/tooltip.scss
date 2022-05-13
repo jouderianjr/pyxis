@@ -250,7 +250,8 @@ $_arrowPositions: (
   @include foundations.title(s, bold);
   @include foundations.columnGap(xs);
   align-items: center;
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   width: fit-content;
 }
 
