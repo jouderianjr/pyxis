@@ -1,7 +1,7 @@
 {
   "name": "pyxis",
   "version": "0.0.1",
-  "repository": "git@github.com:primait/pyxis-react.git",
+  "repository": "git@github.com:primait/pyxis.git",
   "author": "Prima Assicurazioni",
   "license": "MIT",
   "private": true,
