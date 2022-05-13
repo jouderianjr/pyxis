@@ -1,7 +1,7 @@
 {
   "name": "pyxis",
   "version": "0.0.1",
-  "repository": "git@github.com:primait/pyxis-react.git",
+  "repository": "git@github.com:primait/pyxis.git",
   "author": "Prima Assicurazioni",
   "license": "MIT",
   "private": true,
@@ -13,20 +13,20 @@
   },
   "scripts": {
     "build": "lerna run build --stream",
-    "elmbook:build": "lerna run elmbook:build --scope=pyxis-elm",
-    "elmbook:serve": "lerna run elmbook:serve --scope=pyxis-elm",
+    "elmbook:build": "lerna run elmbook:build",
+    "elmbook:serve": "lerna run elmbook:serve",
     "generate:icons": "lerna run generate:icons --stream",
     "install": "lerna bootstrap",
     "lint": "lerna run lint --stream",
     "lint:fix": "lerna run lint:fix --stream",
     "preelmbook:serve": "lerna run build --stream",
     "prettify:token": "lerna run prettify:token --stream",
-    "review:elm": "lerna run review --scope=pyxis-elm",
-    "review:elm:fix": "lerna run review:fix --scope=pyxis-elm",
+    "review:elm": "lerna run review",
+    "review:elm:fix": "lerna run review:fix",
     "sassdocs:build": "lerna run sassdocs:build --stream",
     "storybook:build": "lerna run storybook:build --stream",
     "storybook:serve": "lerna run storybook:serve --stream",
-    "test": "lerna run test --scope=pyxis-elm",
+    "test": "lerna run test --stream",
     "tokens:build": "lerna run tokens:build --stream && yarn prettify:token"
   }
 }

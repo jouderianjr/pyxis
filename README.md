@@ -1,31 +1,152 @@
-# Pyxis
+# 🧭 Pyxis
 
-Prima's design system.
+The name "**Pyxis**" comes from a [small constellation](https://en.wikipedia.org/wiki/Pyxis) in the southern sky. It's the latin term for _compass_ and we chose it to indicate the path to follow for the designs of Prima.
 
 <img alt="Pyxis Design System" src="pyxis.png" width="100%" />
 
+## Table of contents
+
+1. [Introduction](#✨-introduction)
+2. [Setup](#⚙️-setup)
+3. [Documentation](#📚-documentation)
+4. [Development](#⌨️-development)
+
 ## ✨ Introduction
 
-Pyxis helps Prima build consistent user interfaces and experiences.
+Pyxis is our Design System which helps developers and designers to create complex UIs and UXs by relying on a solid foundations of best-practices and recognizable colors and patterns.
 
-Pyxis is composed of an agnostic _scss framework_ and two _ready-to-use bindings_ for [React](https://reactjs.org/) and [Elm](https://elm-lang.org/).
-In addition we also maintain two packages containing _icons_ and _design tokens_.
+Pyxis modules are abstraction which help your team to quickly prototype and build experiences without relying on low-level stuff in a common way through Prima organization.
 
-| Package name                               | Description                                                        |
-| ------------------------------------------ | ------------------------------------------------------------------ |
-| [`@pyxis/scss`](./packages/pyxis-scss)     | SCSS foundations and components documentation.                     |
-| [`@pyxis/elm`](./packages/pyxis-elm)       | Elm components and Elmbook documentation.                          |
-| [`@pyxis/react`](./packages/pyxis-react)   | React components and Storybook documentation.                      |
-| [`@pyxis/tokens`](./packages/pyxis-tokens) | Design Tokens are the bricks from which our foundations are built. |
-| [`@pyxis/icons`](./packages/pyxis-icons)   | A collection of svg icons used in our Design System.               |
+### Internal structure
+
+_Please note that Pyxis is strongly opinionated and maintained by the Pyxis Team._
+
+This repository takes advantage of [Lerna](https://github.com/lerna/lerna) and its capabilities to handle multiple repositories inside a so-called _monorepo_.
+
+By consequence you'll find out that Pyxis is made of different sub-packages:
+
+| Name            | Source                            | Description                                                              |
+| --------------- | --------------------------------- | ------------------------------------------------------------------------ |
+| `@pyxis/scss`   | [Source](./packages/pyxis-scss)   | Core Scss and CSS module. **Mandatory usage.**                           |
+| `@pyxis/elm`    | [Source](./packages/pyxis-elm)    | Elm components and live documentation via Elmbook.                       |
+| `@pyxis/react`  | [Source](./packages/pyxis-react)  | React components and live documentation via Storybook.                   |
+| `@pyxis/icons`  | [Source](./packages/pyxis-icons)  | Svg icon pack.                                                           |
+| `@pyxis/tokens` | [Source](./packages/pyxis-tokens) | A representation of Design Tokens which define some Pyxis' core aspects. |
+
+By following this guide you'll learn [how to install](#⚙️-setup) Pyxis and where to find the [documentation](#📚-documentation) for your project.
+
+## ⚙️ Setup
+
+Pyxis is deployed on a [JFrog Artifactory](https://www.jfrog.com/confluence/display/RTF/Npm+Registry) repository with `npm` integration. By consequence you should install the [JFrog cli](https://jfrog.com/getcli/) in order to get things work.
+
+You'll need to instruct `npm` to download the packages you want from our Artifactory registry instance.
+
+To do that follow the steps below:
+
+1. Configure _npm_
+
+   ```sh
+   # From project root
+   $ jfrog npmc
+
+   # > Resolve dependencies from Artifactory? (y/n)?
+   $ y
+
+   # > Set Artifactory server ID [Default-Server]:
+   $ Default-Server
+
+   # > Set repository for artifacts deployment (press Tab for options):
+   $ pyxis-it
+
+   # You should now get this message. If so, the repo is actually configured.
+   # > npm build config successfully created.
+   ```
+
+2. From [JFrog User Profile](https://prima.jfrog.io/ui/admin/artifactory/user_profile) generate an `api key`. This will be used to authorize your profile when pushing/pulling from JFrog.
+
+3. In your terminal run:
+
+   ```sh
+   ## Replace <CREDENTIAL> with your api key
+
+   curl -uadmin:<CREDENTIAL> http://prima.jfrog.io:8081/artifactory/api/npm/auth
+
+   ## Usage example with a fake apikey of "abcdefghilmnopqrstuvz"
+   ## curl -uadmin:abcdefghilmnopqrstuvz http://prima.jfrog.io:8081/artifactory/api/npm/auth
+   ```
+
+   This command will output a response like that:
+
+   ```sh
+   _auth = YWRtaW46e0RFU2VkZX1uOFRaaXh1Y0t3bHN4c2RCTVIwNjF3PT0=
+   email = myemail@email.com
+   always-auth = true
+   ```
+
+4. Now, open your `.npmrc` file, it should be placed in your _$HOME_. If you don't have a `.npmrc` file you can create it in your _$HOME_ folder.
+
+   ```sh
+   $ vim ~/.npmrc
+   ```
+
+5. Paste the output from point 3 into your `.npmrc` file, then add these lines to its bottom:
+
+   ```
+   ## File: .npmrc
+
+   @pyxis:registry=https://prima.jfrog.io/artifactory/api/npm/pyxis-it/
+
+   registry=https://registry.npmjs.org
+   ```
+
+6. You should now have an `.npmrc` file which looks like this:
+
+   ```
+   ## File: .npmrc
+
+   always-auth=true
+   _auth="a-very=very_very-long_authenthication_token="
+   email=name.lastname@prima.it
+
+   ## This line instruct npm to retrieve @pyxis packages from Artifactory.
+   @pyxis:registry=https://prima.jfrog.io/artifactory/api/npm/pyxis-it/
+
+   ## This line is needed in order to resolve third-part dependencies from default npm registry.
+   registry=https://registry.npmjs.org
+   ```
+
+   > ⚠️ We're aware about Artifactory's ability to handle dependencies itself acting like a shield for npm registry failures and speeding up build time. DevOps will enable this feature in a future release.
+
+7. Save and close the file. You should now be able to use Pyxis npm modules like this:
+
+   ```sh
+   $ npm i @pyxis/scss
+
+   # Or
+   # npm i @pyxis/react
+   # npm i @pyxis/icons
+   ```
+
+   > ⚠️ This isn't suitable for Pyxis Elm package.
+
+8. You're now ready to use Pyxis in your application. Follow the [Documentation](#📚-documentation) in order to learn how to use Pyxis.
 
 ## 📚 Documentation
 
-We offer live documentation and code examples for both the bare scss framework and its bindings:
+Before diving into documentation you should choose between using Pyxis' _precompiled CSS_ and Pyxis' _SCSS source_.
 
-- [SCSS documentation](https://scss-staging.prima.design/)
-- [React documentation](https://react-staging.prima.design/)
-- [Elm documentation](https://elm-staging.prima.design/)
+Infact _the use of Pyxis stylesheet is mandatory_.
+You cannot do anything with Pyxis without relying on its core (_foundations & components_).
+
+Once you chosen the solution which fits the best for your project you can go ahead with learning Pyxis.
+
+| Package    | Live documentation            | Readme                                      | Mandatory |
+| ---------- | ----------------------------- | ------------------------------------------- | --------- |
+| **SCSS**   | [https://prima.design/]       | [Readme](./packages/pyxis-scss/README.md)   | X         |
+| **Elm**    | [https://elm.prima.design/]   | [Readme](./packages/pyxis-elm/README.md)    |           |
+| **React**  | [https://react.prima.design/] | [Readme](./packages/pyxis-react/README.md)  |           |
+| **Icons**  | n/a                           | [Readme](./packages/pyxis-icons/README.md)  |           |
+| **Tokens** | n/a                           | [Readme](./packages/pyxis-tokens/README.md) |           |
 
 ## ⌨️ Development
 
@@ -37,20 +158,20 @@ Run the following commands to setup your local dev environment:
 
 ```sh
 # Install `yarn`, alternatives at https://yarnpkg.com/en/docs/install
-brew install yarn
+$ brew install yarn
 
 # Clone the `pyxis` repo
-git clone git@github.com:primait/pyxis.git
-cd pyxis
+$ git clone git@github.com:primait/pyxis.git
+$ cd pyxis
 
 # Install dependencies
-yarn install
+$ yarn install
 
 # Run React live-documentation dev server
-yarn storybook:serve
+$ yarn storybook:serve
 
 # Run Elm live-documentation dev server
-yarn elmbook:serve
+$ yarn elmbook:serve
 ```
 
 For more in-depth instructions, development guidelines etc., see the README files for each sub-repository.
@@ -62,7 +183,7 @@ Pyxis also includes `@pyxis/icons`, a repository which contains all of our SVG i
 Automatic _code generation_ lets us turn these icons into React components and Elm functions, by running the following command:
 
 ```sh
-yarn generate:icons
+$ yarn generate:icons
 ```
 
 ### Design Tokens
@@ -72,48 +193,8 @@ Pyxis foundations is a set of constants derived from the design token entities.
 To generate fresh tokens, run the following command:
 
 ```sh
-yarn tokens:build
+$ yarn tokens:build
 ```
-
-## 💜 Contributing
-
-Pyxis is a living design system, undergoing continuous development, and you may find that it doesn't yet satisfy your requirements, be it a missing UI component, or a missing icon, or perhaps a typography setting you'd like to see changed...
-
-Following is a list of possible issues you'll encounter when integrating Pyxis in your application. Each issue has a related process defined by the Pyxis team in order to unblock you as soon as possible, letting you continue with your development.
-
-#### 1) I want to use Pyxis but I'm not following a mockup
-
-That's a really bad situation! Pyxis is a Design System which obviously strictly relies on the guidelines defined by our Design team.
-Not only the mockup should _have been validated by designers_ but also needs to be created _by only using foundations, components and design tokens_ which are the basic bricks for building everything with Pyxis.
-
-This is not a team's whim but a requirement which enforces UI/UX consistency, reduces code fragmentation and prevents unexpected behaviours when upgrading to future versions of Pyxis.
-
-#### 2) I've got a mockup but it contains something that's missing from the current version of Pyxis
-
-If you're sure that our documentation doesn't help you addressing this issue and you have a mockup which follows the guidelines defined in the previous case, you can _open an issue_, specifying the following information:
-
-1. a **short title** which defines the issue
-2. a **description** of what you need to do and how current Pyxis APIs prevent you from doing that
-3. **at least two reviewers** from the Pyxis team which can help you in the subsequent discussion on how this issue should be solved
-4. _[optional]_ **a suggestion** of how the issue's solution should be addressed. This will start the conversation. Keep in mind that this kind of solution should follow our guidelines and be something that benefits other Pyxis users. _Don't propose solutions that only satisfy your specific needs._
-
-If you do open an issue, remember to stay engaged and to partecipate in the discussion and development surrounding that issue, don't let it die! Pyxis belongs to everyone in Prima, and that means you too! So be responsible.
-
-Use the `#team-pyxis` Slack channel in order to follow current discussions and help us address any issues.
-
-#### 3) I've found a bug
-
-Unfortunately, this can happen. When you find a bug in Pyxis please open an issue with the same criteria you can find in the previous point.
-
-Additionally, please provide us with with clear steps to let us reproduce the issue. Include screenshots if you believe they can help us address the bug.
-
-Bug reproduction steps should also note which _browsers, resolutions or devices_ suffer from the bug.
-
-Remember, if we can't reproduce the bug, we won't be able to fix it.
-
-## 🧭 Etymology
-
-The name "**Pyxis**" comes from a [small constellation](https://en.wikipedia.org/wiki/Pyxis) in the southern sky. It's the latin term for *compass* and we chose it to indicate the path to follow for the designs of Prima.
 
 ## 🚧 License
 
