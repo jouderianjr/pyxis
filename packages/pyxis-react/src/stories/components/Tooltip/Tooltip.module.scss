@@ -1,7 +1,13 @@
 @use "src/stories/pyxis";
 
 .wrapper {
-  justify-items: center;
+  column-gap: pyxis.spacing(l);
   display: grid;
-  row-gap: pyxis.spacing(l);
+  grid-auto-flow: column;
+  justify-items: center;
+  padding: pyxis.spacing(m);
+}
+
+.wrapperPadding2Xl {
+  padding: pyxis.spacing(2xl);
 }
