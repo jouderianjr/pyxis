@@ -30,7 +30,7 @@ const overviewDescription = (
 
 const behaviourDescription = (
   <p>
-    Tooltips are designed to behave like a bottom sheet on small screen. Bottom sheets have the same content
+    Tooltips are designed to behave like a bottomsheet on small screens. Bottomsheets have the same content
     as the tooltip, but also could have an additional title. &nbsp;
     <span className="link" onClick={linkTo('components-tooltip-🚧-all-stories--default-on-mobile')}>
       See the related story
@@ -98,7 +98,7 @@ const generateVariantBody = (): TableRow[] =>  [
 
 const optionDescription = (
   <p>
-    Tooltips have a neutral background by default, but they can also be brand-colored.
+    Tooltips can also have an icon or a customized behaviour on small screens.
   </p>
 );
 
