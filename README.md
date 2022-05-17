@@ -39,9 +39,9 @@ By following this guide you'll learn [how to install](#⚙️-setup) Pyxis and w
 
 Pyxis is deployed on a [JFrog Artifactory](https://www.jfrog.com/confluence/display/RTF/Npm+Registry) repository with `npm` integration. By consequence you should install the [JFrog cli](https://jfrog.com/getcli/) in order to get things work.
 
-You'll need to instruct `npm` to download the packages you want from our Artifactory registry instance.
+You'll also need to ask DevOps for a JFrog Artifactory account in order to continue.
 
-To do that follow the steps below:
+Now you want to instruct `npm` to download the packages from Prima's Artifactory registry instance. To do that follow the steps below:
 
 1. Configure _npm_
 
