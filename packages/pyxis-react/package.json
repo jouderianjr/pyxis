@@ -1,14 +1,14 @@
 {
   "name": "@pyxis/react",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": false,
   "license": "ISC",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@pyxis/icons": "^0.0.1",
-    "@pyxis/tokens": "0.0.1",
+    "@pyxis/icons": "^0.0.0",
+    "@pyxis/tokens": "^0.0.0",
     "@rollup/plugin-alias": "^3.1.8",
     "@storybook/addon-docs": "^6.4.22",
     "@storybook/addon-storyshots": "^6.4.22",
@@ -45,7 +45,7 @@
     "storybook:build": "build-storybook -s public",
     "storybook:serve": "start-storybook -p 6006 -s public",
     "storybook:test": "STORYBOOK_ENV=TEST start-storybook -p 6006 -s public",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false",
     "test:coverage": "react-scripts test --watchAll=false --coverage",
     "watch": "yarn build:esm --watch & yarn build:cjs --watch"
   },
@@ -78,6 +78,7 @@
     ]
   },
   "jest": {
+    "testMatch": [ "<rootDir>/src/components/**/*.test.{ts,tsx}" ],
     "collectCoverageFrom": [
       "<rootDir>/src/components/**/*.{ts,tsx}",
       "!**/node_modules/**",

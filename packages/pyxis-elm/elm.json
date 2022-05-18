@@ -3,7 +3,7 @@
     "name": "prima/pyxis-elm",
     "summary": "The Prima's Design System ui pack for Elm lang.",
     "license": "BSD-3-Clause",
-    "version": "1.0.1",
+    "version": "0.0.0",
     "exposed-modules": [
         "Pyxis.Commons.Attributes.LinkTarget",
         "Pyxis.Commons.Constraints",

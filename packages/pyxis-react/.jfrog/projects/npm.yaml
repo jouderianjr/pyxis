@@ -1,0 +1,8 @@
+version: 1
+type: npm
+resolver:
+  repo: pyxis
+  serverId: pyxis-it
+deployer:
+  repo: pyxis-it
+  serverId: pyxis-it

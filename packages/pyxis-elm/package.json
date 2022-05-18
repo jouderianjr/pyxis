@@ -1,6 +1,6 @@
 {
-  "name": "pyxis-elm",
-  "version": "1.0.0",
+  "name": "@pyxis/elm",
+  "version": "0.0.0",
   "private": false,
   "license": "ISC",
   "description": "",
@@ -22,8 +22,8 @@
     "reset-dist": "mkdir -p dist && elm make && cp ../pyxis-scss/dist/pyxis.css ./dist/pyxis.css && cp -r ./assets ./dist/assets",
     "review": "elm-review src",
     "review:fix": "elm-review src --fix",
-    "prereview":"elm-analyse",
-    "prereview:fix":"elm-analyse",
+    "prereview": "elm-analyse",
+    "prereview:fix": "elm-analyse",
     "test": "elm-test"
   },
   "dependencies": {
