@@ -7,8 +7,8 @@
   "module": "./dist/esm/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@pyxis/icons": "^1.0.1",
-    "@pyxis/tokens": "^1.0.1",
+    "@pyxis/icons": "^0.0.0",
+    "@pyxis/tokens": "^0.0.0",
     "@rollup/plugin-alias": "^3.1.8",
     "@storybook/addon-docs": "^6.4.22",
     "@storybook/addon-storyshots": "^6.4.22",
