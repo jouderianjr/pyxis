@@ -16,6 +16,7 @@ module Pyxis.Components.Field.RadioCardGroup exposing
     , withDisabled
     , withHint
     , withId
+    , withIsSubmitted
     , withLabel
     , withStrategy
     , medium
@@ -71,6 +72,7 @@ module Pyxis.Components.Field.RadioCardGroup exposing
 @docs withDisabled
 @docs withHint
 @docs withId
+@docs withIsSubmitted
 @docs withLabel
 @docs withStrategy
 
@@ -325,6 +327,16 @@ withId id (Config configuration) =
 withLabel : Label.Config -> Config value -> Config value
 withLabel label (Config configuration) =
     Config { configuration | label = Just label }
+
+
+{-| Sets whether the form was submitted.
+
+When strategy is configured as "onSubmit" this value is used to show/hide validation messages
+
+-}
+withIsSubmitted : Bool -> Config value -> Config value
+withIsSubmitted isSubmitted (Config configuration) =
+    Config { configuration | isSubmitted = isSubmitted }
 
 
 {-| Define the visible options in the radio group.
