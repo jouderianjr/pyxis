@@ -2,7 +2,7 @@ version: 1
 type: npm
 resolver:
   repo: pyxis
-  serverId: Default-Server
+  serverId: pyxis-it
 deployer:
   repo: pyxis-it
-  serverId: Default-Server
+  serverId: pyxis-it

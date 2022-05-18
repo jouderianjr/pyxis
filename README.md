@@ -4,12 +4,16 @@ The name "**Pyxis**" comes from a [small constellation](https://en.wikipedia.org
 
 <img alt="Pyxis Design System" src="pyxis.png" width="100%" />
 
+---
+
 ## Table of contents
 
 1. [Introduction](#✨-introduction)
 2. [Setup](#⚙️-setup)
 3. [Documentation](#📚-documentation)
 4. [Development](#⌨️-development)
+
+---
 
 ## ✨ Introduction
 
@@ -35,6 +39,8 @@ By consequence you'll find out that Pyxis is made of different sub-packages:
 
 By following this guide you'll learn [how to install](#⚙️-setup) Pyxis and where to find the [documentation](#📚-documentation) for your project.
 
+---
+
 ## ⚙️ Setup
 
 Pyxis is deployed on a [JFrog Artifactory](https://www.jfrog.com/confluence/display/RTF/Npm+Registry) repository with `npm` integration. By consequence you should install the [JFrog cli](https://jfrog.com/getcli/) in order to get things work.
@@ -43,81 +49,39 @@ You'll also need to ask DevOps for a JFrog Artifactory account in order to conti
 
 Now you want to instruct `npm` to download the packages from Prima's Artifactory registry instance. To do that follow the steps below:
 
-1. Configure _npm_
+1. Configure the _Artifactory registry_ for Pyxis by running the command below in your terminal.
 
    ```sh
-   # From project root
-   $ jfrog npmc
-
-   # > Resolve dependencies from Artifactory? (y/n)?
-   $ y
-
-   # > Set Artifactory server ID [Default-Server]:
-   $ Default-Server
-
-   # > Set repository for artifacts deployment (press Tab for options):
-   $ pyxis-it
-
-   # You should now get this message. If so, the repo is actually configured.
-   # > npm build config successfully created.
+   $ npm config set @pyxis:registry https://prima.jfrog.io/artifactory/api/npm/pyxis-it/
    ```
 
-2. From [JFrog User Profile](https://prima.jfrog.io/ui/admin/artifactory/user_profile) generate an `api key`. This will be used to authorize your profile when pushing/pulling from JFrog.
+2. From [JFrog User Profile](https://prima.jfrog.io/ui/admin/artifactory/user_profile) generate an `ApiKey`. This will be used to authorize your profile when pushing/pulling from JFrog.
 
 3. In your terminal run:
 
    ```sh
-   ## Replace <CREDENTIAL> with your api key
+   curl -u <JFROG_USER>:<JFROG_APIKEY> http://prima.jfrog.io/artifactory/api/npm/auth >> ~/.npmrc
 
-   curl -uadmin:<CREDENTIAL> http://prima.jfrog.io:8081/artifactory/api/npm/auth
-
-   ## Usage example with a fake apikey of "abcdefghilmnopqrstuvz"
-   ## curl -uadmin:abcdefghilmnopqrstuvz http://prima.jfrog.io:8081/artifactory/api/npm/auth
+   ## Usage example with user="aturing" apikey="3n1gm4?3n1gm4!3n1gm4?"
+   ## curl -u aturing:3n1gm4?3n1gm4!3n1gm4? http://prima.jfrog.io/artifactory/api/npm/auth >> ~/.npmrc
    ```
 
-   This command will output a response like that:
-
-   ```sh
-   _auth = YWRtaW46e0RFU2VkZX1uOFRaaXh1Y0t3bHN4c2RCTVIwNjF3PT0=
-   email = myemail@email.com
-   always-auth = true
-   ```
-
-4. Now, open your `.npmrc` file, it should be placed in your _$HOME_. If you don't have a `.npmrc` file you can create it in your _$HOME_ folder.
-
-   ```sh
-   $ vim ~/.npmrc
-   ```
-
-5. Paste the output from point 3 into your `.npmrc` file, then add these lines to its bottom:
+4. Your `.npmrc` should now look like this:
 
    ```
    ## File: .npmrc
-
-   @pyxis:registry=https://prima.jfrog.io/artifactory/api/npm/pyxis-it/
-
-   registry=https://registry.npmjs.org
-   ```
-
-6. You should now have an `.npmrc` file which looks like this:
-
-   ```
-   ## File: .npmrc
-
-   always-auth=true
-   _auth="a-very=very_very-long_authenthication_token="
-   email=name.lastname@prima.it
 
    ## This line instruct npm to retrieve @pyxis packages from Artifactory.
    @pyxis:registry=https://prima.jfrog.io/artifactory/api/npm/pyxis-it/
 
-   ## This line is needed in order to resolve third-part dependencies from default npm registry.
-   registry=https://registry.npmjs.org
+   always-auth=true
+   _auth="a-very=very_very-long_auth_token="
+   email=name.lastname@domain.com
    ```
 
-   > ⚠️ We're aware about Artifactory's ability to handle dependencies itself acting like a shield for npm registry failures and speeding up build time. DevOps will enable this feature in a future release.
+   > ⚠️ We're aware about Artifactory's ability to handle third-part dependencies itself. This feature will be available in future releases according to DevOps.
 
-7. Save and close the file. You should now be able to use Pyxis npm modules like this:
+5. Save and close the file. You should now be able to use Pyxis npm modules like this:
 
    ```sh
    $ npm i @pyxis/scss
@@ -129,7 +93,9 @@ Now you want to instruct `npm` to download the packages from Prima's Artifactory
 
    > ⚠️ This isn't suitable for Pyxis Elm package.
 
-8. You're now ready to use Pyxis in your application. Follow the [Documentation](#📚-documentation) in order to learn how to use Pyxis.
+6. You're now ready to use Pyxis in your application. Follow the [Documentation](#📚-documentation) in order to learn how to use Pyxis.
+
+---
 
 ## 📚 Documentation
 
@@ -147,6 +113,8 @@ Once you chosen the solution which fits the best for your project you can go ahe
 | **React**  | [https://react.prima.design/] | [Readme](./packages/pyxis-react/README.md)  |           |
 | **Icons**  | n/a                           | [Readme](./packages/pyxis-icons/README.md)  |           |
 | **Tokens** | n/a                           | [Readme](./packages/pyxis-tokens/README.md) |           |
+
+---
 
 ## ⌨️ Development
 
