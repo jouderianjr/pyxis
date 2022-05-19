@@ -109,21 +109,14 @@ const generateOptionBody = (): TableRow[] =>  [
     '-'
   ],
   [
-    <Tooltip id="tooltip-id-no-bottomsheet" key={shortid.generate()} hasBottomSheet={false}>
-      <TooltipChildTemplate />
-    </Tooltip>,
-    'Without bottomsheet on mobile',
-    <span className="link" onClick={linkTo('components-tooltip-🚧-all-stories--with-no-bottomsheet')} key={shortid.generate()}>
-      See the related story
-    </span>
-  ],
-  [
     <Tooltip id="tooltip-id-no-title" key={shortid.generate()} hasBottomSheetTitle={false}>
       <TooltipChildTemplate />
     </Tooltip>,
     'Without a bottomsheet title on mobile',
-    <span className="link" onClick={linkTo('components-tooltip-🚧-all-stories--no-bottomsheet-title')} key={shortid.generate()}>
-      See the related story
+    <span>Not recommended -&nbsp;
+      <span className="link" onClick={linkTo('components-tooltip-🚧-all-stories--no-bottomsheet-title')} key={shortid.generate()}>
+        See the related story
+      </span>
     </span>
   ],
 ];

@@ -47,14 +47,6 @@ const WithIconTemplate:FC = () => <Tooltip id="tooltip-id-withicon" hasIcon><Too
 export const WithIcon = () => <div className={styles.wrapper}><WithIconTemplate /></div>
 WithIcon.parameters = renderSourceAsHTML(<WithIconTemplate />);
 
-const WithNoBottomsheetTemplate:FC = () => <Tooltip id="tooltip-id-nobottomsheet" hasBottomSheet={false}><TooltipChildTemplate /></Tooltip>
-
-export const WithNoBottomsheet = () => <div className={styles.wrapper}><WithNoBottomsheetTemplate /></div>
-WithNoBottomsheet.parameters = {
-  ...mobileFirstViewport,
-  ...renderSourceAsHTML(<WithNoBottomsheetTemplate/>)
-};
-
 const NoBottomsheetTitleTemplate:FC = () => <Tooltip id="tooltip-id-notitle" hasBottomSheetTitle={false}><TooltipChildTemplate /></Tooltip>
 
 export const NoBottomsheetTitle = () => <div className={styles.wrapper}><NoBottomsheetTitleTemplate /></div>
