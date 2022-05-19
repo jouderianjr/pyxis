@@ -8,7 +8,7 @@ import Test exposing (Test)
 import Test.Extra as Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector as Selector exposing (attribute)
+import Test.Html.Selector as Selector
 import Test.Simulation as Simulation exposing (Simulation)
 
 
@@ -28,8 +28,8 @@ suite =
                         |> Select.withId id
                         |> renderSelect
                         |> Query.has
-                            [ attribute (Html.Attributes.id id)
-                            , attribute (Html.Attributes.attribute "data-test-id" id)
+                            [ Selector.attribute (Html.Attributes.id id)
+                            , Selector.attribute (Html.Attributes.attribute "data-test-id" id)
                             ]
             ]
         , Test.describe "Disabled attribute"

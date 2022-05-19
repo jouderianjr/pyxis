@@ -9,7 +9,7 @@ import Pyxis.Components.Icon as Icon
 import Pyxis.Components.IconSet as IconSet
 import Test exposing (Test)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (class, classes, text)
+import Test.Html.Selector as Selector
 
 
 suite : Test
@@ -21,8 +21,8 @@ suite =
                     |> Legend.render
                     |> Query.fromHtml
                     |> Expect.all
-                        [ Query.has [ class "form-legend" ]
-                        , Query.find [ class "form-legend__title" ] >> Query.has [ text "Legend" ]
+                        [ Query.has [ Selector.class "form-legend" ]
+                        , Query.find [ Selector.class "form-legend__title" ] >> Query.has [ Selector.text "Legend" ]
                         ]
         , Test.test "has left aligned content" <|
             \_ ->
@@ -30,7 +30,7 @@ suite =
                     |> Legend.withAlignmentLeft
                     |> Legend.render
                     |> Query.fromHtml
-                    |> Query.has [ classes [ "form-legend", "form-legend--align-left" ] ]
+                    |> Query.has [ Selector.classes [ "form-legend", "form-legend--align-left" ] ]
         , Test.fuzz Fuzz.string "contains description" <|
             \s ->
                 Legend.config "Legend"

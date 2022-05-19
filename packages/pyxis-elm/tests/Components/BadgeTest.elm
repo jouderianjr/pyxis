@@ -1,13 +1,13 @@
 module Components.BadgeTest exposing (suite)
 
-import Expect exposing (Expectation)
+import Expect
 import Html
 import Html.Attributes
 import Pyxis.Commons.Properties.Theme as CommonsTheme
 import Pyxis.Components.Badge as Badge
 import Test exposing (Test)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (attribute, class, classes)
+import Test.Html.Selector as Selector
 
 
 suite : Test
@@ -50,8 +50,8 @@ suite =
                     |> Badge.withId "badge-id"
                     |> renderConfig
                     |> Query.has
-                        [ attribute (Html.Attributes.attribute "id" "badge-id")
-                        , attribute (Html.Attributes.attribute "data-test-id" "badge-id")
+                        [ Selector.attribute (Html.Attributes.attribute "id" "badge-id")
+                        , Selector.attribute (Html.Attributes.attribute "data-test-id" "badge-id")
                         ]
         , Test.test "has the correct list of class" <|
             \() ->
@@ -61,7 +61,7 @@ suite =
                         , ( "my-other-class", True )
                         ]
                     |> renderConfig
-                    |> Query.has [ classes [ "my-class", "my-other-class" ] ]
+                    |> Query.has [ Selector.classes [ "my-class", "my-other-class" ] ]
         ]
 
 
@@ -75,9 +75,9 @@ renderConfig =
     Badge.render >> Query.fromHtml
 
 
-hasProperClass : String -> Badge.Config -> () -> Expectation
+hasProperClass : String -> Badge.Config -> () -> Expect.Expectation
 hasProperClass classes config =
     \() ->
         config
             |> renderConfig
-            |> Query.has [ class classes ]
+            |> Query.has [ Selector.class classes ]

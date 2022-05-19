@@ -7,7 +7,7 @@ import Pyxis.Commons.Properties.Theme as CommonsTheme
 import Pyxis.Components.TextSwitch as TextSwitch
 import Test exposing (Test)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (attribute, checked, class, classes, id, tag, text)
+import Test.Html.Selector as Selector
 
 
 type Option
@@ -27,9 +27,9 @@ suite =
                 textSwitchConfig
                     |> renderConfig
                     |> Expect.all
-                        [ Query.has [ class "text-switch-wrapper" ]
-                        , Query.find [ class "text-switch" ]
-                            >> Query.has [ attribute (Html.Attributes.attribute "role" "radiogroup") ]
+                        [ Query.has [ Selector.class "text-switch-wrapper" ]
+                        , Query.find [ Selector.class "text-switch" ]
+                            >> Query.has [ Selector.attribute (Html.Attributes.attribute "role" "radiogroup") ]
                         ]
         , Test.describe "its options"
             [ Test.test "can have equal width" <|
@@ -37,18 +37,18 @@ suite =
                     textSwitchConfig
                         |> TextSwitch.withOptionsWidth TextSwitch.equalWidth
                         |> renderConfig
-                        |> Query.has [ class "text-switch--equal-option-width" ]
+                        |> Query.has [ Selector.class "text-switch--equal-option-width" ]
             , Test.test "have correct classes and id" <|
                 \() ->
                     textSwitchConfig
                         |> renderConfig
-                        |> Query.findAll [ class "text-switch__option" ]
+                        |> Query.findAll [ Selector.class "text-switch__option" ]
                         |> Expect.all
-                            [ Query.each (Query.has [ class "text-switch__option-input" ])
+                            [ Query.each (Query.has [ Selector.class "text-switch__option-input" ])
                             , Query.first
                                 >> Query.has
-                                    [ id "id-name-option-0"
-                                    , attribute (Html.Attributes.attribute "data-test-id" "id-name-option-0")
+                                    [ Selector.id "id-name-option-0"
+                                    , Selector.attribute (Html.Attributes.attribute "data-test-id" "id-name-option-0")
                                     ]
                             ]
             , Test.describe "with label"
@@ -58,12 +58,12 @@ suite =
                             |> TextSwitch.withLabel "Label"
                             |> renderConfig
                             |> Expect.all
-                                [ Query.find [ class "text-switch__label" ]
+                                [ Query.find [ Selector.class "text-switch__label" ]
                                     >> Query.has
-                                        [ id "id-name-label"
-                                        , text "Label"
+                                        [ Selector.id "id-name-label"
+                                        , Selector.text "Label"
                                         ]
-                                , Query.has [ attribute (CommonsAttributes.ariaLabelledbyBy "id-name-label") ]
+                                , Query.has [ Selector.attribute (CommonsAttributes.ariaLabelledbyBy "id-name-label") ]
                                 ]
                 , Test.test "renders the label on top-left position" <|
                     \() ->
@@ -71,34 +71,34 @@ suite =
                             |> TextSwitch.withLabel "Label"
                             |> TextSwitch.withLabelPosition TextSwitch.topLeft
                             |> renderConfig
-                            |> Query.has [ class "text-switch-wrapper--top-left-label" ]
+                            |> Query.has [ Selector.class "text-switch-wrapper--top-left-label" ]
                 , Test.test "renders the label on the left" <|
                     \() ->
                         textSwitchConfig
                             |> TextSwitch.withLabel "Label"
                             |> TextSwitch.withLabelPosition TextSwitch.left
                             |> renderConfig
-                            |> Query.has [ class "text-switch-wrapper--left-label" ]
+                            |> Query.has [ Selector.class "text-switch-wrapper--left-label" ]
                 ]
             , Test.test "can have an aria-label" <|
                 \() ->
                     textSwitchConfig
                         |> TextSwitch.withAriaLabel "aria-label"
                         |> renderConfig
-                        |> Query.has [ attribute (CommonsAttributes.ariaLabel "aria-label") ]
+                        |> Query.has [ Selector.attribute (CommonsAttributes.ariaLabel "aria-label") ]
             , Test.test "can have the alternative theme" <|
                 \() ->
                     textSwitchConfig
                         |> TextSwitch.withTheme CommonsTheme.alternative
                         |> renderConfig
-                        |> Query.has [ class "text-switch-wrapper--alt" ]
+                        |> Query.has [ Selector.class "text-switch-wrapper--alt" ]
             , Test.test "have the correct id" <|
                 \() ->
                     textSwitchConfig
                         |> renderConfig
                         |> Query.has
-                            [ id "id-name"
-                            , attribute (Html.Attributes.attribute "data-test-id" "id-name")
+                            [ Selector.id "id-name"
+                            , Selector.attribute (Html.Attributes.attribute "data-test-id" "id-name")
                             ]
             , Test.test "can have an personalized id" <|
                 \() ->
@@ -108,11 +108,11 @@ suite =
                         |> renderConfig
                         |> Expect.all
                             [ Query.has
-                                [ id "custom-id"
-                                , attribute (Html.Attributes.attribute "data-test-id" "custom-id")
+                                [ Selector.id "custom-id"
+                                , Selector.attribute (Html.Attributes.attribute "data-test-id" "custom-id")
                                 ]
-                            , Query.find [ class "text-switch__label" ]
-                                >> Query.has [ id "custom-id-label" ]
+                            , Query.find [ Selector.class "text-switch__label" ]
+                                >> Query.has [ Selector.id "custom-id-label" ]
                             ]
             , Test.test "can have a classlist" <|
                 \() ->
@@ -122,11 +122,12 @@ suite =
                             , ( "my-other-class", True )
                             ]
                         |> renderConfig
-                        |> Query.has [ classes [ "my-class", "my-other-class" ] ]
+                        |> Query.has [ Selector.classes [ "my-class", "my-other-class" ] ]
             ]
         ]
 
 
+options : List (TextSwitch.Option Option)
 options =
     [ TextSwitch.option { value = M, label = "Male" }
     , TextSwitch.option { value = F, label = "Female" }

@@ -20,8 +20,8 @@
     "preelmbook:serve": "yarn reset-dist",
     "precommit": "yarn review && yarn test && yarn build && yarn elmbook:build",
     "reset-dist": "mkdir -p dist && elm make && cp ../pyxis-scss/dist/pyxis.css ./dist/pyxis.css && cp -r ./assets ./dist/assets",
-    "review": "elm-review src",
-    "review:fix": "elm-review src --fix",
+    "review": "elm-review src/ tests/",
+    "review:fix": "elm-review src/ tests/ --fix",
     "prereview": "elm-analyse",
     "prereview:fix": "elm-analyse",
     "test": "elm-test"

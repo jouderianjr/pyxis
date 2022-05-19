@@ -7,7 +7,7 @@ import Pyxis.Components.IconSet as IconSet
 import Test exposing (Test)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (attribute, classes, disabled, tag, text)
+import Test.Html.Selector as Selector
 
 
 type Msg
@@ -23,7 +23,7 @@ suite =
                     Button.primary
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ tag "button" ]
+                        |> Query.has [ Selector.tag "button" ]
             , Test.test "is <a>" <|
                 \() ->
                     Button.primary
@@ -31,8 +31,8 @@ suite =
                         |> Button.render
                         |> Query.fromHtml
                         |> Query.has
-                            [ tag "a"
-                            , attribute (Html.Attributes.href "https://www.prima.it")
+                            [ Selector.tag "a"
+                            , Selector.attribute (Html.Attributes.href "https://www.prima.it")
                             ]
             ]
         , Test.describe "Button emphasis"
@@ -41,31 +41,31 @@ suite =
                     Button.primary
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--primary" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--primary" ] ]
             , Test.test "is secondary" <|
                 \() ->
                     Button.secondary
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--secondary" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--secondary" ] ]
             , Test.test "is tertiary" <|
                 \() ->
                     Button.tertiary
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--tertiary" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--tertiary" ] ]
             , Test.test "is brand" <|
                 \() ->
                     Button.brand
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--brand" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--brand" ] ]
             , Test.test "is ghost" <|
                 \() ->
                     Button.ghost
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--ghost" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--ghost" ] ]
             ]
         , Test.describe "Button theme"
             [ Test.test "is light" <|
@@ -74,14 +74,14 @@ suite =
                         |> Button.withTheme CommonsTheme.default
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.hasNot [ classes [ "button--alt" ] ]
+                        |> Query.hasNot [ Selector.classes [ "button--alt" ] ]
             , Test.test "is dark" <|
                 \() ->
                     Button.primary
                         |> Button.withTheme CommonsTheme.alternative
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--alt" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--alt" ] ]
             ]
         , Test.describe "Button size"
             [ Test.test "is huge" <|
@@ -90,28 +90,28 @@ suite =
                         |> Button.withSize Button.huge
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--huge" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--huge" ] ]
             , Test.test "is large" <|
                 \() ->
                     Button.primary
                         |> Button.withSize Button.large
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--large" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--large" ] ]
             , Test.test "is medium" <|
                 \() ->
                     Button.primary
                         |> Button.withSize Button.medium
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--medium" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--medium" ] ]
             , Test.test "is small" <|
                 \() ->
                     Button.secondary
                         |> Button.withSize Button.small
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--small" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--small" ] ]
             ]
         , Test.describe "Button type"
             [ Test.test "is submit by default" <|
@@ -119,7 +119,7 @@ suite =
                     Button.primary
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ attribute (Html.Attributes.type_ "submit") ]
+                        |> Query.has [ Selector.attribute (Html.Attributes.type_ "submit") ]
             , Test.test "is button" <|
                 \() ->
                     Button.primary
@@ -127,14 +127,14 @@ suite =
                         |> Button.withOnClick OnClick
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ attribute (Html.Attributes.type_ "button") ]
+                        |> Query.has [ Selector.attribute (Html.Attributes.type_ "button") ]
             , Test.test "is reset" <|
                 \() ->
                     Button.primary
                         |> Button.withType Button.reset
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ attribute (Html.Attributes.type_ "reset") ]
+                        |> Query.has [ Selector.attribute (Html.Attributes.type_ "reset") ]
             , Test.test "has no type when tag is <a>" <|
                 \() ->
                     Button.primary
@@ -142,9 +142,9 @@ suite =
                         |> Button.render
                         |> Query.fromHtml
                         |> Query.hasNot
-                            [ attribute (Html.Attributes.type_ "submit")
-                            , attribute (Html.Attributes.type_ "button")
-                            , attribute (Html.Attributes.type_ "reset")
+                            [ Selector.attribute (Html.Attributes.type_ "submit")
+                            , Selector.attribute (Html.Attributes.type_ "button")
+                            , Selector.attribute (Html.Attributes.type_ "reset")
                             ]
             , Test.test "is <a>" <|
                 \() ->
@@ -153,8 +153,8 @@ suite =
                         |> Button.render
                         |> Query.fromHtml
                         |> Query.has
-                            [ tag "a"
-                            , attribute (Html.Attributes.href "https://www.prima.it")
+                            [ Selector.tag "a"
+                            , Selector.attribute (Html.Attributes.href "https://www.prima.it")
                             ]
             ]
         , Test.describe "Button icon"
@@ -164,14 +164,14 @@ suite =
                         |> Button.withIconPrepend IconSet.Car
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--prepend-icon" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--prepend-icon" ] ]
             , Test.test "is append" <|
                 \() ->
                     Button.primary
                         |> Button.withIconAppend IconSet.Motorcycle
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--append-icon" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--append-icon" ] ]
             , Test.test "is icon only" <|
                 \() ->
                     Button.primary
@@ -179,7 +179,7 @@ suite =
                         |> Button.withIconOnly IconSet.Van
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--icon-only" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--icon-only" ] ]
             ]
         , Test.describe "Button events"
             [ Test.test "has onClick" <|
@@ -199,7 +199,7 @@ suite =
                         |> Button.withText "Click me!"
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ text "Click me!" ]
+                        |> Query.has [ Selector.text "Click me!" ]
             , Test.test "has an id" <|
                 \() ->
                     Button.primary
@@ -208,8 +208,8 @@ suite =
                         |> Button.render
                         |> Query.fromHtml
                         |> Query.has
-                            [ attribute (Html.Attributes.attribute "id" "jsButton")
-                            , attribute (Html.Attributes.attribute "data-test-id" "jsButton")
+                            [ Selector.attribute (Html.Attributes.attribute "id" "jsButton")
+                            , Selector.attribute (Html.Attributes.attribute "data-test-id" "jsButton")
                             ]
             , Test.test "has a classList" <|
                 \() ->
@@ -221,35 +221,35 @@ suite =
                         |> Button.withText "Click me!"
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "my-class", "my-other-class" ] ]
+                        |> Query.has [ Selector.classes [ "my-class", "my-other-class" ] ]
             , Test.test "is disabled" <|
                 \() ->
                     Button.primary
                         |> Button.withDisabled True
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ disabled True ]
+                        |> Query.has [ Selector.disabled True ]
             , Test.test "has shadow" <|
                 \() ->
                     Button.brand
                         |> Button.withShadow
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--shadow" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--shadow" ] ]
             , Test.test "has limited content width" <|
                 \() ->
                     Button.tertiary
                         |> Button.withContentWidth
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--content-width" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--content-width" ] ]
             , Test.test "is loading" <|
                 \() ->
                     Button.brand
                         |> Button.withLoading True
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--loading" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--loading" ] ]
             , Test.test "has an accessible label" <|
                 \() ->
                     Button.primary
@@ -257,13 +257,13 @@ suite =
                         |> Button.withText "Login"
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ attribute (Html.Attributes.attribute "aria-label" "Login button") ]
+                        |> Query.has [ Selector.attribute (Html.Attributes.attribute "aria-label" "Login button") ]
             , Test.test "has alternative theme" <|
                 \() ->
                     Button.brand
                         |> Button.withTheme CommonsTheme.alternative
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "button", "button--alt" ] ]
+                        |> Query.has [ Selector.classes [ "button", "button--alt" ] ]
             ]
         ]

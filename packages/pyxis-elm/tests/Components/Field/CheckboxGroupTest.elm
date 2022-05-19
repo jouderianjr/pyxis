@@ -5,13 +5,13 @@ import Fuzz
 import Fuzz.Extra
 import Html
 import Html.Attributes
-import Json.Encode exposing (Value)
+import Json.Encode
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Test exposing (Test)
-import Test.Extra as Test
+import Test.Extra as TestExtra
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector as Selector exposing (attribute)
+import Test.Html.Selector as Selector
 import Test.Simulation as Simulation exposing (Simulation)
 
 
@@ -47,8 +47,8 @@ suite =
                         |> CheckboxGroup.withId id
                         |> renderCheckboxGroup
                         |> Query.has
-                            [ attribute (Html.Attributes.id id)
-                            , attribute (Html.Attributes.attribute "data-test-id" id)
+                            [ Selector.attribute (Html.Attributes.id id)
+                            , Selector.attribute (Html.Attributes.attribute "data-test-id" id)
                             ]
             ]
         , Test.describe "Disabled attribute"
@@ -92,7 +92,7 @@ suite =
                         , findInput "Elixir" >> hasName
                         ]
         , Test.describe "ClassList attribute"
-            [ Test.fuzzDistinctClassNames3 "should render correctly the given classes" <|
+            [ TestExtra.fuzzDistinctClassNames3 "should render correctly the given classes" <|
                 \s1 s2 s3 ->
                     CheckboxGroup.config "checkbox-id"
                         |> CheckboxGroup.withClassList [ ( s1, True ), ( s2, False ), ( s3, True ) ]
@@ -105,7 +105,7 @@ suite =
                                 [ Selector.classes [ s2 ]
                                 ]
                             ]
-            , Test.fuzzDistinctClassNames3 "should only render the last pipe value" <|
+            , TestExtra.fuzzDistinctClassNames3 "should only render the last pipe value" <|
                 \s1 s2 s3 ->
                     CheckboxGroup.config "checkbox-id"
                         |> CheckboxGroup.withClassList [ ( s1, True ), ( s2, True ) ]
@@ -198,7 +198,7 @@ whenOk expectation result =
             expectation x
 
 
-check : String -> Bool -> ( ( String, Value ), List Selector.Selector )
+check : String -> Bool -> ( ( String, Json.Encode.Value ), List Selector.Selector )
 check label b =
     ( Event.check b
     , inputSelectors label

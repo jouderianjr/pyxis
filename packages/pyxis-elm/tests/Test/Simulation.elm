@@ -21,7 +21,7 @@ module Test.Simulation exposing
 
 import Expect
 import Html exposing (Html)
-import Json.Encode exposing (Value)
+import Json.Encode
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (Selector)
@@ -108,11 +108,7 @@ expectModel :
 expectModel expect =
     whenOk <|
         \model state ->
-            let
-                expectation () =
-                    expect model
-            in
-            { state | expectations = state.expectations ++ [ expectation ] }
+            { state | expectations = state.expectations ++ [ always (expect model) ] }
 
 
 expectHtml :
@@ -122,16 +118,18 @@ expectHtml :
 expectHtml expect =
     whenOk <|
         \model state ->
-            let
-                expectation () =
-                    state.app.view model
-                        |> Query.fromHtml
-                        |> expect
-            in
-            { state | expectations = state.expectations ++ [ expectation ] }
+            { state
+                | expectations =
+                    state.expectations
+                        ++ [ state.app.view model
+                                |> Query.fromHtml
+                                |> expect
+                                |> always
+                           ]
+            }
 
 
-simulate : ( ( String, Value ), List Selector ) -> Simulation model msg -> Simulation model msg
+simulate : ( ( String, Json.Encode.Value ), List Selector ) -> Simulation model msg -> Simulation model msg
 simulate ( event, selectors ) =
     whenOk <|
         \model state ->

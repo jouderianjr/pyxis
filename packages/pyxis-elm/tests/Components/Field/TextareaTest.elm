@@ -9,7 +9,7 @@ import Test exposing (Test)
 import Test.Extra as Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector as Selector exposing (attribute, classes)
+import Test.Html.Selector as Selector
 import Test.Simulation as Simulation
 
 
@@ -23,9 +23,9 @@ suite =
                         |> fieldRender () fieldModel
                         |> findTextarea
                         |> Query.has
-                            [ attribute (Html.Attributes.id "textarea-id")
-                            , attribute (Html.Attributes.attribute "data-test-id" "textarea-id")
-                            , classes [ "form-field__textarea" ]
+                            [ Selector.attribute (Html.Attributes.id "textarea-id")
+                            , Selector.attribute (Html.Attributes.attribute "data-test-id" "textarea-id")
+                            , Selector.classes [ "form-field__textarea" ]
                             ]
             ]
         , Test.describe "Label"

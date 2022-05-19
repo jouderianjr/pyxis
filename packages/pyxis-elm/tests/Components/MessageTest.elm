@@ -9,7 +9,7 @@ import Pyxis.Components.Message as Message
 import Test exposing (Test)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector as Selector exposing (attribute, class, classes)
+import Test.Html.Selector as Selector
 
 
 type Msg
@@ -49,8 +49,8 @@ suite =
                     alertMessageConfig
                         |> renderConfig
                         |> Query.has
-                            [ classes [ "message--with-background-color", "message--alert" ]
-                            , attribute (Html.Attributes.attribute "role" "status")
+                            [ Selector.classes [ "message--with-background-color", "message--alert" ]
+                            , Selector.attribute (Html.Attributes.attribute "role" "status")
                             ]
             , hasCorrectIconTest IconSet.Alert alertMessageConfig
             ]
@@ -69,7 +69,7 @@ suite =
                     neutralMessageConfig
                         |> Message.withOnDismiss OnClick "Close message"
                         |> renderConfig
-                        |> Query.has [ class "message__close" ]
+                        |> Query.has [ Selector.class "message__close" ]
             , Test.test "send Msg when is clicked" <|
                 \() ->
                     neutralMessageConfig
@@ -85,8 +85,8 @@ suite =
                     |> Message.withIcon IconSet.PrimaLogo
                     |> renderConfig
                     |> Query.has
-                        [ attribute (CommonsAttributes.testId (IconSet.toLabel IconSet.PrimaLogo))
-                        , class "message__icon"
+                        [ Selector.attribute (CommonsAttributes.testId (IconSet.toLabel IconSet.PrimaLogo))
+                        , Selector.class "message__icon"
                         ]
         , Test.test "renders correct title if one is set" <|
             \() ->
@@ -104,8 +104,8 @@ suite =
                     |> Message.withId "message-id"
                     |> renderConfig
                     |> Query.has
-                        [ attribute (Html.Attributes.attribute "id" "message-id")
-                        , attribute (Html.Attributes.attribute "data-test-id" "message-id")
+                        [ Selector.attribute (Html.Attributes.attribute "id" "message-id")
+                        , Selector.attribute (Html.Attributes.attribute "data-test-id" "message-id")
                         ]
         , Test.test "has the correct list of class" <|
             \() ->
@@ -115,7 +115,7 @@ suite =
                         , ( "my-other-class", True )
                         ]
                     |> renderConfig
-                    |> Query.has [ classes [ "my-class", "my-other-class" ] ]
+                    |> Query.has [ Selector.classes [ "my-class", "my-other-class" ] ]
         ]
 
 
@@ -164,8 +164,8 @@ hasCorrectIconTest icon config =
             config
                 |> renderConfig
                 |> Query.has
-                    [ attribute (CommonsAttributes.testId (IconSet.toLabel icon))
-                    , class "message__icon"
+                    [ Selector.attribute (CommonsAttributes.testId (IconSet.toLabel icon))
+                    , Selector.class "message__icon"
                     ]
 
 
@@ -175,7 +175,7 @@ hasColoredBackgroundTest config =
         \() ->
             config
                 |> renderConfig
-                |> Query.has [ class "message--with-background-color" ]
+                |> Query.has [ Selector.class "message--with-background-color" ]
 
 
 hasProperClassAndRoleTest : String -> String -> Message.Config msg -> Test
@@ -186,8 +186,8 @@ hasProperClassAndRoleTest classes role config =
                 |> renderConfig
                 |> Expect.all
                     [ Query.has
-                        [ class classes
-                        , attribute (Html.Attributes.attribute "role" role)
+                        [ Selector.class classes
+                        , Selector.attribute (Html.Attributes.attribute "role" role)
                         ]
-                    , Query.hasNot [ class "message--with-background-color" ]
+                    , Query.hasNot [ Selector.class "message--with-background-color" ]
                     ]

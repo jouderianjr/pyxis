@@ -5,7 +5,7 @@ import Pyxis.Commons.Properties.Theme as CommonsTheme
 import Pyxis.Components.Loaders.Loader as Loader
 import Test exposing (Test)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (attribute, class, classes, tag, text)
+import Test.Html.Selector as Selector
 
 
 suite : Test
@@ -16,28 +16,28 @@ suite =
                 Loader.spinner
                     |> renderConfig
                     |> Query.has
-                        [ class "loader"
-                        , tag "div"
-                        , class "loader__spinner"
+                        [ Selector.class "loader"
+                        , Selector.tag "div"
+                        , Selector.class "loader__spinner"
                         ]
         , Test.test "renders correct classes when spinner small" <|
             \() ->
                 Loader.spinnerSmall
                     |> renderConfig
                     |> Query.has
-                        [ classes [ "loader", "loader--small" ]
-                        , tag "div"
-                        , class "loader__spinner"
+                        [ Selector.classes [ "loader", "loader--small" ]
+                        , Selector.tag "div"
+                        , Selector.class "loader__spinner"
                         ]
         , Test.test "renders correct classes when car" <|
             \() ->
                 Loader.car
                     |> renderConfig
                     |> Query.has
-                        [ class "loader"
-                        , tag "div"
-                        , class "loader__car"
-                        , tag "svg"
+                        [ Selector.class "loader"
+                        , Selector.tag "div"
+                        , Selector.class "loader__car"
+                        , Selector.tag "svg"
                         ]
         , Test.test "has a description if a text is set" <|
             \() ->
@@ -45,23 +45,23 @@ suite =
                     |> Loader.withText "Loading description"
                     |> renderConfig
                     |> Query.has
-                        [ class "loader__text"
-                        , text "Loading description"
+                        [ Selector.class "loader__text"
+                        , Selector.text "Loading description"
                         ]
         , Test.test "has a the proper class if theme is alternative" <|
             \() ->
                 Loader.spinner
                     |> Loader.withTheme CommonsTheme.alternative
                     |> renderConfig
-                    |> Query.has [ class "loader--alt" ]
+                    |> Query.has [ Selector.class "loader--alt" ]
         , Test.test "has `id` and `data-test-id` if one is set" <|
             \() ->
                 Loader.spinner
                     |> Loader.withId "message-id"
                     |> renderConfig
                     |> Query.has
-                        [ attribute (Html.Attributes.attribute "id" "message-id")
-                        , attribute (Html.Attributes.attribute "data-test-id" "message-id")
+                        [ Selector.attribute (Html.Attributes.attribute "id" "message-id")
+                        , Selector.attribute (Html.Attributes.attribute "data-test-id" "message-id")
                         ]
         , Test.test "has the correct list of class" <|
             \() ->
@@ -71,7 +71,7 @@ suite =
                         , ( "my-other-class", True )
                         ]
                     |> renderConfig
-                    |> Query.has [ classes [ "my-class", "my-other-class" ] ]
+                    |> Query.has [ Selector.classes [ "my-class", "my-other-class" ] ]
         ]
 
 

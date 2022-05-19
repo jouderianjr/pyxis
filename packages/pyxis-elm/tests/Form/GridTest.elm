@@ -8,7 +8,7 @@ import Pyxis.Components.Form.Grid.Col as Col
 import Pyxis.Components.Form.Grid.Row as Row
 import Test exposing (Test)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (classes)
+import Test.Html.Selector as Selector
 
 
 suite : Test
@@ -19,12 +19,12 @@ suite =
                 \_ ->
                     Grid.render [] []
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "form-grid" ] ]
+                        |> Query.has [ Selector.classes [ "form-grid" ] ]
             , Test.test "has a large gap" <|
                 \_ ->
                     Grid.render [ Grid.largeGap ] []
                         |> Query.fromHtml
-                        |> Query.has [ classes [ "form-grid", "form-grid--gap-large" ] ]
+                        |> Query.has [ Selector.classes [ "form-grid", "form-grid--gap-large" ] ]
             ]
         , Test.describe "Row"
             [ Test.test "has valid markup" <|

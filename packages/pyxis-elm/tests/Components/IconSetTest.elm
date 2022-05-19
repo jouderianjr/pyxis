@@ -5,7 +5,7 @@ import Pyxis.Components.IconSet as IconSet
 import SvgParser
 import Test exposing (Test)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (tag)
+import Test.Html.Selector as Selector
 
 
 suite : Test
@@ -26,4 +26,4 @@ iconTest icon =
                 |> Result.toMaybe
                 |> CommonsRender.renderMaybe
                 |> Query.fromHtml
-                |> Query.has [ tag "svg" ]
+                |> Query.has [ Selector.tag "svg" ]
