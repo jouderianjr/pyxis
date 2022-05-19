@@ -66,16 +66,16 @@ import Pyxis.Components.Icon as Icon
 
 We tried to enforce consistency in our api so you can quickly guess how to use a component once after been playing with the previous one.
 
-| Terminology | Meaning                                                                                                                                                                | Usage                                                            |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | --- | ---------------------------------------------------------------- |
-| `Config`    | The configuration for the component's _view_. This **should not be stored on your application model**. You can configure a component right before its rendering phase. | Every component.                                                 |
-| `config`    | The method which instantiate a component's `Config`.                                                                                                                   | Nearly every component. Some others have a more meaningful name. |
-| `render`    | The method which renders a component.                                                                                                                                  | Every component.                                                 |     | Nearly every component. Some others have a more meaningful name. |
-| `Model`     | The _state_ of the component which **should be stored in your own application model**.                                                                                 | Stateful components only.                                        |
-| `init`      | The method which instantiates a component's `Model`.                                                                                                                   | Stateful components only.                                        |
-| `update`    | The method which updates a component's `Model`. This may give return you a side effect (`Cmd msg`).                                                                    | Stateful components only.                                        |
-| `withXXX`   | A method which maps over `Config`. Used to customize a component _view_.                                                                                               | Every component.                                                 |
-| `setXXX`    | A method which maps over `Model`. Used to customize a component _state_.                                                                                               | Stateful components.                                             |
+| Terminology | Description                                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| `Config`    | The configuration for the component's _view_. This **should not be stored on your application model**. |
+| `config`    | The method which instantiate a component's `Config`.                                                   |
+| `render`    | The method which renders a component.                                                                  |
+| `Model`     | The _state_ of the component which **should be stored in your own application model**.                 |
+| `init`      | The method which instantiates a component's `Model`.                                                   |
+| `update`    | The method which updates a component's `Model`. This may give return you a side effect (`Cmd msg`)     |
+| `withXXX`   | A method which maps over `Config`. Used to customize a component _view_.                               |
+| `setXXX`    | A method which maps over `Model`. Used to customize a component _state_.                               |
 
 ---
 
