@@ -106,13 +106,13 @@ You cannot do anything with Pyxis without relying on its core (_foundations & co
 
 Once you chosen the solution which fits the best for your project you can go ahead with learning Pyxis.
 
-| Package    | Live documentation            | Readme                                      | Mandatory |
-| ---------- | ----------------------------- | ------------------------------------------- | --------- |
-| **SCSS**   | [https://prima.design/]       | [Readme](./packages/pyxis-scss/README.md)   | X         |
-| **Elm**    | [https://elm.prima.design/]   | [Readme](./packages/pyxis-elm/README.md)    |           |
-| **React**  | [https://react.prima.design/] | [Readme](./packages/pyxis-react/README.md)  |           |
-| **Icons**  | n/a                           | [Readme](./packages/pyxis-icons/README.md)  |           |
-| **Tokens** | n/a                           | [Readme](./packages/pyxis-tokens/README.md) |           |
+| Package    | Live documentation          | Readme                                      | Mandatory |
+| ---------- | --------------------------- | ------------------------------------------- | --------- |
+| **SCSS**   | https://prima.design/       | [Readme](./packages/pyxis-scss/README.md)   | X         |
+| **Elm**    | https://elm.prima.design/   | [Readme](./packages/pyxis-elm/README.md)    |           |
+| **React**  | https://react.prima.design/ | [Readme](./packages/pyxis-react/README.md)  |           |
+| **Icons**  | n/a                         | [Readme](./packages/pyxis-icons/README.md)  |           |
+| **Tokens** | n/a                         | [Readme](./packages/pyxis-tokens/README.md) |           |
 
 ---
 
