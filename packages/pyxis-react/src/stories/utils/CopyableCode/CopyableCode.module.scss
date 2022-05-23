@@ -1,28 +1,31 @@
 @use "../../pyxis";
 
 .wrapper {
-  @include pyxis.horizontalPadding(2xs);
-  @include pyxis.horizontalSpacing(2xs);
   @include pyxis.radius(xs);
   background-color: pyxis.color(neutral95);
   cursor: pointer;
   display: inline-block;
   font-size: pyxis.rem(14px);
   line-height: pyxis.rem(25px);
+  padding: pyxis.spacing(0 2xs);
+  margin-right: pyxis.spacing(2xs);
   position: relative;
   user-select: none;
+
+  &:last-child {
+    margin-right: 0;
+  }
 }
 
 .badge {
-  @include pyxis.horizontalPadding(2xs);
   @include pyxis.radius(s);
-  @include pyxis.text(s, bold);
+  @include pyxis.text(s, bold, successBase);
   align-items: center;
   background-color: pyxis.color(successLight);
-  color: pyxis.color(successBase);
   display: inline-flex;
   height: pyxis.rem(24px);
   line-height: pyxis.rem(20px);
+  padding: pyxis.spacing(0 2xs);
   pointer-events: none;
   position: absolute;
   right: pyxis.rem(-10px);

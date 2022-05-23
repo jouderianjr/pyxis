@@ -62,9 +62,6 @@ $_wrapperAnimationOffset: lib.rem(10px);
   $maxHeightSmall: lib.rem(120px);
   $radius: 0 0 lib.rem(6px) lib.rem(6px);
 
-  @include foundations.horizontalPadding(2xs);
-  @include foundations.rowGap(4xs);
-  @include foundations.verticalPadding(3xs);
   @include foundations.hideScrollbar;
   background-color: foundations.color(neutralLight);
   border-radius: $radius;
@@ -73,11 +70,13 @@ $_wrapperAnimationOffset: lib.rem(10px);
   display: grid;
   max-height: $maxHeight;
   overflow-x: hidden;
+  padding: foundations.spacing(3xs 2xs);
   position: relative;
+  row-gap: foundations.spacing(4xs);
 
   .form-dropdown-wrapper--small & {
-    @include foundations.horizontalPadding(3xs);
     max-height: $maxHeightSmall;
+    padding: foundations.spacing(3xs);
   }
 }
 
@@ -90,7 +89,6 @@ $_wrapperAnimationOffset: lib.rem(10px);
   $minHeight: lib.rem(40px);
   $minHeightSmall: lib.rem(30px);
 
-  @include foundations.horizontalPadding(2xs);
   @include foundations.radius(2xs);
   align-items: center;
   color: foundations.color(neutral25);
@@ -98,6 +96,7 @@ $_wrapperAnimationOffset: lib.rem(10px);
   display: grid;
   min-height: $minHeight;
   outline: none;
+  padding: foundations.spacing(0 2xs);
   transition-duration: foundations.duration(fast);
   transition-property: background-color, color;
   transition-timing-function: foundations.timing(base);
@@ -141,23 +140,22 @@ $_wrapperAnimationOffset: lib.rem(10px);
 }
 
 .form-dropdown__suggestion {
-  @include foundations.columnGap(s);
-  @include foundations.horizontalPadding(2xs);
-  @include foundations.verticalPadding(3xs);
   align-items: center;
+  column-gap: foundations.spacing(s);
   display: grid;
   grid-auto-columns: max-content;
   grid-auto-flow: column;
+  padding: foundations.spacing(3xs 2xs);
 
   .form-dropdown-wrapper--small & {
-    @include foundations.columnGap(2xs);
+    column-gap: foundations.spacing(2xs);
   }
 }
 
 .form-dropdown__suggestion__wrapper {
-  @include foundations.rowGap(4xs);
   color: foundations.color(neutralBase);
   display: grid;
+  row-gap: foundations.spacing(4xs);
 
   .form-dropdown-wrapper--small & {
     row-gap: unset;
@@ -182,11 +180,9 @@ $_wrapperAnimationOffset: lib.rem(10px);
 }
 
 .form-dropdown__header {
-  @include foundations.horizontalPadding(2xs);
-  @include foundations.text(s, book);
-  @include foundations.verticalPadding(3xs);
+  @include foundations.text(s, book, neutral25);
   background-color: foundations.color(neutralLight);
-  color: foundations.color(neutral25);
+  padding: foundations.spacing(3xs 2xs);
   position: sticky;
   top: 0;
 

@@ -3,8 +3,8 @@
 @use "../variables";
 
 .form-field__text {
-  @include foundations.horizontalPadding(s);
   height: variables.$fieldHeight;
+  padding: foundations.spacing(0 s);
   width: 100%;
 
   .form-field--with-prepend-icon &,
@@ -24,8 +24,8 @@
 }
 
 .form-field__text--small {
-  @include foundations.horizontalPadding(xs);
   height: variables.$fieldHeightSmall;
+  padding: foundations.spacing(0 xs);
 
   .form-field--with-prepend-icon &,
   .form-field--with-append-icon &,

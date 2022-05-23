@@ -4,13 +4,11 @@
 $_variants: (brand, action, alert, success, error, neutralGradient, brandGradient);
 
 .badge {
-  @include foundations.horizontalPadding(2xs);
-  @include foundations.verticalPadding(4xs);
   @include foundations.radius(xs);
-  @include foundations.text(s, bold);
+  @include foundations.text(s, bold, neutralBase);
   background-color: foundations.color(neutral95);
-  color: foundations.color(neutralBase);
   display: inline-block;
+  padding: foundations.spacing(4xs 2xs);
   user-select: none;
 }
 

@@ -6,14 +6,12 @@ export const generateTestComponentMeta: GenerateAllStoriesComponentMeta<typeof S
   component: SpacingShape,
 });
 
-export const spacings:SpacingRow[] = Object.entries(spacingTokens).flatMap(([size, values]) => ({
+export const spacings:SpacingRow[] = Object.entries(spacingTokens).flatMap(([size, value]) => ({
   size: size as Spacing,
-  baseValue: values.base,
-  maxValue: Math.max(...Object.values(values))
+  value: value,
 }));
 
 export interface SpacingRow {
   size: Spacing;
-  baseValue: number;
-  maxValue: number;
+  value: number;
 }

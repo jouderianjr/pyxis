@@ -2,23 +2,21 @@
 @use "../../lib";
 
 .form-item {
-  @include foundations.rowGap(2xs);
   display: grid;
   grid-template-rows: auto;
+  row-gap: foundations.spacing(2xs);
   width: 100%;
 }
 
 .form-item__wrapper {
-  @include foundations.rowGap(4xs);
   display: grid;
+  row-gap: foundations.spacing(4xs);
 }
 
 .form-item__error-message {
-  @include foundations.text(s, book);
-  color: foundations.color(errorBase);
+  @include foundations.text(s, book, errorBase);
 }
 
 .form-item__hint {
-  @include foundations.text(s, book);
-  color: foundations.color(neutral25);
+  @include foundations.text(s, book, neutral25);
 }

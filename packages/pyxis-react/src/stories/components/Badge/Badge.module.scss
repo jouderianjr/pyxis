@@ -1,10 +1,10 @@
 @use "src/stories/pyxis";
 
 .wrapper {
-  @include pyxis.padding(s);
-  @include pyxis.columnGap(s);
+  column-gap: pyxis.spacing(s);
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: max-content;
+  padding: pyxis.spacing(s);
   width: min-content;
 }

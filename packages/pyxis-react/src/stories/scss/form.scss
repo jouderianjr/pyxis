@@ -1,3 +1,4 @@
+@use "sass:meta";
 @use "~@pyxis/scss/src/scss/pyxis.scss";
 @use "~@pyxis/scss/src/scss/tokens/spacings";
 
@@ -9,11 +10,11 @@ $gapBackground: #FDEEC0;
 // @param {String} $size - Name of the size
 // @throw {Error}
 // @access private
-@mixin _heightFromGap($size) {
-  @each $breakpoint, $space in pyxis.get(spacings.$spacings, $size) {
+@mixin _heightFromGap($sizes...) {
+  @each $breakpoint, $size in meta.keywords($sizes) {
     @include pyxis.mq($breakpoint) {
-      height: pyxis.rem($space);
-      top: -#{pyxis.rem($space)};
+      height: pyxis.spacing($size);
+      top: -#{pyxis.spacing($size)};
     }
   }
 }
@@ -59,10 +60,9 @@ $gapBackground: #FDEEC0;
 .form-grid__row__column,
 .form-item {
   @include _visualGrid {
-    @include pyxis.horizontalPadding(xs);
+    @include pyxis.responsiveSpacing("padding", m xs, $fromMedium: l xs);
     @include pyxis.radius(2xs);
     @include pyxis.text(s, bold);
-    @include pyxis.verticalPadding(m);
     position: relative;
 
     &:before {
@@ -115,7 +115,7 @@ $gapBackground: #FDEEC0;
   @include _visualGrid {
     &:after {
       @include _gapStyle;
-      @include _heightFromGap(m);
+      @include _heightFromGap($base: m, $medium: l);
     }
   }
 }
@@ -123,7 +123,7 @@ $gapBackground: #FDEEC0;
 .form-grid--gap-large > .form-grid__row + .form-grid__row {
   @include _visualGrid {
     &:after {
-      @include _heightFromGap(l);
+      @include _heightFromGap($base: l, $medium: xl, $large: 2xl);
     }
   }
 }
@@ -150,7 +150,11 @@ $gapBackground: #FDEEC0;
   }
 
   @include _visualGap {
-    @include pyxis.verticalSpacing(m);
+    @include pyxis.responsiveSpacing("margin-bottom", m, $fromMedium: l);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 }
 
@@ -160,7 +164,7 @@ $gapBackground: #FDEEC0;
 
     &:after {
       @include _gapStyle;
-      @include _heightFromGap(4xs);
+      @include _heightFromGap($base: 4xs);
     }
   }
 }

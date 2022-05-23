@@ -6,9 +6,9 @@
 
 .showGrid {
   @include pyxis.elevation(s, neutral15);
-  @include pyxis.padding(s);
   background-color: pyxis.color(neutralLight);
   border-bottom-left-radius: pyxis.rem(4px);
+  padding: pyxis.spacing(s);
   position: fixed;
   right: 0;
   top: 0;

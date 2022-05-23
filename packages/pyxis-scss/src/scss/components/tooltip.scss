@@ -153,17 +153,17 @@ $_arrowPositions: (
 
   @include foundations.mq(xsmall) {
     $maxWidth: lib.rem(320px);
-    @include foundations.horizontalPadding(s);
-    @include foundations.verticalPadding(xs);
-    @include foundations.columnGap(xs);
+
     @include foundations.radius(s);
     @include foundations.text(m, book);
     align-items: center;
+    column-gap: foundations.spacing(xs);
     display: grid;
     grid-auto-columns: fit-content($maxWidth);
     grid-auto-flow: column;
     max-width: $maxWidth;
     opacity: 0;
+    padding: foundations.spacing(xs s);
     position: absolute;
     transition-duration: foundations.duration(fast);
     transition-property: transform, opacity, visibility;
@@ -235,21 +235,19 @@ $_arrowPositions: (
 }
 
 .tooltip__header {
-  @include foundations.horizontalPadding(m);
   @include foundations.sticky;
   background: foundations.color(neutralLight);
   display: grid;
   grid-template-areas: "title close";
   grid-template-columns: auto min-content;
   justify-content: space-between;
-  padding-bottom: foundations.spacing(2xs);
-  padding-top: foundations.spacing(l);
+  padding: foundations.spacing(l m 2xs);
 }
 
 .tooltip__header__title {
   @include foundations.title(s, bold);
-  @include foundations.columnGap(xs);
   align-items: center;
+  column-gap: foundations.spacing(xs);
   display: grid;
   grid-auto-flow: column;
   width: fit-content;
@@ -260,9 +258,7 @@ $_arrowPositions: (
 }
 
 .tooltip__content {
-  @include foundations.padding(m);
-  @include foundations.text(l, book);
-  color: foundations.color(neutral25);
-  padding-top: 0;
+  @include foundations.text(l, book, neutral25);
+  padding: foundations.spacing(0 m m);
 }
 

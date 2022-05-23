@@ -1,24 +1,27 @@
 @use 'src/stories/pyxis';
 
 .wrapper {
-  @include pyxis.verticalSpacing(xl);
-  @include pyxis.rowGap(xs);
+  @include pyxis.responsiveSpacing("margin-bottom", xl, $fromMedium: 2xl, $fromLarge: 3xl);
   display: grid;
   grid-template-columns: repeat(auto-fill, minMax(pyxis.rem(250px), 1fr));
   margin-top: pyxis.spacing(m);
+  row-gap: pyxis.spacing(xs);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .item {
-  @include pyxis.horizontalPadding(s);
   @include pyxis.radius(xs);
-  @include pyxis.rowGap(xs);
+  @include pyxis.responsiveSpacing("padding", m s, $fromMedium: l s);
   @include pyxis.text(s, book);
-  @include pyxis.verticalPadding(m);
   align-items: center;
   background-color: transparent;
   display: grid;
   justify-items: center;
   position: relative;
+  row-gap: pyxis.spacing(xs);
   transition: background-color pyxis.duration(fast) pyxis.timing(base);
 
   &:after {

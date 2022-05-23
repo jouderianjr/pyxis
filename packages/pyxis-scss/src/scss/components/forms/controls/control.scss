@@ -4,10 +4,9 @@
 @use "../variables";
 
 .form-control {
-  @include foundations.columnGap(xs);
-  @include foundations.text(m, book);
+  @include foundations.text(m, book, neutral25);
   align-items: center;
-  color: foundations.color(neutral25);
+  column-gap: foundations.spacing(xs);
   cursor: pointer;
   display: grid;
   grid-template-columns: variables.$controlSize auto;
@@ -21,16 +20,16 @@
 }
 
 .form-control-group {
-  @include foundations.columnGap(l);
-  @include foundations.rowGap(4xs);
+  @include foundations.responsiveSpacing("column-gap", l, $fromMedium: xl, $fromLarge: 2xl);
   display: grid;
   grid-auto-flow: column;
   justify-content: start;
   position: relative;
+  row-gap: foundations.spacing(4xs);
   width: 100%;
 }
 
 .form-control-group--column {
-  @include foundations.rowGap(xs);
   grid-auto-flow: row;
+  row-gap: foundations.spacing(xs);
 }

@@ -1,7 +1,7 @@
 @use "src/stories/pyxis";
 
 .wrapper {
-  @include pyxis.rowGap(l);
   justify-items: center;
   display: grid;
+  row-gap: pyxis.spacing(l);
 }

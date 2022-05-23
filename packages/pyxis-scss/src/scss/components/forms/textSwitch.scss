@@ -3,9 +3,9 @@
 @use "../mixins";
 
 .text-switch-wrapper {
-  @include foundations.rowGap(xs);
   display: grid;
   justify-items: center;
+  row-gap: foundations.spacing(xs);
   width: fit-content;
 }
 
@@ -14,18 +14,18 @@
 }
 
 .text-switch-wrapper--left-label {
-  @include foundations.columnGap(s);
   align-items: center;
+  column-gap: foundations.spacing(s);
   grid-auto-flow: column;
 }
 
 .text-switch {
-  @include foundations.columnGap(3xs);
-  @include foundations.padding(3xs);
   @include foundations.radius(m);
   background-color: foundations.color(neutral95);
+  column-gap: foundations.spacing(3xs);
   display: grid;
   grid-auto-flow: column;
+  padding: foundations.spacing(3xs);
   position: relative;
   width: fit-content;
 
@@ -40,8 +40,7 @@
 }
 
 .text-switch__label {
-  @include foundations.text(m, book);
-  color: foundations.color(neutralBase);
+  @include foundations.text(m, book, neutralBase);
 
   .text-switch-wrapper--alt & {
     color: foundations.color(neutralLight);
@@ -51,12 +50,11 @@
 .text-switch__option {
   @include foundations.text(m, bold);
   @include foundations.radius(m);
-  @include foundations.verticalPadding(4xs);
-  @include foundations.horizontalPadding(xs);
   @include mixins.focus(actionBase, $radiusSize: l);
   background-color: transparent;
   color: foundations.color(neutral25);
   cursor: pointer;
+  padding: foundations.spacing(4xs xs);
   transition-duration: foundations.duration(fast);
   transition-property: background-color, color;
   transition-timing-function: foundations.timing(base);

@@ -33,8 +33,8 @@ $_sliderSize: $_height - $_sliderOffset * 2;
 }
 
 .toggle {
-  @include foundations.columnGap(s);
   align-items: center;
+  column-gap: foundations.spacing(s);
   cursor: pointer;
   display: grid;
   grid-auto-flow: column;

@@ -5,16 +5,16 @@ $_spinnerSize: lib.rem(60px);
 $_spinnerSizeSmall: lib.rem(20px);
 
 .loader {
-  @include foundations.rowGap(s);
   display: grid;
   grid-auto-rows: min-content;
   height: min-content;
   justify-items: center;
+  row-gap: foundations.spacing(s);
   width: fit-content;
 }
 
 .loader--small {
-  @include foundations.rowGap(2xs);
+  row-gap: foundations.spacing(2xs);
 }
 
 .loader--with-car {

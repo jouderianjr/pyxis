@@ -10,9 +10,9 @@
 }
 
 .accordion {
-  @include foundations.rowGap(xs);
   display: grid;
   grid-auto-flow: row;
+  row-gap: foundations.spacing(xs);
 }
 
 .accordion-item {
@@ -29,11 +29,10 @@
 }
 
 .accordion-item__header {
-  @include foundations.radius(m);
-  @include foundations.horizontalPadding(s);
-  @include foundations.verticalPadding(xs);
-  @include mixins.focus(actionBase, true, $radiusSize: l);
   @include _setColorAlt;
+  @include foundations.radius(m);
+  @include foundations.responsiveSpacing("padding", xs s, $fromXSmall: s l);
+  @include mixins.focus(actionBase, true, $radiusSize: l);
   align-items: center;
   border: lib.rem(2px) solid transparent;
   color: foundations.color(neutralBase);
@@ -44,12 +43,6 @@
   transition-timing-function: foundations.timing(base);
   width: 100%;
   will-change: border-color, outline;
-
-  @include foundations.mq(xsmall) {
-    @include foundations.verticalPadding(s);
-    padding-left: foundations.spacing(l);
-    padding-right: foundations.spacing(l);
-  }
 
   &:hover {
     border-color: foundations.color(neutral85);
@@ -91,11 +84,10 @@
 }
 
 .accordion-item__header__action-wrapper {
-  @include foundations.columnGap(3xs);
-  @include foundations.text(m, bold);
+  @include foundations.text(m, bold, actionBase);
   @include _setColorAlt;
   align-items: center;
-  color: foundations.color(actionBase);
+  column-gap: foundations.spacing(3xs);
   display: grid;
   grid-auto-flow: column;
   user-select: none;
@@ -140,21 +132,16 @@
 }
 
 .accordion-item__panel__inner-wrapper {
-  @include foundations.radius(m, bottom);
-  @include foundations.text(m, book);
   @include _setColorAlt;
-  color: foundations.color(neutral25);
+  @include foundations.radius(m, bottom);
+  @include foundations.responsiveSpacing("padding", xs s s, $fromXSmall: s l l);
+  @include foundations.text(m, book, neutral25);
   opacity: 0;
-  padding: foundations.spacing(xs) foundations.spacing(s) foundations.spacing(s);
   transform: translateY(lib.rem(-20px));
   transition-duration: foundations.duration(base);
   transition-property: opacity, transform;
   transition-timing-function: foundations.timing(base);
   will-change: opacity, transform;
-
-  @include foundations.mq(xsmall) {
-    padding: foundations.spacing(s) foundations.spacing(l) foundations.spacing(l);
-  }
 
   .accordion-item__panel--open & {
     opacity: 1;

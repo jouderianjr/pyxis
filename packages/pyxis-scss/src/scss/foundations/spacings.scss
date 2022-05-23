@@ -6,10 +6,23 @@
 
 // Includes the size contained in the spacings map with base breakpoint
 //
-// @param {String} $size - Name of the size
+// @param {String | List} $size - Name of the size
 // @throw {Error}
 @function spacing($size) {
-  @return lib.rem(lib.get($spacings, $size, base));
+
+  @if(type-of($size) == list) {
+    $computedSize: null;
+    @each $s in $size {
+      $computedSize: #{$computedSize} #{if($s == 0, 0, lib.rem(lib.get($spacings, $s)))};
+    }
+    @return $computedSize;
+  }
+
+  @if($size == 0) {
+    @return 0;
+  }
+
+  @return lib.rem(lib.get($spacings, $size));
 }
 
 // Includes the size contained in the spacings map on property in every breakpoints
@@ -17,110 +30,95 @@
 // @param {String} $property - Name of the property
 // @param {String | Number} $size - Name of the size or 0 value
 // @throw {Error}
-@mixin _responsiveSpacing($property, $size) {
-  @if $size == 0 {
-    #{$property}: 0;
-  } @else {
-    @each $breakpoint, $space in lib.get($spacings, $size) {
-      @include breakpoints.mq($breakpoint) {
-        #{$property}: lib.rem($space);
+@mixin responsiveSpacing($property, $fromBase, $fromXxSmall: null, $fromXSmall: null, $fromSmall: null, $fromMedium: null, $fromLarge: null, $fromXLarge: null) {
+  $sizes: (
+    xxsmall: $fromXxSmall,
+    xsmall: $fromXSmall,
+    small: $fromSmall,
+    medium: $fromMedium,
+    large: $fromLarge,
+    xlarge: $fromXLarge,
+  );
+
+  #{$property}: spacing($fromBase);
+
+  @each $bp, $size in $sizes {
+    @if ($size) {
+      @include breakpoints.mq($bp) {
+        #{$property}:  spacing($size);
       }
     }
   }
 }
 
-// Includes equal padding by size in every breakpoints.
-//
-// @param {String} $size - A size from `$spacings`
-@mixin padding($size) {
-  @include _responsiveSpacing("padding", $size);
-}
-
-// Includes padding by size for vertical edges in every breakpoints.
-//
-// @param {String} $size - A size from `$spacings`
-@mixin verticalPadding($size) {
-  @include _responsiveSpacing("padding-bottom", $size);
-  @include _responsiveSpacing("padding-top", $size);
-}
-
-// Includes padding by size for horizontal edges in every breakpoints.
-//
-// @param {String} $size - A size from `$spacings`
-@mixin horizontalPadding($size) {
-  @include _responsiveSpacing("padding-left", $size);
-  @include _responsiveSpacing("padding-right", $size);
-}
-
-// Includes `margin-bottom` by size in every breakpoint.
-//
-// @param {String} $size - A size from `$spacings`
-@mixin verticalSpacing($size) {
-  @include _responsiveSpacing("margin-bottom", $size);
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-// Includes `margin-right` by size in every breakpoints.
-//
-// @param {String} $size - A size from `$spacings`
-@mixin horizontalSpacing($size) {
-  @include _responsiveSpacing("margin-right", $size);
-
-  &:last-child {
-    margin-right: 0;
-  }
-}
-
-// Includes `grid-row-gap` by size in every breakpoints
-// Same as `verticalSpacing()`, but used to space out vertical elements
-// in case a grid is used (`display: grid;`).
-//
-// @param {String} $size - A size from `$spacings`
-@mixin rowGap($size) {
-  @include _responsiveSpacing("row-gap", $size);
-}
-
-// Includes `grid-column-gap` by size in every breakpoints
-// Like `horizontalSpacing()`, but used to space out horizontal elements
-// in case a grid is used (`display: grid;`).
-//
-// @param {String} $size - A size from `$spacings`
-@mixin columnGap($size) {
-  @include _responsiveSpacing("column-gap", $size);
-}
-
 // Create atom classes for all spacing in $spacings map
 @mixin createAtoms() {
+  $directions: (top, bottom, left, right);
+
   @each $size, $_ in $spacings {
+
     .padding-#{$size} {
-      @include padding($size);
+      padding: spacing($size);
+    }
+
+    .margin-#{$size} {
+      margin: spacing($size);
     }
 
     .padding-h-#{$size} {
-      @include horizontalPadding($size);
+      padding-left: spacing($size);
+      padding-right: spacing($size);
     }
 
     .padding-v-#{$size} {
-      @include verticalPadding($size);
+      padding-bottom: spacing($size);
+      padding-top: spacing($size);
     }
 
-    .spacing-v-#{$size} {
-      @include verticalSpacing($size);
+    .margin-h-#{$size} {
+      margin-left: spacing($size);
+      margin-right: spacing($size);
     }
 
-    .spacing-h-#{$size} {
-      @include horizontalSpacing($size);
+    .margin-v-#{$size} {
+      margin-bottom: spacing($size);
+      margin-top: spacing($size);
+    }
+
+    @each $direction in $directions {
+      .padding-#{str-slice($direction, 0, 1)}-#{$size} {
+        padding-#{$direction}: spacing($size);
+      }
+
+      .margin-#{str-slice($direction, 0, 1)}-#{$size} {
+        margin-#{$direction}: spacing($size);
+      }
+    }
+
+    .space-h-#{$size} {
+      margin-right: spacing($size);
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    .space-v-#{$size} {
+      margin-bottom: spacing($size);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
 
     .row-gap-#{$size} {
-      @include rowGap($size);
+      row-gap: spacing($size);
     }
 
     .column-gap-#{$size} {
-      @include columnGap($size);
+      column-gap: spacing($size);
     }
   }
 }
+
+

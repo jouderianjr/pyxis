@@ -82,10 +82,10 @@ $_sizesOnBp: (
 }
 
 .modal__header {
-  @include foundations.columnGap(xs);
-  @include foundations.padding(m);
   @include foundations.radius(xl, top);
+  @include foundations.responsiveSpacing("padding", m, $fromXSmall: 2xl 2xl s);
   background: foundations.color(neutralLight);
+  column-gap: foundations.spacing(xs);
   display: grid;
   grid-template-columns: auto max-content;
   height: fit-content;
@@ -95,20 +95,16 @@ $_sizesOnBp: (
   @include foundations.mq(base, xsmall) {
     @include foundations.sticky;
   }
-
-  @include foundations.mq(xsmall) {
-    padding: foundations.spacing(2xl) foundations.spacing(2xl) foundations.spacing(s);
-  }
 }
 
 .modal__header__wrapper {
-  @include foundations.columnGap(s);
-  @include foundations.rowGap(2xs);
   align-items: center;
+  column-gap: foundations.spacing(s);
   display: grid;
   grid-template-areas: "badge badge";
   justify-content: start;
   justify-items: start;
+  row-gap: foundations.spacing(2xs);
 }
 
 .modal__header__badge {
@@ -120,21 +116,15 @@ $_sizesOnBp: (
 }
 
 .modal__content {
-  @include foundations.horizontalPadding(m);
-  padding-bottom: foundations.spacing(xs);
-  padding-top: foundations.spacing(3xs);
-
-  @include foundations.mq(xsmall) {
-    padding: 0 foundations.spacing(2xl);
-  }
+  @include foundations.responsiveSpacing("padding", 3xs m xs, $fromXSmall: 0 2xl, $fromMedium: 0 3xl, $fromLarge: 0 4xl);
 }
 
 .modal__footer {
-  @include foundations.padding(m);
+  @include foundations.responsiveSpacing("padding", m, $fromXSmall: m 2xl, $fromMedium: m 3xl, $fromLarge: m 4xl);
+  @include foundations.responsiveSpacing("gap", xs, $fromXSmall: s);
   align-items: center;
   background: foundations.color(neutralLight);
   display: grid;
-  gap: foundations.spacing(xs);
   grid-auto-flow: column;
   z-index: 1;
 
@@ -144,8 +134,6 @@ $_sizesOnBp: (
 
   @include foundations.mq(xsmall) {
     @include foundations.radius(xl, bottom);
-    gap: foundations.spacing(s);
-    padding: foundations.spacing(m) foundations.spacing(2xl);
   }
 }
 
@@ -160,6 +148,7 @@ $_sizesOnBp: (
 }
 
 .modal__footer__buttons {
+  @include foundations.responsiveSpacing("gap", xs, $fromXSmall: s);
   align-items: center;
   display: grid;
   gap: foundations.spacing(xs);
@@ -167,10 +156,6 @@ $_sizesOnBp: (
   height: fit-content;
   justify-content: flex-end;
   width: 100%;
-
-  @include foundations.mq(xsmall) {
-    gap: foundations.spacing(s);
-  }
 }
 
 .modal__footer__buttons--full-width {

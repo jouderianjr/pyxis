@@ -1,17 +1,25 @@
 @use "../../pyxis";
 
 .wrapper {
-  @include pyxis.verticalSpacing(m);
+  @include pyxis.responsiveSpacing("margin-bottom", m, $fromMedium: l);
   color: pyxis.color(neutral25);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .header {
-  @include pyxis.verticalSpacing(s);
   border-bottom: pyxis.rem(1px) solid pyxis.color(neutral85);
+  margin-bottom: pyxis.spacing(s);
   padding-bottom: pyxis.rem(10px);
 
   &:not(:first-child) {
     margin-top: pyxis.spacing(3xl);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
   }
 }
 
@@ -20,18 +28,20 @@
 }
 
 .mainTitle {
-  @include pyxis.title(xl, bold);
-  color: pyxis.color(neutralBase);
+  @include pyxis.title(xl, bold, neutralBase);
 }
 
 .title {
-  @include pyxis.title(l, bold);
-  color: pyxis.color(neutralBase);
+  @include pyxis.title(l, bold, neutralBase);
 }
 
 .description {
-  @include pyxis.verticalSpacing(m);
-  @include pyxis.rowGap(xs);
+  @include pyxis.responsiveSpacing("margin-bottom", m, $fromMedium: l);
   @include pyxis.text(l, book);
   display: grid;
+  row-gap: pyxis.spacing(xs);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }

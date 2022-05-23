@@ -2,14 +2,12 @@
 @use "../../lib";
 
 .form-legend {
-  @include foundations.verticalSpacing(2xs);
   display: grid;
   justify-items: start;
   text-align: left;
   width: 100%;
 
   @include foundations.mq(xsmall) {
-    @include foundations.verticalSpacing(s);
     justify-items: center;
     text-align: center;
   }

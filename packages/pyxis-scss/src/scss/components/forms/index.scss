@@ -12,6 +12,6 @@
 @forward "toggle";
 
 .form {
-  @include foundations.rowGap(2xl);
+  @include foundations.responsiveSpacing("row-gap", 2xl, $fromMedium:3xl, $fromLarge: 4xl);
   display: grid;
 }

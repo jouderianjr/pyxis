@@ -13,11 +13,10 @@
 
 .form-field {
   @include foundations.radius(xs);
-  @include foundations.text(m, book);
+  @include foundations.text(m, book, neutralBase);
   @include mixins.fieldStateDefault;
   background-color: foundations.color(neutralLight);
   border: variables.$borderWidth solid foundations.color(neutral85);
-  color: foundations.color(neutralBase);
   cursor: text;
   position: relative;
   width: 100%;
@@ -67,7 +66,7 @@
 
   .form-field--with-prepend-text &,
   .form-field--with-append-text & {
-    @include foundations.horizontalPadding(2xs);
+    padding: foundations.spacing(0 2xs);
     transition-duration: foundations.duration(fast);
     transition-property: border-color, color;
     transition-timing-function: foundations.timing(base);

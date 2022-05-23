@@ -1,9 +1,8 @@
 @use "src/stories/pyxis.scss";
 
 .wrapper {
-  @include pyxis.columnGap(m);
-  @include pyxis.rowGap(m);
   align-items: start;
   display: grid;
+  gap: pyxis.spacing(m);
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }

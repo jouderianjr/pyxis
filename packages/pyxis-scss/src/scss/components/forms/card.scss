@@ -46,14 +46,14 @@
 }
 
 .form-card--large {
-  @include foundations.rowGap(xs);
-  @include foundations.padding(s);
   align-items: start;
   display: grid;
   grid-template-areas: ". addon input" "content content content";
   grid-template-columns: 20px auto 20px;
   grid-template-rows: auto 1fr;
+  padding: foundations.spacing(s);
   position: relative;
+  row-gap: foundations.spacing(xs);
   text-align: center;
 
   .form-control__checkbox,
@@ -118,9 +118,8 @@
 }
 
 .form-card-group {
-  @include foundations.columnGap(xs);
-  @include foundations.rowGap(xs);
   display: grid;
+  gap: foundations.spacing(xs);
   grid-auto-columns: 1fr;
   grid-auto-flow: row;
   justify-content: center;

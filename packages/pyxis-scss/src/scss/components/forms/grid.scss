@@ -7,14 +7,14 @@ $_smallRowWidth: lib.rem(360px);
 $_largeRowWidth: lib.rem(720px);
 
 .form-grid {
-  @include foundations.rowGap(m);
+  @include foundations.responsiveSpacing("row-gap", m, $fromMedium: l);
   display: grid;
   justify-items: center;
   width: 100%;
 }
 
 .form-grid--gap-large {
-  @include foundations.rowGap(l);
+  @include foundations.responsiveSpacing("row-gap", l, $fromMedium: xl, $fromLarge: 2xl);
 }
 
 .form-grid__row {

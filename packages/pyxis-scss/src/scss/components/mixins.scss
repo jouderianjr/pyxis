@@ -26,14 +26,10 @@
           @include foundations.radius($radiusSize);
         }
 
+        @include foundations.absolute($beforeOffset, $beforeOffset, $beforeOffset, $beforeOffset);
         border: $width solid foundations.color($colorName);
-        bottom: $beforeOffset;
         content: "";
-        left: $beforeOffset;
         opacity: $opacity;
-        position: absolute;
-        right: $beforeOffset;
-        top: $beforeOffset;
       }
     }
   }

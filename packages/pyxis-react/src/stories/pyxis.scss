@@ -4,21 +4,29 @@
 @use "scss/form";
 
 .alt-wrapper {
-  @include pyxis.padding(2xs);
   @include pyxis.radius(2xs);
   background-color: pyxis.color(neutralBase);
   display: flex;
+  padding: pyxis.spacing(2xs);
 }
 
 .list {
-  @include pyxis.verticalSpacing(m);
+  @include pyxis.responsiveSpacing("margin-bottom", m, $fromMedium: l);
   list-style-type: none;
   margin-top: 0;
   padding-left: pyxis.spacing(m);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .list__item {
-  @include pyxis.verticalSpacing(3xs);
+  margin-bottom: pyxis.spacing(3xs);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .full-width {

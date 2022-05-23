@@ -4,20 +4,14 @@
 $_states: (brand, alert, success, error);
 
 .message {
-  @include foundations.columnGap(xs);
-  @include foundations.horizontalPadding(s);
   @include foundations.radius(s);
-  @include foundations.verticalPadding(xs);
+  @include foundations.responsiveSpacing("column-gap", xs, $fromXSmall: s);
+  @include foundations.responsiveSpacing("padding", xs s, $fromXSmall: s);
   align-items: center;
   background-color: foundations.color(neutral95);
   display: grid;
   grid-template-columns: min-content auto min-content;
   width: 100%;
-
-  @include foundations.mq(xsmall) {
-    @include foundations.columnGap(s);
-    @include foundations.verticalPadding(s);
-  }
 }
 
 @each $state in $_states {
@@ -38,19 +32,17 @@ $_states: (brand, alert, success, error);
 }
 
 .message__title {
-  @include foundations.text(m, bold);
-  color: foundations.color(neutralBase);
+  @include foundations.text(m, bold, neutralBase);
 }
 
 .message__text {
-  @include foundations.text(m, book);
-  color: foundations.color(neutral25);
+  @include foundations.text(m, book, neutral25);
 }
 
 .message__close {
-  @include foundations.padding(4xs);
   @include mixins.focus(actionBase, $radiusSize: m);
   align-self: start;
   border-radius: 50%;
   cursor: pointer;
+  padding: foundations.spacing(4xs);
 }
