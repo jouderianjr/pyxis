@@ -9,5 +9,5 @@
 }
 
 .wrapperPadding2Xl {
-  padding: pyxis.spacing(2xl);
+  @include pyxis.responsiveSpacing("padding", 2xl, $fromMedium: 3xl, $fromLarge: 4xl);
 }
