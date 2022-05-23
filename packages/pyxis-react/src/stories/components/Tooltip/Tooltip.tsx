@@ -4,7 +4,6 @@ import Button from "components/Button";
 import breakpointTokens from '@pyxis/tokens/json/breakpoints.json';
 import classNames from "classnames";
 import {pascalToKebab} from "commons/utils/string";
-import styles from "./Tooltip.module.scss";
 
 const checkIsMobile = ():boolean => window.innerWidth < breakpointTokens.xsmall
 
@@ -32,7 +31,7 @@ const PopoverTooltip:FC<PopoverTooltipProps> =
   }) => (
   <div className={setTooltipClass(variant, alt, position)} role="tooltip" id={id}>
     { hasIcon && <IconCheckCircle/> }
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Tooltip text
   </div>
 )
 
@@ -62,8 +61,7 @@ const BottomSheetTooltip:FC<BottomSheetTooltipProps> = ({id, isVisible, setIsVis
         >Close</Button>
       </header>
       <div className="tooltip__content" id="tooltip-desc">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc non aliquet nisi.
-        Phasellus blandit posuere magna.
+        Tooltip text
       </div>
     </div>
   </div>
@@ -76,8 +74,8 @@ const Tooltip:FC<TooltipProps> =
      id,
      variant = "neutral",
      alt= false,
-     position= "topLeft",
-     hasIcon= true,
+     position= "right",
+     hasIcon= false,
      children
   }) => {
   const [isMobile, setIsMobile] = React.useState<boolean>(checkIsMobile());
@@ -129,16 +127,16 @@ const Tooltip:FC<TooltipProps> =
   )
 }
 
-const Tooltips = () => {
+export const Tooltips = () => {
   return (
-    <div className={styles.wrapper}>
-      <Tooltip id="tooltip-id">
+    <>
+      <Tooltip id="tooltip-id-top" position={"top"}>
         <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost">Tooltip</Button>
       </Tooltip>
       <Tooltip id="tooltip-id-top-right" position={"topRight"}>
         <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost">Tooltip</Button>
       </Tooltip>
-      <Tooltip id="tooltip-id-top" position={"top"}>
+      <Tooltip id="tooltip-id" position={"topLeft"}>
         <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost">Tooltip</Button>
       </Tooltip>
       <Tooltip id="tooltip-id-right" position={"right"}>
@@ -156,30 +154,13 @@ const Tooltips = () => {
       <Tooltip id="tooltip-id-bottom" position={"bottom"}>
         <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost">Tooltip</Button>
       </Tooltip>
-      <Tooltip id="tooltip-id-brand" variant={"brand"}>
-        <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost">Tooltip</Button>
-      </Tooltip>
-      <div className="padding-l bg-neutral-base">
-        <Tooltip id="tooltip-id-alt" alt position={"topRight"}>
-          <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost" alt>Tooltip</Button>
-        </Tooltip>
-      </div>
-      <Tooltip id="tooltip-id-no-bottomsheet" hasBottomSheet={false}>
-        <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost">Tooltip</Button>
-      </Tooltip>
-      <Tooltip id="tooltip-id-no-icon" hasIcon={false}>
-        <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost">Tooltip</Button>
-      </Tooltip>
-      <Tooltip id="tooltip-id-no-bottomsheetTitle" hasBottomSheetTitle={false}>
-        <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost">Tooltip</Button>
-      </Tooltip>
-    </div>
+    </>
 )
 }
 
 type TooltipPosition = "top" | "topLeft" | "topRight" | "left" | "bottom" | "bottomLeft" | "bottomRight" | "right";
 
-interface TooltipProps {
+export interface TooltipProps {
   alt?:boolean;
   children: ReactElement;
   hasBottomSheet?:boolean;
@@ -207,4 +188,4 @@ interface BottomSheetTooltipProps {
   setIsVisible: Dispatch<SetStateAction<boolean>>;
 }
 
-export default Tooltips;
+export default Tooltip;

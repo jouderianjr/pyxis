@@ -177,7 +177,7 @@ const Overview: FC = () => (
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">
-      <OverviewIndex titles={["State", "Variants", "Other Option", "Accessibility", "Overview of CSS classes"]} />
+      <OverviewIndex titles={["State", "Variants", "Other Options", "Accessibility", "Overview of CSS classes"]} />
     </OverviewTemplate>
     <OverviewTemplate title="State" description={stateDescription}>
       <Table
@@ -193,7 +193,7 @@ const Overview: FC = () => (
         gridTemplateColumns="300px"
       />
     </OverviewTemplate>
-    <OverviewTemplate title="Other options" description={optionDescription}>
+    <OverviewTemplate title="Other Options" description={optionDescription}>
       <Table
         head={['Sample', 'State']}
         body={generateOptionBody()}
