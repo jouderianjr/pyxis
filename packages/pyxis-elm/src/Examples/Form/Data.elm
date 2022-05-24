@@ -5,6 +5,7 @@ module Examples.Form.Data exposing
     , DateField(..)
     , InsuranceType(..)
     , PeopleInvolved(..)
+    , SelectField(..)
     , TextField(..)
     , TextareaField(..)
     , birthValidation
@@ -14,10 +15,12 @@ module Examples.Form.Data exposing
 
 import Date exposing (Date)
 import Examples.Form.Api.City exposing (City)
+import Examples.Form.Api.Province as Province
 import Pyxis.Components.Field.Autocomplete as Autocomplete
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Input as Input
 import Pyxis.Components.Field.RadioCardGroup as RadioCardGroup
+import Pyxis.Components.Field.Select as Select
 import Pyxis.Components.Field.Textarea as Textarea
 
 
@@ -33,6 +36,7 @@ type Data
         , plate : Input.Model Data String
         , privacyCheck : CheckboxGroup.Model Data () Bool
         , residentialCity : Autocomplete.Model Data City
+        , residentialProvince : Select.Model Data String
         }
 
 
@@ -61,6 +65,10 @@ initialData =
             Result.fromMaybe ""
                 |> always
                 |> Autocomplete.init Nothing
+        , residentialProvince =
+            Result.fromMaybe ""
+                |> always
+                |> Select.init (Just (Province.getName Province.capitalProvince))
         }
 
 
@@ -79,6 +87,10 @@ type TextareaField
 type DateField
     = Birth
     | ClaimDate
+
+
+type SelectField
+    = ResidentialProvince
 
 
 type InsuranceType

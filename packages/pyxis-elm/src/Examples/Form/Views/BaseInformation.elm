@@ -1,6 +1,7 @@
 module Examples.Form.Views.BaseInformation exposing (view)
 
 import Examples.Form.Api.City as City
+import Examples.Form.Api.Province as Province
 import Examples.Form.Data as Data exposing (Data(..))
 import Examples.Form.Model as Model
 import Html
@@ -10,6 +11,7 @@ import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Error.Strategy as Strategy
 import Pyxis.Components.Field.Input as Input
 import Pyxis.Components.Field.Label as Label
+import Pyxis.Components.Field.Select as Select
 import Pyxis.Components.Form.FieldSet as FieldSet
 import Pyxis.Components.Form.Grid as Grid
 import Pyxis.Components.Form.Grid.Row as Row
@@ -66,8 +68,17 @@ view ((Data config) as data) =
                             , title = "Lorem ipsum"
                             , subtitle = Just "Lorem ipsum dolor sit amet."
                             }
-                        --(Autocomplete.headerAddon "Lorem ipsum")
                         |> Autocomplete.render (Model.AutocompleteFieldChanged Data.ResidentialCity) data config.residentialCity
+                    ]
+                ]
+            , Grid.row
+                [ Row.smallSize ]
+                [ Grid.simpleCol
+                    [ "residential_province"
+                        |> Select.config False
+                        |> Select.withOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
+                        |> Select.withLabel (Label.config "Provincia di residenza")
+                        |> Select.render (Model.SelectFieldChanged Data.ResidentialProvince) data config.residentialProvince
                     ]
                 ]
             , Grid.row

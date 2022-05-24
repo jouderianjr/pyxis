@@ -10,6 +10,7 @@ import Pyxis.Components.Field.Autocomplete as Autocomplete
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Input as Input
 import Pyxis.Components.Field.RadioCardGroup as RadioCardGroup
+import Pyxis.Components.Field.Select as Select
 import Pyxis.Components.Field.Textarea as Textarea
 import RemoteData
 
@@ -69,6 +70,11 @@ update msg model =
         Model.DateFieldChanged Data.ClaimDate subMsg ->
             model
                 |> Model.mapData (\(Data d) -> Data { d | claimDate = Input.update subMsg d.claimDate })
+                |> PrimaUpdate.withoutCmds
+
+        Model.SelectFieldChanged Data.ResidentialProvince subMsg ->
+            model
+                |> Model.mapData (\(Data d) -> Data { d | residentialProvince = Tuple.first (Select.update subMsg d.residentialProvince) })
                 |> PrimaUpdate.withoutCmds
 
         Model.PrivacyChanged subMsg ->

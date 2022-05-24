@@ -157,8 +157,8 @@ type Model ctx parsedValue
     = Model (ModelData ctx parsedValue)
 
 
-{-| Initialize the select internal state. This belongs to your app's `Model`
-Takes a validation function as argument
+{-| Initialize the select internal state. This belongs to your app's `Model`.
+Takes a validation function as argument.
 -}
 init : Maybe String -> (ctx -> Maybe String -> Result String parsedValue) -> Model ctx parsedValue
 init initialValue validation =
@@ -716,7 +716,7 @@ renderField shownValidation ((Model modelData) as model) (Config configData) =
                         |> Maybe.map Html.text
                         |> CommonsRender.renderMaybe
                     ]
-                    :: List.map renderNativeOption configData.options
+                    :: List.map (renderNativeOption modelData.value) configData.options
                 )
             , Html.div
                 [ Html.Attributes.class "form-field__addon" ]
@@ -817,10 +817,11 @@ renderDropdownItem { dropDownState, value } (Config configData) ( previous, ( in
 
 {-| Internal.
 -}
-renderNativeOption : Option -> Html msg
-renderNativeOption (Option { value, label }) =
+renderNativeOption : Maybe String -> Option -> Html msg
+renderNativeOption selectedValue (Option { value, label }) =
     Html.option
         [ Html.Attributes.value value
+        , Html.Attributes.selected (Just value == selectedValue)
         ]
         [ Html.text label ]
 

@@ -16,6 +16,7 @@ import Pyxis.Components.Field.Autocomplete as Autocomplete
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Input as Input
 import Pyxis.Components.Field.RadioCardGroup as RadioCardGroup
+import Pyxis.Components.Field.Select as Select
 import Pyxis.Components.Field.Textarea as Textarea
 import RemoteData exposing (RemoteData)
 
@@ -31,6 +32,7 @@ type Msg
     | PrivacyChanged (CheckboxGroup.Msg ())
     | ClaimTypeChanged (RadioCardGroup.Msg Data.ClaimType)
     | PeopleInvolvedChanged (RadioCardGroup.Msg Data.PeopleInvolved)
+    | SelectFieldChanged Data.SelectField Select.Msg
     | ShowModal Bool
     | AccordionChanged Accordion.Msg
 
