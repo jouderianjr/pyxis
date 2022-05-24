@@ -1,6 +1,5 @@
 // Generated classes for link styling.
 @use "../foundations";
-@use "../lib";
 @use "mixins";
 
 // Generate linear gradient for underline animation
@@ -24,8 +23,8 @@
   @include _setColors(actionBase);
   background-position: 100% 100%;
   background-repeat: no-repeat;
-  background-size: 300% lib.rem(1px);
-  border-radius: lib.rem(1px);
+  background-size: 300% foundations.rem(1px);
+  border-radius: foundations.rem(1px);
   display: inline;
   text-decoration: none;
   transition: background-position foundations.duration(slow) foundations.timing(base);

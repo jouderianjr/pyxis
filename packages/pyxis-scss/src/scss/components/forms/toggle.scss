@@ -1,11 +1,10 @@
 @use "sass:math";
 @use "mixins";
-@use "../../lib";
 @use "../../foundations";
 
-$_height: lib.rem(26px);
-$_width: lib.rem(48px);
-$_sliderOffset: lib.rem(2px);
+$_height: foundations.rem(26px);
+$_width: foundations.rem(48px);
+$_sliderOffset: foundations.rem(2px);
 $_sliderSize: $_height - $_sliderOffset * 2;
 
 @mixin toggleSlider {

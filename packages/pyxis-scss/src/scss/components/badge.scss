@@ -1,5 +1,4 @@
 @use "../foundations";
-@use "../lib";
 
 $_variants: (brand, action, alert, success, error, neutralGradient, brandGradient);
 
@@ -13,9 +12,9 @@ $_variants: (brand, action, alert, success, error, neutralGradient, brandGradien
 }
 
 @each $variant in $_variants {
-  .badge--#{lib.camelToKebabCase($variant)} {
+  .badge--#{foundations.camelToKebabCase($variant)} {
     @if str-index($variant, "Gradient") {
-      background: foundations.gradient(lib.stringReplace($variant, "Gradient", ""));
+      background: foundations.gradient(foundations.stringReplace($variant, "Gradient", ""));
       color: foundations.color(neutralLight);
     } @else {
       background-color: foundations.color(#{$variant}Light);

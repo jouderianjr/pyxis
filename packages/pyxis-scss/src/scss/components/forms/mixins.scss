@@ -1,4 +1,3 @@
-@use "../../lib";
 @use "../../foundations";
 @use "variables";
 
@@ -10,7 +9,7 @@
   transition-property: border-color, outline-color;
   transition-timing-function: foundations.timing(base);
 
-  @include lib.onSafari {
+  @include foundations.onSafari {
     @include shadow(transparent);
   }
 
@@ -24,7 +23,7 @@
   &:focus-within {
     outline-color: rgba(foundations.color(actionBase), 0.2);
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       @include shadow(rgba(foundations.color(actionBase), 0.2));
     }
   }
@@ -54,7 +53,7 @@
   &:focus-within {
     outline-color: rgba(foundations.color(errorBase), 0.2);
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       @include shadow(rgba(foundations.color(errorDark), 0.2));
     }
   }
@@ -70,7 +69,7 @@
   &:active {
     outline-color: transparent;
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       @include shadow(transparent);
     }
   }
@@ -107,7 +106,7 @@
     border-color: foundations.color(actionDark);
     outline-color: rgba(foundations.color(actionDark), 0.2);
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       @include shadow(rgba(foundations.color(actionDark), 0.2));
     }
 

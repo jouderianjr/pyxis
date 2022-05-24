@@ -1,11 +1,13 @@
-@use "../breakpoints";
-@use "../colors";
-@use "../motion";
-@use "../radius";
-@use "../spacings";
-@use "../typography";
-@use "../variables";
-@use "../../lib";
+// The normalize file must always be the first
+@use "normalize";
+
+@use "../config";
+@use "../foundations/breakpoints";
+@use "../foundations/colors";
+@use "../foundations/lib";
+@use "../foundations/radius";
+@use "../foundations/typography";
+@use "a11y";
 @use "form";
 
 *,
@@ -60,7 +62,7 @@ svg {
 ::-webkit-scrollbar {
   @include radius.radius(xs);
   background: transparent;
-  width: variables.$scrollBarWidth;
+  width: lib.rem(config.$scrollBarWidth);
 
   @include breakpoints.mq(small) {
     background: colors.color(neutralLight);

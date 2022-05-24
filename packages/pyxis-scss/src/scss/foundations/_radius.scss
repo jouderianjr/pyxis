@@ -1,8 +1,8 @@
 // Radius is used to smooth our components borders.
 
-@use "../lib";
-@use "breakpoints";
 @use "../tokens/radius" as *;
+@use "breakpoints";
+@use "lib";
 
 // List of allowed edges for border-radius
 $_edges: (all, top, right, bottom, left);

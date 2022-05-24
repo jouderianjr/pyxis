@@ -1,5 +1,4 @@
 @use "../foundations";
-@use "../lib";
 
 // Add CSS rules for focus status, used in buttons and links.
 //
@@ -9,13 +8,13 @@
 // @param {Value} $width - Width of focus
 // @param {Value} $opacity - Opacity oof outline
 // @param {String} $radiusSize - Radius of the item
-@mixin focus($colorName, $inset: false, $offset: lib.rem(2px), $width: lib.rem(3px), $opacity: 0.2, $radiusSize: null) {
+@mixin focus($colorName, $inset: false, $offset: foundations.rem(2px), $width: foundations.rem(3px), $opacity: 0.2, $radiusSize: null) {
   &:focus,
   &:focus-within {
     outline: rgba(foundations.color($colorName), $opacity) solid $width;
     outline-offset: $offset;
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       outline: none;
       position: relative;
 
@@ -82,8 +81,8 @@
 // @param {String} $image - An svg with '%%COLOR%%' placeholder
 // @param {Color} $color - Color name
 @mixin backgroundImage($image, $color: neutralLight) {
-  $escapedColor: lib.stringReplace("#{foundations.color($color)}", "#", "%23");
-  $svg: lib.stringReplace($image, "%%COLOR%%", $escapedColor);
+  $escapedColor: foundations.stringReplace("#{foundations.color($color)}", "#", "%23");
+  $svg: foundations.stringReplace($image, "%%COLOR%%", $escapedColor);
 
   background-image: url("data:image/svg+xml,#{$svg}");
 }

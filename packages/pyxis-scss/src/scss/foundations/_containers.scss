@@ -1,8 +1,8 @@
 // Containers defines all container rules based on device width.
 
-@use "../lib";
 @use "../tokens/containers" as *;
 @use "breakpoints";
+@use "lib";
 @use "sass:map";
 
 // The gutter of container

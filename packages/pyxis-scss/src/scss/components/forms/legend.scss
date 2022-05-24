@@ -1,5 +1,4 @@
 @use "../../foundations";
-@use "../../lib";
 
 .form-legend {
   display: grid;
@@ -23,7 +22,7 @@
 .form-legend__addon {
   margin-bottom: foundations.spacing(xs);
 
-  @include lib.onSafari {
+  @include foundations.onSafari {
     display: block;
     width: fit-content;
   }
@@ -31,7 +30,7 @@
   @include foundations.mq(xsmall) {
     margin-bottom: foundations.spacing(s);
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       .form-legend:not(.form-legend--align-left) & {
         margin-left: auto;
         margin-right: auto;

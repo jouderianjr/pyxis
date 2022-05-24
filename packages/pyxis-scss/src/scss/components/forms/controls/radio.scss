@@ -1,12 +1,11 @@
 @use "../../../foundations";
-@use "../../../lib";
 @use "../mixins";
 
 // Add a coloured shadow.
 //
 // @param {Color} $color - Color name
 @mixin _boxShadow($color) {
-  box-shadow: inset 0 0 0 lib.rem(3px) foundations.color($color);
+  box-shadow: inset 0 0 0 foundations.rem(3px) foundations.color($color);
 }
 
 .form-control__radio {

@@ -1,5 +1,4 @@
 @use "../../../foundations";
-@use "../../../lib";
 @use "../variables";
 
 .form-field__select {
@@ -13,8 +12,8 @@
   white-space: nowrap;
   width: variables.$fieldWidth;
 
-  @include lib.onFirefox {
-    text-indent: lib.rem(-2px);
+  @include foundations.onFirefox {
+    text-indent: foundations.rem(-2px);
   }
 
   .form-field--with-select-dropdown & {

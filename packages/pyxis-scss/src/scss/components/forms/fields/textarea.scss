@@ -1,5 +1,4 @@
 @use "../../../foundations";
-@use "../../../lib";
 
 $_offset: foundations.spacing(3xs);
 
@@ -8,7 +7,7 @@ $_offset: foundations.spacing(3xs);
   display: block;
   flex: 1;
   margin: 0 $_offset $_offset 0;
-  min-height: lib.rem(100px);
+  min-height: foundations.rem(100px);
   padding-left: foundations.spacing(s);
   padding-top: foundations.spacing(xs);
   resize: vertical;
@@ -16,7 +15,7 @@ $_offset: foundations.spacing(3xs);
 }
 
 .form-field__textarea--small {
-  min-height: lib.rem(70px);
+  min-height: foundations.rem(70px);
   padding-left: foundations.spacing(xs);
   padding-top: foundations.spacing(2xs);
 }

@@ -1,10 +1,9 @@
 @use "../../foundations";
-@use "../../lib";
 
 $_maxColumnSpan: 5;
-$_minColumnWidth: lib.rem(65px);
-$_smallRowWidth: lib.rem(360px);
-$_largeRowWidth: lib.rem(720px);
+$_minColumnWidth: foundations.rem(65px);
+$_smallRowWidth: foundations.rem(360px);
+$_largeRowWidth: foundations.rem(720px);
 
 .form-grid {
   @include foundations.responsiveSpacing("row-gap", m, $fromMedium: l);

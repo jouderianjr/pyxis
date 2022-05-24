@@ -1,5 +1,4 @@
 @use "../foundations";
-@use "../lib";
 
 $_size: (
   s: 16px,
@@ -48,11 +47,11 @@ $_variants: (brand, alert, success, error);
 
 @each $sizeName, $sizeValue in $_size {
   .icon--size-#{$sizeName} {
-    height: lib.rem($sizeValue);
-    width: lib.rem($sizeValue);
+    height: foundations.rem($sizeValue);
+    width: foundations.rem($sizeValue);
 
     &.icon--boxed {
-      padding: foundations.spacing(lib.get($_paddingBasedOnSize, $sizeName));
+      padding: foundations.spacing(foundations.get($_paddingBasedOnSize, $sizeName));
     }
   }
 }

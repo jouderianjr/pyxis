@@ -1,5 +1,4 @@
-@use "../../lib";
-@use "../colors";
+@use "../foundations";
 
 button,
 input,
@@ -15,7 +14,7 @@ fieldset {
   outline: none;
   padding: 0;
 
-  @include lib.onSafari {
+  @include foundations.onSafari {
     outline: none;
   }
 }
@@ -35,7 +34,7 @@ textarea,
 input[type="submit"] {
   &:disabled,
   &[disabled] {
-    color: colors.color(neutral75);
+    color: foundations.color(neutral75);
     pointer-events: none;
   }
 }
@@ -59,8 +58,8 @@ select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
   border: none;
-  border-radius: lib.rem(6px) 0 0 lib.rem(6px);
-  -webkit-text-fill-color: colors.color(neutralBase);
+  border-radius: foundations.rem(6px) 0 0 foundations.rem(6px);
+  -webkit-text-fill-color: foundations.color(neutralBase);
 }
 
 input::-webkit-date-and-time-value {
@@ -68,7 +67,7 @@ input::-webkit-date-and-time-value {
 }
 
 ::placeholder {
-  color: colors.color(neutral50);
+  color: foundations.color(neutral50);
   opacity: 1;
   user-select: none;
 }

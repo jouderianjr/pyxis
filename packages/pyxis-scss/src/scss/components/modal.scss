@@ -1,15 +1,14 @@
-@use "../lib";
 @use "../foundations";
-@use "./mixins";
+@use "mixins";
 
 // Allowed sizes of modals
 $_sizes: (small, medium, large);
 
 // Allowed sizes of modals depending on breakpoints
 $_sizesOnBp: (
-  xsmall: lib.rem(500px),
-  medium: lib.rem(800px),
-  large: lib.rem(1000px),
+  xsmall: foundations.rem(500px),
+  medium: foundations.rem(800px),
+  large: foundations.rem(1000px),
 );
 
 .modal-backdrop {
@@ -28,8 +27,8 @@ $_sizesOnBp: (
 }
 
 .modal {
-  $minHeight: lib.rem(200px);
-  $offset: lib.rem(80px);
+  $minHeight: foundations.rem(200px);
+  $offset: foundations.rem(80px);
 
   display: grid;
 
@@ -83,13 +82,12 @@ $_sizesOnBp: (
 
 .modal__header {
   @include foundations.radius(xl, top);
-  @include foundations.responsiveSpacing("padding", m, $fromXSmall: 2xl 2xl s);
+  @include foundations.responsiveSpacing("padding", m m xs, $fromXSmall: 2xl 2xl s);
   background: foundations.color(neutralLight);
   column-gap: foundations.spacing(xs);
   display: grid;
   grid-template-columns: auto max-content;
   height: fit-content;
-  padding-bottom: foundations.spacing(xs);
   z-index: 1;
 
   @include foundations.mq(base, xsmall) {
@@ -116,11 +114,11 @@ $_sizesOnBp: (
 }
 
 .modal__content {
-  @include foundations.responsiveSpacing("padding", 3xs m xs, $fromXSmall: 0 2xl, $fromMedium: 0 3xl, $fromLarge: 0 4xl);
+  @include foundations.responsiveSpacing("padding", 3xs m xs, $fromXSmall: 0 2xl);
 }
 
 .modal__footer {
-  @include foundations.responsiveSpacing("padding", m, $fromXSmall: m 2xl, $fromMedium: m 3xl, $fromLarge: m 4xl);
+  @include foundations.responsiveSpacing("padding", m, $fromXSmall: m 2xl);
   @include foundations.responsiveSpacing("gap", xs, $fromXSmall: s);
   align-items: center;
   background: foundations.color(neutralLight);

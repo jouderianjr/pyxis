@@ -1,15 +1,15 @@
 // Typography defines all fonts-related rules.
 
 @use "../config";
-@use "../lib";
 @use "../tokens/textSizes" as *;
 @use "../tokens/textWeights" as *;
 @use "../tokens/titleSizes" as *;
 @use "../tokens/titleWeights" as *;
 @use "breakpoints";
 @use "colors";
-@use "sass:math";
+@use "lib";
 @use "sass:map";
+@use "sass:math";
 
 // The font path
 $_fontPath: "https://d3be8952cnveif.cloudfront.net/fonts";
@@ -25,13 +25,6 @@ $_font: (
     book: 400,
     bold: 700,
   ),
-);
-
-// The letter-spacing map
-$_letterSpacing: (
-  base: 0,
-  small: 0.1px,
-  medium: 0.3px,
 );
 
 // Returns a font-family with name and fallback
@@ -54,26 +47,6 @@ $_letterSpacing: (
   $goldenToRem: lib.rem(math.floor($fontSize * 1.618));
 
   @return if($shouldUseBaseLineHeight, $baseToRem, $goldenToRem);
-}
-
-// Returns a letter-spacing by `$fontSize`
-//
-// @param {Number} $fontSize - The font-size to apply the letter-spacing to
-// @return {Number} - A letter-spacing represented in rem
-// @throw {Error}
-@function _letterSpacing($fontSize) {
-  $shouldUseBaseLetterSpacing: lib.stripUnit($fontSize) >= 16;
-  $shouldUseSmallLetterSpacing: lib.stripUnit($fontSize) >= 14;
-
-  @if ($shouldUseBaseLetterSpacing) {
-    @return lib.rem(lib.get($_letterSpacing, base));
-  } @else {
-    @return if(
-      $shouldUseSmallLetterSpacing,
-      lib.rem(lib.get($_letterSpacing, small)),
-      lib.rem(lib.get($_letterSpacing, medium))
-    );
-  }
 }
 
 // Base setting for Pyxis typography.
@@ -109,7 +82,6 @@ $_letterSpacing: (
       $fontSize: lib.get($fontSizes, $size, $breakpoint);
 
       font-size: lib.rem($fontSize);
-      letter-spacing: _letterSpacing($fontSize);
       line-height: _lineHeight($fontSize);
     }
   }

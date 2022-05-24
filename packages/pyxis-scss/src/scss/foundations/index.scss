@@ -1,17 +1,12 @@
-// `normalize` and `base` must come before the other foundations
-@forward "normalize";
-@forward "base";
-
-// The remaining foundations must be sorted alphabetically
 @forward "breakpoints";
 @forward "colors" hide createAtoms;
 @forward "containers" hide createAtoms;
 @forward "elevations" hide createAtoms;
 @forward "hiding" hide createAtoms;
 @forward "layout";
+@forward "lib";
 @forward "motion";
 @forward "radius" hide createAtoms;
 @forward "spacings" hide createAtoms;
 @forward "typography" hide createAtoms, fontFaces, globalSettings;
-@forward "variables";
 @forward "zIndex";

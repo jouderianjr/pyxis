@@ -1,10 +1,10 @@
 // Elevation is needed in order to give depth to our components.
 
-@use "../lib";
+@use "../tokens/elevationColors" as *;
+@use "../tokens/elevationSizes" as *;
 @use "breakpoints";
 @use "colors";
-@use "../tokens/elevationSizes" as *;
-@use "../tokens/elevationColors" as *;
+@use "lib";
 
 // Returns the elevation size from map $elevationSizes
 //

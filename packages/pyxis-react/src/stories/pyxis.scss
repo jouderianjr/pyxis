@@ -1,6 +1,6 @@
 @forward "~@pyxis/scss/src/scss/components";
-@forward "~@pyxis/scss/src/scss/pyxis.scss";
-@use "~@pyxis/scss/src/scss/pyxis.scss";
+@forward "~@pyxis/scss/src/scss/pyxis";
+@use "~@pyxis/scss/src/scss/pyxis";
 @use "scss/form";
 
 .alt-wrapper {

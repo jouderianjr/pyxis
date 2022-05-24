@@ -1,5 +1,6 @@
 // Layout utilities used in Pyxis.
-@use "variables";
+@use "../config";
+@use "lib";
 
 // Generate position fixed coordinates
 @mixin absolute($top: 0, $right: 0, $bottom: 0, $left: 0) {
@@ -31,6 +32,6 @@
 // Class for `html` tag when a fixed element is open.
 .scroll-locked {
   overflow: hidden;
-  padding-right: variables.$scrollBarWidth;
+  padding-right: lib.rem(config.$scrollBarWidth);
   touch-action: none;
 }

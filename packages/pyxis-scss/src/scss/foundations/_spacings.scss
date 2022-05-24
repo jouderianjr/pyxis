@@ -1,8 +1,8 @@
 // Spacings are part of a predefined set of negative space used in Pyxis.
 
-@use "../lib";
-@use "breakpoints";
 @use "../tokens/spacings" as *;
+@use "breakpoints";
+@use "lib";
 
 // Includes the size contained in the spacings map with base breakpoint
 //

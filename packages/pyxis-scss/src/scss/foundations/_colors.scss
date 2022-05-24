@@ -1,8 +1,8 @@
 // These are the colours of our design system.
 
-@use "../lib";
 @use "../tokens/colors" as *;
 @use "../tokens/gradients" as *;
+@use "lib";
 
 // The color palette for text
 $_textColors: (actionBase, alertBase, brandBase, errorBase, neutral25, neutralBase, neutralLight, successBase);

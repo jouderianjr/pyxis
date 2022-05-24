@@ -1,9 +1,8 @@
 @use "../../foundations";
-@use "../../lib";
 @use "variables";
 @use "mixins";
 
-$_wrapperAnimationOffset: lib.rem(10px);
+$_wrapperAnimationOffset: foundations.rem(10px);
 
 .form-dropdown-wrapper {
   @include foundations.elevation(s, action15);
@@ -23,7 +22,7 @@ $_wrapperAnimationOffset: lib.rem(10px);
   will-change: opacity, outline-color, padding-top;
   z-index: 1;
 
-  @include lib.onSafari {
+  @include foundations.onSafari {
     outline: none;
   }
 
@@ -34,7 +33,7 @@ $_wrapperAnimationOffset: lib.rem(10px);
     transition-timing-function: foundations.timing(entrance);
     visibility: visible;
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       @include mixins.shadow(rgba(foundations.color(actionBase), 0.2));
     }
   }
@@ -43,7 +42,7 @@ $_wrapperAnimationOffset: lib.rem(10px);
     border-color: foundations.color(errorBase);
     outline-color: rgba(foundations.color(errorBase), 0.2);
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       @include mixins.shadow(rgba(foundations.color(errorBase), 0.2));
     }
   }
@@ -58,14 +57,14 @@ $_wrapperAnimationOffset: lib.rem(10px);
 }
 
 .form-dropdown {
-  $maxHeight: lib.rem(155px);
-  $maxHeightSmall: lib.rem(120px);
-  $radius: 0 0 lib.rem(6px) lib.rem(6px);
+  $maxHeight: foundations.rem(155px);
+  $maxHeightSmall: foundations.rem(120px);
+  $radius: 0 0 foundations.rem(6px) foundations.rem(6px);
 
   @include foundations.hideScrollbar;
   background-color: foundations.color(neutralLight);
   border-radius: $radius;
-  border-top: lib.rem(1px) solid foundations.color(neutral85);
+  border-top: foundations.rem(1px) solid foundations.color(neutral85);
   cursor: default;
   display: grid;
   max-height: $maxHeight;
@@ -86,8 +85,8 @@ $_wrapperAnimationOffset: lib.rem(10px);
 
 .form-dropdown__item,
 .form-dropdown__no-results {
-  $minHeight: lib.rem(40px);
-  $minHeightSmall: lib.rem(30px);
+  $minHeight: foundations.rem(40px);
+  $minHeightSmall: foundations.rem(30px);
 
   @include foundations.radius(2xs);
   align-items: center;
@@ -119,8 +118,8 @@ $_wrapperAnimationOffset: lib.rem(10px);
 }
 
 .form-dropdown__no-results {
-  $height: lib.rem(48px);
-  $heightSmall: lib.rem(38px);
+  $height: foundations.rem(48px);
+  $heightSmall: foundations.rem(38px);
 
   cursor: default;
   grid-auto-rows: $height;
@@ -132,7 +131,7 @@ $_wrapperAnimationOffset: lib.rem(10px);
 
 .form-dropdown__no-results__action {
   align-items: center;
-  border-top: lib.rem(1px) solid foundations.color(neutral85);
+  border-top: foundations.rem(1px) solid foundations.color(neutral85);
   display: grid;
   height: 100%;
   justify-items: start;
@@ -190,7 +189,7 @@ $_wrapperAnimationOffset: lib.rem(10px);
     background-color: foundations.color(neutral85);
     bottom: 0;
     content: "";
-    height: lib.rem(1px);
+    height: foundations.rem(1px);
     left: foundations.spacing(2xs);
     position: absolute;
     right: foundations.spacing(2xs);

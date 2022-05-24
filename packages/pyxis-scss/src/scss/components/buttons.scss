@@ -1,19 +1,18 @@
 @use "../foundations";
-@use "../lib";
 @use "mixins";
 @use "sass:math";
 
-$_borderWidth: lib.rem(2px);
-$_outlineWidth: lib.rem(3px);
+$_borderWidth: foundations.rem(2px);
+$_outlineWidth: foundations.rem(3px);
 
 // Sizes of Pyxis' buttons.
 // Each size has direct influence on properties in the sub-maps.
 $_sizes: (
   huge: (
     columnGap: 2xs,
-    dimension: lib.rem(50px),
-    loaderSize: lib.rem(24px),
-    minWidth: lib.rem(220px),
+    dimension: foundations.rem(50px),
+    loaderSize: foundations.rem(24px),
+    minWidth: foundations.rem(220px),
     padding: l,
     iconSpacing: l,
     radius: m,
@@ -21,9 +20,9 @@ $_sizes: (
   ),
   large: (
     columnGap: 2xs,
-    dimension: lib.rem(40px),
-    loaderSize: lib.rem(20px),
-    minWidth: lib.rem(160px),
+    dimension: foundations.rem(40px),
+    loaderSize: foundations.rem(20px),
+    minWidth: foundations.rem(160px),
     padding: l,
     iconSpacing: s,
     radius: 2xl,
@@ -31,9 +30,9 @@ $_sizes: (
   ),
   medium: (
     columnGap: 3xs,
-    dimension: lib.rem(30px),
-    loaderSize: lib.rem(20px),
-    minWidth: lib.rem(120px),
+    dimension: foundations.rem(30px),
+    loaderSize: foundations.rem(20px),
+    minWidth: foundations.rem(120px),
     padding: s,
     iconSpacing: xs,
     radius: 2xl,
@@ -41,9 +40,9 @@ $_sizes: (
   ),
   small: (
     columnGap: 3xs,
-    dimension: lib.rem(24px),
-    loaderSize: lib.rem(16px),
-    minWidth: lib.rem(80px),
+    dimension: foundations.rem(24px),
+    loaderSize: foundations.rem(16px),
+    minWidth: foundations.rem(80px),
     padding: xs,
     iconSpacing: 2xs,
     radius: 2xl,
@@ -198,17 +197,17 @@ $_sizes: (
 // Generate classes for sizing and set related properties
 @each $size, $properties in $_sizes {
   .button--#{$size} {
-    $dimension: lib.get($properties, dimension);
-    $padding: lib.get($properties, padding);
-    $iconPadding: foundations.spacing(lib.get($properties, iconSpacing));
-    $iconMargin: foundations.spacing(lib.get($properties, columnGap));
+    $dimension: foundations.get($properties, dimension);
+    $padding: foundations.get($properties, padding);
+    $iconPadding: foundations.spacing(foundations.get($properties, iconSpacing));
+    $iconMargin: foundations.spacing(foundations.get($properties, columnGap));
 
-    @include foundations.text(lib.get($properties, textSize), bold);
+    @include foundations.text(foundations.get($properties, textSize), bold);
     height: $dimension;
 
     &:before,
     &:not(.button--ghost) {
-      @include foundations.radius(lib.get($properties, radius));
+      @include foundations.radius(foundations.get($properties, radius));
     }
 
     &:where(.button--huge):before {
@@ -216,7 +215,7 @@ $_sizes: (
     }
 
     &:not(.button--ghost) {
-      min-width: lib.get($properties, minWidth);
+      min-width: foundations.get($properties, minWidth);
       padding: 0 foundations.spacing($padding);
     }
 
@@ -243,8 +242,8 @@ $_sizes: (
     }
 
     &.button--loading:after {
-      height: lib.get($properties, loaderSize);
-      width: lib.get($properties, loaderSize);
+      height: foundations.get($properties, loaderSize);
+      width: foundations.get($properties, loaderSize);
     }
   }
 }
@@ -278,7 +277,7 @@ $_sizes: (
 
   &:focus,
   &:before {
-    border-radius: lib.rem(1px);
+    border-radius: foundations.rem(1px);
   }
 
   &.button--prepend-icon,

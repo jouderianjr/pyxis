@@ -1,7 +1,7 @@
 // Utilities for Math which are not part of sass:math module.
 
 @use "sass:math";
-@use "../config";
+@use "../../config";
 
 // Convert pixels to rem.
 // The `$fontSizeRoot` (defined in `foundations/_typography.scss`)

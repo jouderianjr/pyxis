@@ -1,8 +1,7 @@
 @use "../../foundations";
-@use "../../lib";
 
-$_spinnerSize: lib.rem(60px);
-$_spinnerSizeSmall: lib.rem(20px);
+$_spinnerSize: foundations.rem(60px);
+$_spinnerSizeSmall: foundations.rem(20px);
 
 .loader {
   display: grid;
@@ -18,7 +17,7 @@ $_spinnerSizeSmall: lib.rem(20px);
 }
 
 .loader--with-car {
-  grid-auto-rows: lib.rem(80px) min-content;
+  grid-auto-rows: foundations.rem(80px) min-content;
   grid-row-gap: 0;
   row-gap: 0;
 }

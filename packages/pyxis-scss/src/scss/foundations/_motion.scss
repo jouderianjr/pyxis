@@ -1,8 +1,8 @@
 // Motion can bring the screen to life, guide users through complex experiences, and help move them.
 
-@use "../lib";
 @use "../tokens/motionDuration" as *;
 @use "../tokens/motionTiming" as *;
+@use "lib";
 
 // Returns the `$duration` value from map `$motionDuration`.
 //

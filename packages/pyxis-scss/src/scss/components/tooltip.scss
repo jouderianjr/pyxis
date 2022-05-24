@@ -1,13 +1,12 @@
 @use "../foundations";
-@use "../lib";
-@use "./mixins";
+@use "mixins";
 @use "sass:math";
 
 // Setting of the tooltip arrow
 $_arrow: "%3Csvg width='16' height='8' viewBox='0 0 16 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.50518 0.681671L0 8H16L9.49482 0.681671C8.69924 -0.213359 7.30076 -0.213359 6.50518 0.681671Z' fill='%%COLOR%%'/%3E%3C/svg%3E";
 $_arrowOffsetWidth: foundations.spacing(s);
-$_arrowOffsetHeight: lib.rem(1px);
-$_arrowWidth: lib.rem(16px);
+$_arrowOffsetHeight: foundations.rem(1px);
+$_arrowWidth: foundations.rem(16px);
 $_arrowHeight: math.div($_arrowWidth, 2);
 
 // Setting of tooltip
@@ -142,7 +141,7 @@ $_arrowPositions: (
   visibility: hidden;
 
   @include foundations.mq(base, xsmall) {
-    @include mixins.bottomSheet(lib.rem(182px));
+    @include mixins.bottomSheet(foundations.rem(182px));
 
     .tooltip-backdrop--show & {
       opacity: 1;
@@ -152,7 +151,7 @@ $_arrowPositions: (
   }
 
   @include foundations.mq(xsmall) {
-    $maxWidth: lib.rem(320px);
+    $maxWidth: foundations.rem(320px);
 
     @include foundations.radius(s);
     @include foundations.text(m, book);
@@ -206,7 +205,7 @@ $_arrowPositions: (
 }
 
 @each $position, $properties in $_tooltipPositions {
-  .tooltip--#{lib.camelToKebabCase($position)} {
+  .tooltip--#{foundations.camelToKebabCase($position)} {
     @each $prop, $value in $properties {
       #{$prop}: $value;
     }

@@ -1,4 +1,3 @@
-@use "../../../lib";
 @use "../../../foundations";
 @use "../mixins";
 @use "../variables";
@@ -74,11 +73,11 @@
   }
 
   .form-field--with-prepend-text & {
-    border-right: lib.rem(1px) solid foundations.color(neutral85);
+    border-right: foundations.rem(1px) solid foundations.color(neutral85);
   }
 
   .form-field--with-append-text & {
-    border-left: lib.rem(1px) solid foundations.color(neutral85);
+    border-left: foundations.rem(1px) solid foundations.color(neutral85);
   }
 
   .form-field--with-select-dropdown.form-field--with-opened-dropdown & {
@@ -116,7 +115,7 @@
 }
 
 .form-field__addon__reset {
-  $size: lib.rem(28px);
+  $size: foundations.rem(28px);
 
   @include foundations.radius(xl);
   background-color: foundations.color(neutral95);
@@ -140,7 +139,7 @@
 }
 
 .form-field__addon__reset--small {
-  $size: lib.rem(24px);
+  $size: foundations.rem(24px);
 
   height: $size;
   width: $size;

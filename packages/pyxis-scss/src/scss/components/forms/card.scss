@@ -1,5 +1,4 @@
 @use "../../foundations";
-@use "../../lib";
 @use "mixins";
 @use "variables";
 
@@ -21,7 +20,7 @@
     border-color: foundations.color(actionDark);
     outline-color: rgba(foundations.color(actionDark), 0.2);
 
-    @include lib.onSafari {
+    @include foundations.onSafari {
       @include mixins.shadow(rgba(foundations.color(actionDark), 0.2));
     }
   }

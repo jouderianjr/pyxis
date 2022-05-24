@@ -1,5 +1,4 @@
 @use "../foundations";
-@use "../lib";
 @use "mixins";
 
 // Set neutralLight color to text in alt mode.
@@ -34,7 +33,7 @@
   @include foundations.responsiveSpacing("padding", xs s, $fromXSmall: s l);
   @include mixins.focus(actionBase, true, $radiusSize: l);
   align-items: center;
-  border: lib.rem(2px) solid transparent;
+  border: foundations.rem(2px) solid transparent;
   color: foundations.color(neutralBase);
   cursor: pointer;
   display: flex;
@@ -66,7 +65,7 @@
   margin-right: foundations.spacing(s);
 
   @include foundations.mq(base, xsmall) {
-    max-width: lib.rem(48px);
+    max-width: foundations.rem(48px);
   }
 }
 
@@ -137,7 +136,7 @@
   @include foundations.responsiveSpacing("padding", xs s s, $fromXSmall: s l l);
   @include foundations.text(m, book, neutral25);
   opacity: 0;
-  transform: translateY(lib.rem(-20px));
+  transform: translateY(foundations.rem(-20px));
   transition-duration: foundations.duration(base);
   transition-property: opacity, transform;
   transition-timing-function: foundations.timing(base);

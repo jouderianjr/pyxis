@@ -163,6 +163,7 @@ const Overview: FC = () => (
     </OverviewTemplate>
     <OverviewTemplate title="Usage" description={usageDescription}>
       {functionDescription}
+      {mixinDescription}
       <div className="title-s-bold c-neutral-base">Classes</div>
       <Table
         head={['Name', 'Atomic class', 'Note']}

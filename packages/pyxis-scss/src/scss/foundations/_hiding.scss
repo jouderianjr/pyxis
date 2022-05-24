@@ -1,8 +1,8 @@
 // Hiding Rules define all rules for hiding content based on device width.
 
-@use "../lib";
-@use "breakpoints";
 @use "../tokens/breakpoints" as tokens;
+@use "breakpoints";
+@use "lib";
 
 // Hide an element from `$fromBreakpoint` to `$untilBreakpoint` value.
 // Outside the indicated breakpoints the element will have the assigned display value.
@@ -46,15 +46,4 @@
       }
     }
   }
-}
-
-// Screen reader only
-.screen-reader-only:not(:focus):not(:active) {
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
 }

@@ -1,19 +1,18 @@
 @use "../../foundations";
-@use "../../lib";
 
-$_spinnerSize: lib.rem(60px);
-$_spinnerSizeSmall: lib.rem(20px);
+$_spinnerSize: foundations.rem(60px);
+$_spinnerSizeSmall: foundations.rem(20px);
 
 .loader__spinner {
   animation: animateSpinner 1s infinite linear;
-  border: lib.rem(6px) solid foundations.color(brandLight);
+  border: foundations.rem(6px) solid foundations.color(brandLight);
   border-radius: 50%;
   border-top-color: foundations.color(brandBase);
   height: $_spinnerSize;
   width: $_spinnerSize;
 
   .loader--small & {
-    border-width: lib.rem(2px);
+    border-width: foundations.rem(2px);
     height: $_spinnerSizeSmall;
     width: $_spinnerSizeSmall;
   }

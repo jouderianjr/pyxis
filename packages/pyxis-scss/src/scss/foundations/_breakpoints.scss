@@ -1,8 +1,8 @@
 // Breakpoints define a small set of function used to adjust your
 // style based on device width.
 
-@use "../lib";
 @use "../tokens/breakpoints" as *;
+@use "lib";
 
 // Breakpoint bounding difference
 $_boundDiff: 1px;

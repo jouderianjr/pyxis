@@ -1,9 +1,8 @@
-// Exposed methods and variables to be used in your SCSS source code.
+// Exposed mixins and functions to be used in your SCSS source code.
 // Check each module implementation to be aware of what is exposed.
 @forward "foundations";
-@forward "components";
-@forward "lib";
 
-// Pyxis foundations
-@use "foundations" as pyxis;
+// Include all the base styles, components and atomic classes.
+@use "base";
+@use "components";
 @use "atoms";
