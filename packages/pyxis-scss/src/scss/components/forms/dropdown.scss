@@ -57,8 +57,6 @@ $_wrapperAnimationOffset: foundations.rem(10px);
 }
 
 .form-dropdown {
-  $maxHeight: foundations.rem(155px);
-  $maxHeightSmall: foundations.rem(120px);
   $radius: 0 0 foundations.rem(6px) foundations.rem(6px);
 
   @include foundations.hideScrollbar;
@@ -67,14 +65,12 @@ $_wrapperAnimationOffset: foundations.rem(10px);
   border-top: foundations.rem(1px) solid foundations.color(neutral85);
   cursor: default;
   display: grid;
-  max-height: $maxHeight;
   overflow-x: hidden;
   padding: foundations.spacing(3xs 2xs);
   position: relative;
   row-gap: foundations.spacing(4xs);
 
   .form-dropdown-wrapper--small & {
-    max-height: $maxHeightSmall;
     padding: foundations.spacing(3xs);
   }
 }

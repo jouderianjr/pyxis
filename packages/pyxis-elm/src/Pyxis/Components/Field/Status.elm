@@ -1,5 +1,6 @@
 module Pyxis.Components.Field.Status exposing
     ( Status(..)
+    , hasFocus
     , onBlur
     , onChange
     , onFocus
@@ -24,7 +25,7 @@ type Status
     = Untouched -- Initial state
     | Touched
         { blurred : Bool
-        , hasFocus : Bool -- currently focused
+        , hasFocus_ : Bool -- currently focused
         , dirty : Bool -- edited text at least once
         }
 
@@ -37,13 +38,13 @@ onFocus state =
         Untouched ->
             Touched
                 { blurred = False
-                , hasFocus = True
+                , hasFocus_ = True
                 , dirty = False
                 }
 
         Touched data ->
             Touched
-                { data | hasFocus = True }
+                { data | hasFocus_ = True }
 
 
 {-| User blurs the field
@@ -53,7 +54,7 @@ onBlur state =
     case state of
         Touched data ->
             Touched
-                { data | hasFocus = False, blurred = True }
+                { data | hasFocus_ = False, blurred = True }
 
         -- Should not happen
         _ ->
@@ -78,3 +79,15 @@ onInput state =
 onChange : Status -> Status
 onChange =
     onInput
+
+
+{-| Check if field has the status focus
+-}
+hasFocus : Status -> Bool
+hasFocus status =
+    case status of
+        Untouched ->
+            False
+
+        Touched { hasFocus_ } ->
+            hasFocus_

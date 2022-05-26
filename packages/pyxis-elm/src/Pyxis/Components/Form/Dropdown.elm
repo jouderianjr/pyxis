@@ -31,7 +31,6 @@ module Pyxis.Components.Form.Dropdown exposing
 
 import Html exposing (Html)
 import Html.Attributes
-import Html.Events
 import Html.Keyed
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Icon as Icon
@@ -127,14 +126,13 @@ hasHeader content_ =
 
 {-| Renders the Dropdown.
 -}
-render : String -> msg -> Size -> Content msg -> Html msg
-render id onBlur size content_ =
+render : String -> Size -> Content msg -> Html msg
+render id size content_ =
     Html.div
         [ Html.Attributes.class "form-dropdown-wrapper"
         , Html.Attributes.classList
             [ ( "form-dropdown-wrapper--small", Small == size )
             ]
-        , Html.Events.onBlur onBlur
         ]
         [ Html.Keyed.node "div"
             [ Html.Attributes.attribute "role" "listbox"

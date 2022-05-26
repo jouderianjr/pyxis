@@ -69,7 +69,7 @@ suite =
                     |> Query.has [ Selector.text s ]
         , Test.fuzz Fuzz.string "should set a name attribute" <|
             \s ->
-                Autocomplete.config filterJobs getJobName s
+                Autocomplete.config s
                     |> render
                     |> findInput
                     |> Query.has [ Selector.attribute (Html.Attributes.name s) ]
@@ -92,7 +92,8 @@ suite =
                 config
                     |> Autocomplete.withNoResultsFoundMessage "Nothing was found."
                     |> simulation
-                    |> Simulation.simulate ( Event.input "Qwerty", [ Selector.tag "input" ] )
+                    |> Simulation.simulate ( Event.focus, [ Selector.class "form-field__autocomplete" ] )
+                    |> Simulation.simulate ( Event.input "A very long search term which will match no results.", [ Selector.class "form-field__autocomplete" ] )
                     |> Simulation.expectHtml
                         (findDropdown >> Query.has [ Selector.text "Nothing was found." ])
                     |> Simulation.run
@@ -107,7 +108,8 @@ suite =
                                 |> Button.render
                             )
                         |> simulation
-                        |> Simulation.simulate ( Event.input "Qwerty", [ Selector.tag "input" ] )
+                        |> Simulation.simulate ( Event.focus, [ Selector.class "form-field__autocomplete" ] )
+                        |> Simulation.simulate ( Event.input "Qwerty", [ Selector.class "form-field__autocomplete" ] )
                         |> Simulation.expectHtml
                             (findDropdown
                                 >> Query.find [ Selector.class "form-dropdown__no-results__action" ]
@@ -119,7 +121,8 @@ suite =
                     config
                         |> Autocomplete.withAddonHeader "Choose a role:"
                         |> simulation
-                        |> Simulation.simulate ( Event.input "D", [ Selector.tag "input" ] )
+                        |> Simulation.simulate ( Event.focus, [ Selector.class "form-field__autocomplete" ] )
+                        |> Simulation.simulate ( Event.input "D", [ Selector.class "form-field__autocomplete" ] )
                         |> Simulation.expectHtml
                             (findDropdown
                                 >> Query.find [ Selector.class "form-dropdown__header" ]
@@ -140,7 +143,8 @@ suite =
                 \() ->
                     config
                         |> simulation
-                        |> Simulation.simulate ( Event.input "DEVELOPER", [ Selector.tag "input" ] )
+                        |> Simulation.simulate ( Event.focus, [ Selector.class "form-field__autocomplete" ] )
+                        |> Simulation.simulate ( Event.input "DEVELOPER", [ Selector.class "form-field__autocomplete" ] )
                         |> Simulation.simulate ( Event.click, [ Selector.class "form-dropdown__item" ] )
                         |> Simulation.expectModel
                             (Expect.all
@@ -154,18 +158,18 @@ suite =
 
 config : Autocomplete.Config Job (Autocomplete.Msg Job)
 config =
-    Autocomplete.config filterJobs getJobName "autocomplete"
+    Autocomplete.config "autocomplete"
         |> Autocomplete.withId "autocomplete-id"
 
 
 init : Autocomplete.Model () Job
 init =
-    Autocomplete.init Nothing (always validation)
+    Autocomplete.init Nothing getJobName filterJobs (always validation)
 
 
 findInput : Query.Single msg -> Query.Single msg
 findInput =
-    Query.find [ Selector.tag "input" ]
+    Query.find [ Selector.class "form-field__autocomplete" ]
 
 
 findDropdown : Query.Single msg -> Query.Single msg
@@ -189,10 +193,10 @@ simulation : Autocomplete.Config Job (Autocomplete.Msg Job) -> Simulation (Autoc
 simulation config_ =
     Simulation.fromElement
         { init =
-            ( Autocomplete.init Nothing (always validation)
+            ( Autocomplete.init Nothing getJobName filterJobs (always validation)
                 |> Autocomplete.setOptions (RemoteData.Success [ Developer, Designer, ProductManager ])
             , Cmd.none
             )
-        , update = \msg model -> ( Autocomplete.update msg model, Cmd.none )
+        , update = \msg model -> Autocomplete.update msg model
         , view = \model -> Autocomplete.render identity () model config_
         }

@@ -19,13 +19,14 @@ module Pyxis.Components.Field.Autocomplete exposing
     , withAddonAction
     , withAddonHeader
     , withAddonSuggestion
-    , Msg
-    , update
-    , setOptions
-    , validate
     , isOnInput
-    , isOnSelect
     , isOnReset
+    , isOnSelect
+    , Msg
+    , setDropdownClosed
+    , setOptions
+    , update
+    , validate
     , getValue
     , getFilter
     , render
@@ -77,13 +78,14 @@ module Pyxis.Components.Field.Autocomplete exposing
 
 ## Update
 
-@docs Msg
-@docs update
-@docs setOptions
-@docs validate
 @docs isOnInput
-@docs isOnSelect
 @docs isOnReset
+@docs isOnSelect
+@docs Msg
+@docs setDropdownClosed
+@docs setOptions
+@docs update
+@docs validate
 
 
 ## Readers
@@ -98,12 +100,15 @@ module Pyxis.Components.Field.Autocomplete exposing
 
 -}
 
+import Array
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Http
 import Maybe.Extra
+import PrimaFunction
+import PrimaUpdate
 import Pyxis.Commons.Attributes as CommonsAttributes
+import Pyxis.Commons.Events.KeyDown as KeyDown
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Field.Error as Error
 import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
@@ -123,46 +128,64 @@ import Result.Extra
 -}
 type Model ctx value
     = Model
-        { dropdownOpen : Bool
-        , fieldState : Status.Status
+        { activeOption : Maybe (Option value)
+        , isDropdownOpen : Bool
+        , fieldStatus : Status.Status
         , filter : String
-        , filtering : Bool
-        , options : RemoteData Http.Error (List value)
+        , isFiltering : Bool
+        , optionsFilter : String -> value -> Bool
+        , values : RemoteData () (List value)
         , validation : ctx -> Maybe value -> Result String value
         , value : Maybe value
+        , valueToString : value -> String
         }
 
 
 {-| Initializes the Autocomplete state.
 -}
-init : Maybe value -> (ctx -> Maybe value -> Result String value) -> Model ctx value
-init value validation =
+init :
+    Maybe value
+    -> (value -> String)
+    -> (String -> value -> Bool)
+    -> (ctx -> Maybe value -> Result String value)
+    -> Model ctx value
+init value valueToString optionsFilter validation =
     Model
-        { dropdownOpen = False
-        , fieldState = Status.Untouched
+        { activeOption = Nothing
+        , isDropdownOpen = False
+        , fieldStatus = Status.Untouched
         , filter = ""
-        , filtering = False
-        , options = RemoteData.NotAsked
+        , isFiltering = False
+        , optionsFilter = optionsFilter
+        , values = RemoteData.NotAsked
         , validation = validation
         , value = value
+        , valueToString = valueToString
         }
+
+
+type alias Option value =
+    { id : String
+    , value : value
+    , index : Int
+    }
 
 
 {-| Allow to updates the options list.
 -}
-setOptions : RemoteData Http.Error (List value) -> Model ctx value -> Model ctx value
+setOptions : RemoteData err (List value) -> Model ctx value -> Model ctx value
 setOptions optionsRemoteData (Model modelData) =
-    Model { modelData | options = optionsRemoteData, dropdownOpen = True }
+    Model { modelData | values = RemoteData.mapError (always ()) optionsRemoteData, isDropdownOpen = True }
 
 
 {-| Represents the Autocomplete message.
 -}
 type Msg value
-    = OnBlur
-    | OnFocus
+    = OnFocus
     | OnInput String
     | OnReset
     | OnSelect value
+    | OnKeyDown KeyDown.Event
 
 
 {-| Tells if the Autocomplete is currently filtering options or at least the filter has been modified.
@@ -203,45 +226,107 @@ isOnReset msg =
 
 {-| Updates the Autocomplete.
 -}
-update : Msg value -> Model ctx value -> Model ctx value
-update msg (Model modelData) =
+update : Msg value -> Model ctx value -> ( Model ctx value, Cmd (Msg value) )
+update msg ((Model modelData) as model) =
     case msg of
-        OnBlur ->
-            Model
-                { modelData
-                    | filtering = False
-                    , dropdownOpen = False
-                }
-                |> mapFieldState Status.onBlur
-
         OnFocus ->
-            Model
-                { modelData
-                    | dropdownOpen = True
-                }
-                |> mapFieldState Status.onFocus
+            Model { modelData | isDropdownOpen = True }
+                |> mapFieldStatus Status.onFocus
+                |> PrimaUpdate.withoutCmds
 
         OnInput value ->
-            Model
-                { modelData
-                    | filter = value
-                    , filtering = True
-                }
-                |> mapFieldState Status.onInput
+            Model { modelData | filter = value, isFiltering = True }
+                |> mapFieldStatus Status.onInput
+                |> PrimaUpdate.withoutCmds
 
         OnReset ->
             modelData.validation
-                |> init Nothing
-                |> mapFieldState Status.onInput
+                |> init Nothing modelData.valueToString modelData.optionsFilter
+                |> mapFieldStatus Status.onInput
+                |> PrimaUpdate.withoutCmds
 
         OnSelect value ->
-            Model
-                { modelData
-                    | value = Just value
-                    , filtering = False
-                    , dropdownOpen = False
-                }
-                |> mapFieldState Status.onInput
+            model
+                |> updateSelectedValue value
+                |> setDropdownClosed
+                |> mapFieldStatus Status.onInput
+                |> PrimaUpdate.withoutCmds
+
+        OnKeyDown event ->
+            model
+                |> updateOnKeyEvent event
+                |> PrimaUpdate.withoutCmds
+
+
+updateOnKeyEvent : KeyDown.Event -> Model ctx value -> Model ctx value
+updateOnKeyEvent event ((Model modelData) as model) =
+    if KeyDown.isArrowDown event then
+        updateActiveOption 1 model
+
+    else if KeyDown.isArrowUp event then
+        updateActiveOption -1 model
+
+    else if KeyDown.isEsc event then
+        setDropdownClosed model
+
+    else if KeyDown.isEnter event then
+        modelData.activeOption
+            |> Maybe.map (.value >> PrimaFunction.flip updateSelectedValue model)
+            |> Maybe.withDefault model
+            |> setDropdownClosed
+
+    else
+        model
+
+
+{-| Update the Autocomplete Model closing the dropdown
+-}
+setDropdownClosed : Model ctx value -> Model ctx value
+setDropdownClosed (Model modelData) =
+    Model { modelData | isFiltering = False, isDropdownOpen = False, activeOption = Nothing }
+
+
+{-| Internal.
+-}
+updateSelectedValue : value -> Model ctx value -> Model ctx value
+updateSelectedValue value (Model modelData) =
+    Model { modelData | value = Just value }
+
+
+updateActiveOption : Int -> Model ctx value -> Model ctx value
+updateActiveOption moveByPositions ((Model modelData) as model) =
+    let
+        newActiveOptionIndex : Int
+        newActiveOptionIndex =
+            modelData.activeOption
+                |> Maybe.map .index
+                |> Maybe.withDefault -1
+                |> (+) moveByPositions
+    in
+    Model
+        { modelData
+            | activeOption =
+                if newActiveOptionIndex < 0 then
+                    Nothing
+
+                else if newActiveOptionIndex >= getValuesLength model then
+                    getOptions model
+                        |> Array.fromList
+                        |> Array.get 0
+
+                else
+                    getOptions model
+                        |> Array.fromList
+                        |> Array.get newActiveOptionIndex
+        }
+
+
+getValuesLength : Model ctx value -> Int
+getValuesLength (Model modelData) =
+    modelData.values
+        |> RemoteData.withDefault []
+        |> List.filter (modelData.optionsFilter modelData.filter)
+        |> List.length
 
 
 {-| Return the input value
@@ -267,19 +352,20 @@ validate ctx (Model { validation, value }) =
 
 {-| Internal.
 -}
-mapFieldState : (Status.Status -> Status.Status) -> Model ctx value -> Model ctx value
-mapFieldState f (Model modelData) =
-    Model { modelData | fieldState = f modelData.fieldState }
+mapFieldStatus : (Status.Status -> Status.Status) -> Model ctx value -> Model ctx value
+mapFieldStatus mapper (Model modelData) =
+    Model { modelData | fieldStatus = mapper modelData.fieldStatus }
 
 
 {-| Internal.
 -}
-getOptions : Model ctx value -> Config value msg -> List value
-getOptions (Model modelData) (Config configData) =
-    modelData.options
+getOptions : Model ctx value -> List (Option value)
+getOptions (Model modelData) =
+    modelData.values
         |> RemoteData.toMaybe
         |> Maybe.withDefault []
-        |> List.filter (configData.optionsFilter modelData.filter)
+        |> List.filter (modelData.optionsFilter modelData.filter)
+        |> List.indexedMap (\index value -> { id = "id-" ++ modelData.valueToString value, value = value, index = index })
 
 
 {-| Autocomplete size
@@ -321,15 +407,13 @@ type Config value msg
         , placeholder : String
         , size : Size
         , strategy : Strategy
-        , optionsFilter : String -> value -> Bool
-        , optionToString : value -> String
         }
 
 
 {-| Creates the Autocomplete view configuration..
 -}
-config : (String -> value -> Bool) -> (value -> String) -> String -> Config value msg
-config optionsFilter optionToString name =
+config : String -> Config value msg
+config name =
     Config
         { additionalContent = Nothing
         , disabled = False
@@ -345,8 +429,6 @@ config optionsFilter optionToString name =
         , placeholder = ""
         , strategy = Strategy.onBlur
         , size = Medium
-        , optionsFilter = optionsFilter
-        , optionToString = optionToString
         }
 
 
@@ -450,18 +532,23 @@ withStrategy strategy (Config configuration) =
     Config { configuration | strategy = strategy }
 
 
+getValidationResult : Model c value -> Config a msg -> c -> Result String ()
+getValidationResult (Model modelData) (Config configData) ctx =
+    StrategyInternal.getShownValidation
+        modelData.fieldStatus
+        (modelData.validation ctx modelData.value)
+        configData.isSubmitted
+        configData.strategy
+
+
 {-| Renders the Autocomplete.
 -}
 render : (Msg value -> msg) -> ctx -> Model ctx value -> Config value msg -> Html msg
 render msgMapper ctx ((Model modelData) as model) ((Config configData) as configuration) =
     let
-        shownValidation : Result String ()
-        shownValidation =
-            StrategyInternal.getShownValidation
-                modelData.fieldState
-                (modelData.validation ctx modelData.value)
-                configData.isSubmitted
-                configData.strategy
+        validationResult : Result String ()
+        validationResult =
+            getValidationResult model configuration ctx
 
         dropdown : Maybe (Html msg)
         dropdown =
@@ -470,28 +557,49 @@ render msgMapper ctx ((Model modelData) as model) ((Config configData) as config
     Html.div
         [ Html.Attributes.classList
             [ ( "form-field", True )
-            , ( "form-field--with-opened-dropdown", modelData.dropdownOpen && Maybe.Extra.isJust dropdown )
-            , ( "form-field--error", Result.Extra.isErr shownValidation )
+            , ( "form-field--with-opened-dropdown", modelData.isDropdownOpen && Maybe.Extra.isJust dropdown )
+            , ( "form-field--error", Result.Extra.isErr validationResult )
             , ( "form-field--disabled", configData.disabled )
             ]
-
-        {--The onBlur event should be set at this level in order to allow option selection.
-        Setting it to the input element causes dropdown items flashing. --}
-        , Html.Events.onBlur (msgMapper OnBlur)
         ]
-        [ renderField shownValidation msgMapper model configuration
+        [ renderField validationResult msgMapper model configuration
         , CommonsRender.renderMaybe dropdown
         ]
         |> FormItem.config configData
         |> FormItem.withLabel configData.label
         |> FormItem.withAdditionalContent configData.additionalContent
-        |> FormItem.render shownValidation
+        |> FormItem.render validationResult
+
+
+{-| Internal
+-}
+handleSelectKeydown : KeyDown.Event -> ( Msg value, Bool )
+handleSelectKeydown key =
+    ( OnKeyDown key
+    , List.any
+        (\check -> check key)
+        [ KeyDown.isArrowUp, KeyDown.isArrowDown, KeyDown.isEnter ]
+    )
 
 
 {-| Internal.
 -}
 renderField : Result String () -> (Msg value -> msg) -> Model ctx value -> Config value msg -> Html msg
 renderField validationResult msgMapper ((Model modelData) as model) (Config configData) =
+    let
+        activeOptionId : String
+        activeOptionId =
+            case modelData.activeOption of
+                Just activeOption ->
+                    getOptions model
+                        |> Array.fromList
+                        |> Array.get activeOption.index
+                        |> Maybe.map .id
+                        |> Maybe.withDefault ""
+
+                Nothing ->
+                    ""
+    in
     Html.label
         [ Html.Attributes.class "form-field__wrapper" ]
         [ Html.input
@@ -500,30 +608,29 @@ renderField validationResult msgMapper ((Model modelData) as model) (Config conf
                 , ( "form-field__autocomplete--small", Small == configData.size )
                 , ( "form-field__autocomplete--filled", Maybe.Extra.isJust modelData.value )
                 ]
-
-            {--Remove this onBlur--}
-            , Html.Events.onBlur OnBlur
+            , KeyDown.onKeyDownPreventDefaultOn handleSelectKeydown
             , Html.Events.onFocus OnFocus
             , Html.Events.onInput OnInput
             , Html.Attributes.id configData.id
             , Html.Attributes.name configData.name
-            , Html.Attributes.attribute "aria-autocomplete" "both"
-            , CommonsAttributes.renderIf modelData.dropdownOpen (Html.Attributes.attribute "aria-expanded" "true")
-            , Html.Attributes.attribute "role" "combobox"
-            , Html.Attributes.attribute "aria-owns" (configData.id ++ "-dropdown-list")
+            , CommonsAttributes.ariaAutocomplete "both"
+            , CommonsAttributes.renderIf modelData.isDropdownOpen (CommonsAttributes.ariaExpanded "true")
+            , CommonsAttributes.role "combobox"
+            , CommonsAttributes.ariaOwns (configData.id ++ "-dropdown-list")
+            , CommonsAttributes.ariaActiveDescendant activeOptionId
             , Html.Attributes.autocomplete False
             , Html.Attributes.disabled configData.disabled
             , Html.Attributes.placeholder configData.placeholder
             , Html.Attributes.type_ "text"
             , CommonsAttributes.testId configData.id
             , modelData.value
-                |> Maybe.map configData.optionToString
+                |> Maybe.map modelData.valueToString
                 |> Maybe.withDefault modelData.filter
                 |> Html.Attributes.value
-                |> CommonsAttributes.renderIf (not modelData.filtering)
+                |> CommonsAttributes.renderIf (not modelData.isFiltering)
             , modelData.filter
                 |> Html.Attributes.value
-                |> CommonsAttributes.renderIf modelData.filtering
+                |> CommonsAttributes.renderIf modelData.isFiltering
             , validationResult
                 |> Error.fromResult
                 |> Maybe.map (always (Error.toId configData.id))
@@ -551,6 +658,7 @@ renderFieldIconAddon ((Model modelData) as model) =
         , Html.button
             [ Html.Attributes.class "form-field__addon__reset"
             , Html.Events.onClick OnReset
+            , CommonsAttributes.ariaLabel "reset"
             ]
             [ model
                 |> getFieldAddonIcon
@@ -565,7 +673,7 @@ renderFieldIconAddon ((Model modelData) as model) =
 -}
 getFieldAddonIcon : Model ctx value -> Icon.Config
 getFieldAddonIcon (Model modelData) =
-    if RemoteData.isLoading modelData.options then
+    if RemoteData.isLoading modelData.values then
         IconSet.Loader
             |> Icon.config
             |> Icon.withSpinner True
@@ -580,27 +688,26 @@ getFieldAddonIcon (Model modelData) =
 {-| Internal.
 -}
 renderDropdown : (Msg value -> msg) -> Model ctx value -> Config value msg -> Maybe (Html msg)
-renderDropdown msgMapper ((Model modelData) as model) ((Config configData) as configuration) =
+renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
     let
         renderedOptions : List (Html msg)
         renderedOptions =
-            configuration
-                |> getOptions model
-                |> List.map (renderOptionsItem msgMapper model configuration)
+            model
+                |> getOptions
+                |> List.indexedMap (renderOptionsItem msgMapper model)
 
         noAvailableOptions : Bool
         noAvailableOptions =
-            List.length (getOptions model configuration) == 0 && RemoteData.isSuccess modelData.options
+            List.length (getOptions model) == 0 && RemoteData.isSuccess modelData.values
     in
-    if String.isEmpty modelData.filter then
+    if String.isEmpty modelData.filter && List.isEmpty renderedOptions then
         configData.addonSuggestion
             |> Maybe.map FormDropdown.suggestion
-            |> Maybe.map (FormDropdown.render configData.id (msgMapper OnBlur) (mapDropdownSize configData.size))
+            |> Maybe.map (FormDropdown.render configData.id (mapDropdownSize configData.size))
 
-    else
+    else if Status.hasFocus modelData.fieldStatus then
         FormDropdown.render
             configData.id
-            (msgMapper OnBlur)
             (mapDropdownSize configData.size)
             (if noAvailableOptions then
                 FormDropdown.noResult
@@ -621,7 +728,7 @@ renderDropdown msgMapper ((Model modelData) as model) ((Config configData) as co
                             }
 
                     ( Nothing, Just suggestionConfig ) ->
-                        if not (RemoteData.isSuccess modelData.options) && String.isEmpty modelData.filter then
+                        if not (RemoteData.isSuccess modelData.values) && String.isEmpty modelData.filter then
                             FormDropdown.suggestion suggestionConfig
 
                         else
@@ -632,20 +739,36 @@ renderDropdown msgMapper ((Model modelData) as model) ((Config configData) as co
             )
             |> Just
 
+    else
+        Nothing
+
 
 {-| Internal.
 -}
-renderOptionsItem : (Msg value -> msg) -> Model ctx value -> Config value msg -> value -> Html msg
-renderOptionsItem msgMapper (Model modelData) (Config configData) option =
+renderOptionsItem : (Msg value -> msg) -> Model ctx value -> Int -> Option value -> Html msg
+renderOptionsItem msgMapper (Model modelData) index { id, value } =
+    let
+        isActive : Bool
+        isActive =
+            modelData.activeOption
+                |> Maybe.map (.index >> (==) index)
+                |> Maybe.withDefault False
+    in
     Html.div
         [ Html.Attributes.class "form-dropdown__item"
-        , option
+        , Html.Attributes.classList
+            [ ( "form-dropdown__item--active", modelData.value == Just value )
+            , ( "form-dropdown__item--hover", isActive )
+            ]
+        , Html.Attributes.id id
+        , CommonsAttributes.role "option"
+        , value
             |> OnSelect
             |> msgMapper
             |> Html.Events.onClick
         ]
-        [ option
-            |> configData.optionToString
+        [ value
+            |> modelData.valueToString
             |> String.trim
             |> renderOptionText modelData.filter
             |> Html.span []

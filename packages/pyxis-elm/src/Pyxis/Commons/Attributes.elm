@@ -1,9 +1,13 @@
 module Pyxis.Commons.Attributes exposing
-    ( ariaDescribedBy
+    ( ariaActiveDescendant
+    , ariaAutocomplete
+    , ariaDescribedBy
     , ariaDescribedByErrorOrHint
+    , ariaExpanded
     , ariaHidden
     , ariaLabel
     , ariaLabelledbyBy
+    , ariaOwns
     , role
     , target
     , testId
@@ -17,11 +21,15 @@ module Pyxis.Commons.Attributes exposing
 
 ## A11Y Attributes
 
+@docs ariaActiveDescendant
+@docs ariaAutocomplete
 @docs ariaDescribedBy
 @docs ariaDescribedByErrorOrHint
+@docs ariaExpanded
 @docs ariaHidden
 @docs ariaLabel
 @docs ariaLabelledbyBy
+@docs ariaOwns
 @docs role
 
 
@@ -108,6 +116,34 @@ ariaDescribedByErrorOrHint errorId hintId =
 ariaLabelledbyBy : String -> Html.Attribute msg
 ariaLabelledbyBy =
     Html.Attributes.attribute "aria-labelledby"
+
+
+{-| Creates an aria-autocomplete attribute.
+-}
+ariaAutocomplete : String -> Html.Attribute msg
+ariaAutocomplete =
+    Html.Attributes.attribute "aria-autocomplete"
+
+
+{-| Creates an aria-expanded attribute.
+-}
+ariaExpanded : String -> Html.Attribute msg
+ariaExpanded =
+    Html.Attributes.attribute "aria-expanded"
+
+
+{-| Creates an aria-owns attribute.
+-}
+ariaOwns : String -> Html.Attribute msg
+ariaOwns =
+    Html.Attributes.attribute "aria-owns"
+
+
+{-| Creates an aria-activedescendant attribute.
+-}
+ariaActiveDescendant : String -> Html.Attribute msg
+ariaActiveDescendant =
+    Html.Attributes.attribute "aria-activedescendant"
 
 
 

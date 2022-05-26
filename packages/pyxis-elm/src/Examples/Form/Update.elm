@@ -39,10 +39,15 @@ update msg model =
                 |> PrimaUpdate.withoutCmds
 
         Model.AutocompleteFieldChanged Data.ResidentialCity subMsg ->
+            let
+                ( autocompleteModel, autocompleteCmd ) =
+                    Model.mapResidentialCity subMsg model.data
+            in
             model
-                |> Model.mapData (\(Data d) -> Data { d | residentialCity = Autocomplete.update subMsg d.residentialCity })
+                |> Model.setData autocompleteModel
                 |> PrimaUpdate.withCmds
-                    [ PrimaUpdate.ifThenCmd
+                    [ Cmd.map (Model.AutocompleteFieldChanged Data.ResidentialCity) autocompleteCmd
+                    , PrimaUpdate.ifThenCmd
                         (Autocomplete.isOnInput subMsg)
                         (CityApi.fetch Model.CitiesFetched)
                     ]

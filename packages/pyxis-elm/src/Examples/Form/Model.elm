@@ -3,7 +3,9 @@ module Examples.Form.Model exposing
     , Msg(..)
     , initialModel
     , mapData
+    , mapResidentialCity
     , setCitiesApi
+    , setData
     , updateResponse
     )
 
@@ -73,6 +75,11 @@ mapData mapper model =
     { model | data = mapper model.data }
 
 
+setData : Data -> Model -> Model
+setData data model =
+    { model | data = data }
+
+
 setCitiesApi : RemoteData Http.Error (List City) -> Model -> Model
 setCitiesApi remoteData model =
     { model | citiesApi = remoteData }
@@ -103,3 +110,16 @@ validate ((Data config) as data) =
 parseAndThen : Result x a -> Result x (a -> b) -> Result x b
 parseAndThen result =
     Result.andThen (\partial -> Result.map partial result)
+
+
+mapResidentialCity : Autocomplete.Msg City -> Data -> ( Data, Cmd (Autocomplete.Msg City) )
+mapResidentialCity subMsg data =
+    case data of
+        Data d ->
+            let
+                ( autocompleteModel, cmd ) =
+                    Autocomplete.update subMsg d.residentialCity
+            in
+            ( Data { d | residentialCity = autocompleteModel }
+            , cmd
+            )

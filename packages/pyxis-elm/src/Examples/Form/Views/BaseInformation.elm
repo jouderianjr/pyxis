@@ -1,6 +1,5 @@
 module Examples.Form.Views.BaseInformation exposing (view)
 
-import Examples.Form.Api.City as City
 import Examples.Form.Api.Province as Province
 import Examples.Form.Data as Data exposing (Data(..))
 import Examples.Form.Model as Model
@@ -57,7 +56,7 @@ view ((Data config) as data) =
                 [ Row.smallSize ]
                 [ Grid.simpleCol
                     [ "residential_city"
-                        |> Autocomplete.config City.startsWith City.getName
+                        |> Autocomplete.config
                         |> Autocomplete.withStrategy Strategy.onSubmit
                         |> Autocomplete.withNoResultsFoundMessage "Nessun risultato trovato."
                         |> Autocomplete.withLabel (Label.config "Città di residenza")

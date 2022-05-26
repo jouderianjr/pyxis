@@ -14,7 +14,7 @@ module Examples.Form.Data exposing
     )
 
 import Date exposing (Date)
-import Examples.Form.Api.City exposing (City)
+import Examples.Form.Api.City as City exposing (City)
 import Examples.Form.Api.Province as Province
 import Pyxis.Components.Field.Autocomplete as Autocomplete
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
@@ -64,7 +64,7 @@ initialData =
         , residentialCity =
             Result.fromMaybe ""
                 |> always
-                |> Autocomplete.init Nothing
+                |> Autocomplete.init Nothing City.getName City.startsWith
         , residentialProvince =
             Result.fromMaybe ""
                 |> always
