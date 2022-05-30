@@ -196,9 +196,9 @@ uncheckValue value =
 
 {-| A type representing a single checkbox option
 -}
-type Option value
+type Option value msg
     = Option
-        { label : Html (Msg value)
+        { label : Html msg
         , value : value
         , disabled : Bool
         }
@@ -206,7 +206,7 @@ type Option value
 
 {-| Create a single Checkbox
 -}
-option : { label : Html (Msg value), value : value } -> Option value
+option : { label : Html msg, value : value } -> Option value msg
 option { label, value } =
     Option
         { label = label
@@ -217,56 +217,56 @@ option { label, value } =
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config value -> Config value
+withAdditionalContent : Html Never -> Config value msg -> Config value msg
 withAdditionalContent additionalContent (Config configData) =
     Config { configData | additionalContent = Just additionalContent }
 
 
 {-| Sets the disabled attribute on option
 -}
-withDisabledOption : Bool -> Option value -> Option value
+withDisabledOption : Bool -> Option value msg -> Option value msg
 withDisabledOption disabled (Option optionData) =
     Option { optionData | disabled = disabled }
 
 
 {-| Set the CheckboxGroup checkboxes options
 -}
-withOptions : List (Option value) -> Config value -> Config value
+withOptions : List (Option value msg) -> Config value msg -> Config value msg
 withOptions options (Config configData) =
     Config { configData | options = options }
 
 
 {-| Sets the label attribute
 -}
-withLabel : Label.Config -> Config value -> Config value
+withLabel : Label.Config -> Config value msg -> Config value msg
 withLabel label (Config configData) =
     Config { configData | label = Just label }
 
 
 {-| Sets the classList attribute
 -}
-withClassList : List ( String, Bool ) -> Config value -> Config value
+withClassList : List ( String, Bool ) -> Config value msg -> Config value msg
 withClassList classList (Config configData) =
     Config { configData | classList = classList }
 
 
 {-| Sets the id attribute
 -}
-withId : String -> Config value -> Config value
+withId : String -> Config value msg -> Config value msg
 withId id (Config configData) =
     Config { configData | id = id }
 
 
 {-| Sets the validation strategy (when to show the error, if present)
 -}
-withStrategy : Strategy -> Config value -> Config value
+withStrategy : Strategy -> Config value msg -> Config value msg
 withStrategy strategy (Config configuration) =
     Config { configuration | strategy = strategy }
 
 
 {-| Sets whether the form was submitted
 -}
-withIsSubmitted : Bool -> Config value -> Config value
+withIsSubmitted : Bool -> Config value msg -> Config value msg
 withIsSubmitted isSubmitted (Config configuration) =
     Config { configuration | isSubmitted = isSubmitted }
 
@@ -280,7 +280,7 @@ type Layout
 
 {-| Sets the CheckboxGroup layout
 -}
-withLayout : Layout -> Config value -> Config value
+withLayout : Layout -> Config value msg -> Config value msg
 withLayout layout (Config configData) =
     Config { configData | layout = layout }
 
@@ -301,7 +301,7 @@ vertical =
 
 {-| Internal
 -}
-type alias ConfigData value =
+type alias ConfigData value msg =
     { additionalContent : Maybe (Html Never)
     , ariaLabelledBy : Maybe String
     , classList : List ( String, Bool )
@@ -310,7 +310,7 @@ type alias ConfigData value =
     , label : Maybe Label.Config
     , layout : Layout
     , name : String
-    , options : List (Option value)
+    , options : List (Option value msg)
     , strategy : Strategy
     , isSubmitted : Bool
     }
@@ -319,13 +319,13 @@ type alias ConfigData value =
 {-| A type representing the select rendering options.
 This should not belong to the app `Model`
 -}
-type Config value
-    = Config (ConfigData value)
+type Config value msg
+    = Config (ConfigData value msg)
 
 
 {-| Create a default [`CheckboxGroup.Config`](CheckboxGroup#Config)
 -}
-config : String -> Config value
+config : String -> Config value msg
 config name =
     Config
         { additionalContent = Nothing
@@ -353,7 +353,7 @@ config name =
             ]
 
 -}
-single : Html (Msg ()) -> String -> Config ()
+single : Html msg -> String -> Config () msg
 single label id =
     config id
         |> withOptions
@@ -363,7 +363,7 @@ single label id =
 
 {-| Render the CheckboxGroup
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue -> Config value -> Html msg
+render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue -> Config value msg -> Html msg
 render tagger ctx (Model modelData) (Config configData) =
     let
         shownValidation : Result String ()
@@ -374,9 +374,9 @@ render tagger ctx (Model modelData) (Config configData) =
                 configData.isSubmitted
                 configData.strategy
 
-        renderCheckbox_ : Option value -> Html (Msg value)
+        renderCheckbox_ : Option value msg -> Html msg
         renderCheckbox_ =
-            renderCheckbox
+            renderCheckbox tagger
                 { hasError = Result.Extra.isErr shownValidation
                 , checkedValues = modelData.checkedValues
                 }
@@ -389,13 +389,12 @@ render tagger ctx (Model modelData) (Config configData) =
         |> FormItem.withLabel configData.label
         |> FormItem.withAdditionalContent configData.additionalContent
         |> FormItem.render shownValidation
-        |> Html.map tagger
 
 
 {-| Internal
 Handles the single input / input group markup difference
 -}
-renderControlGroup : ConfigData value -> List (Html msg) -> Html msg
+renderControlGroup : ConfigData value msg -> List (Html msg) -> Html msg
 renderControlGroup configData children =
     case children of
         [ child ] ->
@@ -432,8 +431,8 @@ getValue (Model modelData) =
 
 {-| Internal
 -}
-renderCheckbox : { hasError : Bool, checkedValues : List value } -> { r | name : String } -> Option value -> Html (Msg value)
-renderCheckbox { hasError, checkedValues } configData (Option optionData) =
+renderCheckbox : (Msg value -> msg) -> { hasError : Bool, checkedValues : List value } -> { r | name : String } -> Option value msg -> Html msg
+renderCheckbox tagger { hasError, checkedValues } configData (Option optionData) =
     Html.label
         [ Html.Attributes.class "form-control"
         , Html.Attributes.classList
@@ -450,9 +449,9 @@ renderCheckbox { hasError, checkedValues } configData (Option optionData) =
             , Html.Attributes.checked (List.member optionData.value checkedValues)
             , Html.Attributes.disabled optionData.disabled
             , Html.Attributes.name configData.name
-            , Html.Events.onCheck (Checked optionData.value)
-            , Html.Events.onFocus (Focused optionData.value)
-            , Html.Events.onBlur (Blurred optionData.value)
+            , Html.Events.onCheck (Checked optionData.value >> tagger)
+            , Html.Events.onFocus (Focused optionData.value |> tagger)
+            , Html.Events.onBlur (Blurred optionData.value |> tagger)
             ]
             []
         , optionData.label

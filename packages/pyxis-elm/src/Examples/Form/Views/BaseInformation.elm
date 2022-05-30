@@ -5,6 +5,7 @@ import Examples.Form.Data as Data exposing (Data(..))
 import Examples.Form.Model as Model
 import Html
 import Html.Attributes
+import Pyxis.Components.Button as Button
 import Pyxis.Components.Field.Autocomplete as Autocomplete
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Error.Strategy as Strategy
@@ -100,6 +101,11 @@ view ((Data config) as data) =
                                     "Dichiaro di aver letto l’"
                                 , Html.a [ Html.Attributes.href "https://www.prima.it/app/privacy-policy" ]
                                     [ Html.text "Informativa Privacy" ]
+                                , Button.ghost
+                                    |> Button.withText "Informativa Privacy"
+                                    |> Button.withType Button.button
+                                    |> Button.withOnClick (Model.ShowModal True)
+                                    |> Button.render
                                 , Html.text
                                     ", disposta ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679. "
                                 ]

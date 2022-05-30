@@ -22,13 +22,13 @@ type Lang
     | Elixir
 
 
-langsConfig : CheckboxGroup.Config Lang
+langsConfig : CheckboxGroup.Config Lang msg
 langsConfig =
     CheckboxGroup.config "checkbox"
         |> CheckboxGroup.withOptions langsOptions
 
 
-langsOptions : List (CheckboxGroup.Option Lang)
+langsOptions : List (CheckboxGroup.Option Lang msg)
 langsOptions =
     [ CheckboxGroup.option { value = Elm, label = Html.text "Elm" }
     , CheckboxGroup.option { value = Typescript, label = Html.text "Typescript" }
@@ -220,7 +220,7 @@ findInput label =
     Query.find (inputSelectors label)
 
 
-renderCheckboxGroup : CheckboxGroup.Config value -> Query.Single (CheckboxGroup.Msg value)
+renderCheckboxGroup : CheckboxGroup.Config value (CheckboxGroup.Msg value) -> Query.Single (CheckboxGroup.Msg value)
 renderCheckboxGroup =
     CheckboxGroup.render identity () (CheckboxGroup.init [] (always Ok)) >> Query.fromHtml
 

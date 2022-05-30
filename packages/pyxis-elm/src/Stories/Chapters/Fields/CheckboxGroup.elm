@@ -40,7 +40,7 @@ validation _ selected =
             Ok selected
 
 
-checkboxGroupModel : CheckboxGroup.Model formData
+checkboxGroupModel : CheckboxGroup.Model formdata Option (List Option)
 checkboxGroupModel =
     CheckboxGroup.init [] validation
 
@@ -72,7 +72,7 @@ CheckboxGroup.config "checkbox-name"
 
 <component with-label="CheckboxGroup with a disabled option" />
 ```
-options : List (CheckboxGroup.Option Option)
+options : List (CheckboxGroup.Option Option msg)
 options =
     [ CheckboxGroup.option { value = Elm, label = Html.text "Elm" }
     , CheckboxGroup.option { value = Typescript, label = Html.text "Typescript" }
@@ -164,7 +164,7 @@ init =
     }
 
 
-options : List (CheckboxGroup.Option Option)
+options : List (CheckboxGroup.Option Option msg)
 options =
     [ CheckboxGroup.option { value = Elm, label = Html.text "Elm" }
     , CheckboxGroup.option { value = Typescript, label = Html.text "Typescript" }
@@ -173,7 +173,7 @@ options =
     ]
 
 
-optionsWithDisabled : List (CheckboxGroup.Option Option)
+optionsWithDisabled : List (CheckboxGroup.Option Option msg)
 optionsWithDisabled =
     [ CheckboxGroup.option { value = Elm, label = Html.text "Elm" }
     , CheckboxGroup.option { value = Typescript, label = Html.text "Typescript" }
@@ -238,15 +238,15 @@ componentsList =
     ]
 
 
-type alias StatefulConfig =
+type alias StatefulConfig msg =
     { name : String
-    , configModifier : CheckboxGroup.Config Option -> CheckboxGroup.Config Option
+    , configModifier : CheckboxGroup.Config Option msg -> CheckboxGroup.Config Option msg
     , modelPicker : CheckboxFieldModels -> CheckboxGroup.Model () Option (List Option)
     , update : CheckboxGroup.Msg Option -> CheckboxFieldModels -> CheckboxFieldModels
     }
 
 
-statefulComponent : StatefulConfig -> SharedState x -> Html (ElmBook.Msg (SharedState x))
+statefulComponent : StatefulConfig (CheckboxGroup.Msg Option) -> SharedState x -> Html (ElmBook.Msg (SharedState x))
 statefulComponent { name, configModifier, modelPicker, update } sharedState =
     CheckboxGroup.config name
         |> CheckboxGroup.withOptions options
