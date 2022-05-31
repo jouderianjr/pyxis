@@ -8,10 +8,10 @@ The name "**Pyxis**" comes from a [small constellation](https://en.wikipedia.org
 
 ## Table of contents
 
-1. [Introduction](#✨-introduction)
-2. [Setup](#⚙️-setup)
-3. [Documentation](#📚-documentation)
-4. [Development](#⌨️-development)
+1. [Introduction](#-introduction)
+2. [Setup](#-setup)
+3. [Documentation](#-documentation)
+4. [Development](#️-development)
 
 ---
 
