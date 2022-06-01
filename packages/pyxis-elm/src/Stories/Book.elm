@@ -71,6 +71,11 @@ main =
         |> ElmBook.withThemeOptions
             [ ElmBook.ThemeOptions.globals
                 [ Html.node "link" [ Html.Attributes.href "/pyxis.css", Html.Attributes.rel "stylesheet" ] []
+                , Html.node "meta"
+                    [ Html.Attributes.name "viewport"
+                    , Html.Attributes.attribute "content" "width=device-width, initial-scale=1"
+                    ]
+                    []
                 ]
             , ElmBook.ThemeOptions.backgroundGradient "#21283b" "#595d6a"
             , ElmBook.ThemeOptions.accent "#f2eaf8"

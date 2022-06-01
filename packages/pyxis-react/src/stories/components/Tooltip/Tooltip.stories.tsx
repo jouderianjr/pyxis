@@ -1,6 +1,5 @@
 import React, {FC} from 'react';
 import {ComponentMeta} from '@storybook/react';
-import {MINIMAL_VIEWPORTS} from '@storybook/addon-viewport';
 import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 import Tooltip, {Tooltips} from "./Tooltip";
 import Button from "components/Button";
@@ -8,15 +7,10 @@ import {IconQuestionCircle} from "components/Icon/Icons";
 import styles from './Tooltip.module.scss'
 
 export default {
-  title: 'Components/Tooltip 🚧/All Stories',
-  parameters: {
-    viewport: {
-      viewports: MINIMAL_VIEWPORTS
-    },
-  }
+  title: 'Components/Tooltip 🚧/All Stories'
 } as ComponentMeta<typeof Tooltip>;
 
-const mobileFirstViewport = {viewport: {defaultViewport: "mobile1"}}
+const mobileFirstViewport = { viewport: { defaultViewport: "xxsmall" } }
 
 const TooltipChildTemplate:FC<any> = (props) =>
   <Button icon={IconQuestionCircle} iconPlacement="only" variant="ghost" {...props}>Tooltip</Button>

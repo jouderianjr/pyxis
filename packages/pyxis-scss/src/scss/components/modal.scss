@@ -161,6 +161,12 @@ $_sizesOnBp: (
     grid-auto-flow: row;
     grid-template-columns: 1fr;
   }
+
+  .button:first-child:not(:only-child) {
+    @include foundations.mq(base, xsmall) {
+      grid-row: end;
+    }
+  }
 }
 
 .modal__header--sticky,

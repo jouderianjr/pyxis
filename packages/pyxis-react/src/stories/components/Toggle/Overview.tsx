@@ -67,7 +67,7 @@ const accessibilityDescription = (
 
 const classDescription = (
   <p>
-    Text Field is based upon this list of CSS classes.
+    Toggle is based upon this list of CSS classes.
   </p>
 );
 

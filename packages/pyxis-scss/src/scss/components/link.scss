@@ -25,6 +25,7 @@
   background-repeat: no-repeat;
   background-size: 300% foundations.rem(1px);
   border-radius: foundations.rem(1px);
+  cursor: pointer;
   display: inline;
   text-decoration: none;
   transition: background-position foundations.duration(slow) foundations.timing(base);
