@@ -8,7 +8,7 @@
   width: pyxis.rem(100px);
 }
 
-$borderColors: ('brand', 'action', 'neutral');
+$borderColors: ('brand', 'action', 'neutral', 'alert', 'success', 'error');
 
 @each $color in $borderColors {
   .border-#{$color} {
