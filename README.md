@@ -163,7 +163,3 @@ To generate fresh tokens, run the following command:
 ```sh
 $ yarn tokens:build
 ```
-
-## 🚧 License
-
-WIP

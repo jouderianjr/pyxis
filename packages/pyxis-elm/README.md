@@ -11,18 +11,19 @@ We'll refer to components in order to keep consistency with @pyxis/react._
 
 ## Table of contents
 
-1. [Setup](#setup)
-2. [Structure](#structure)
-3. [Requiring a component](#requiring-a-component)
-4. [Dictionary](#dictionary)
-5. [Stateless components usage](#stateless-components-usage)
-6. [Stateful components usage](#stateful-components-usage)
-7. [Real application example](#real-application-example)
-8. [Documentation](#documentation)
+1. [Setup](#⚙️-setup)
+2. [Structure](#🏛-structure)
+3. [Requiring a component](#🪛-requiring-a-component)
+4. [Dictionary](#📖-dictionary)
+5. [Stateless components usage](#🧱-stateless-components-usage)
+6. [Stateful components usage](#🚀-stateful-components-usage)
+7. [Real application example](#💻-real-application-example)
+8. [Documentation](#📚-documentation)
+9. [Migration guide](#👨‍💻-migration-guide)
 
 ---
 
-### Setup
+## ⚙️ Setup
 
 **Prerequisite**: having `@pyxis/scss` installed. This package relies on SCSS/CSS core in order to properly work.
 
@@ -34,7 +35,7 @@ $ ./node_modules/.bin/elm add primait/@pyxis/elm
 
 ---
 
-## Structure
+## 🏛 Structure
 
 This package offer you ready-to-use components with a ton of customization options.
 
@@ -45,7 +46,7 @@ You'll find out that Pyxis' exposed modules are made up of:
 1. `Pyxis.Components.xxx` which define components to be used in your interface.
 2. `Pyxis.Commons.xxx` which define some useful apis, data and types that you'll need to use in order to properly set up the `Pyxis.Components.xxx`.
 
-## Requiring a Component
+## 🪛 Requiring a Component
 
 All the Pyxis' components are available under the `Pyxis.Components.componentName` namespace.
 
@@ -62,7 +63,7 @@ import Pyxis.Components.Icon as Icon
 
 ---
 
-## Dictionary
+## 📖 Dictionary
 
 We tried to enforce consistency in our api so you can quickly guess how to use a component once after been playing with the previous one.
 
@@ -79,7 +80,7 @@ We tried to enforce consistency in our api so you can quickly guess how to use a
 
 ---
 
-## Stateless components usage
+## 🧱 Stateless components usage
 
 This is the simplest kind of component you'll use in Pyxis.
 
@@ -107,7 +108,7 @@ view model =
 
 ---
 
-## Stateful components usage
+## 🚀 Stateful components usage
 
 This is the most complex kind of component you'll use in Pyxis.
 
@@ -164,7 +165,7 @@ view model =
 
 ---
 
-## Real application example
+## 💻 Real application example
 
 You can see a Pyxis-based working application example by looking at [the source code](./src/Examples/Form/Main.elm) or running the application by yourself.
 
@@ -190,9 +191,103 @@ You'll now should see the interactive application running on `http://localhost:8
 
 ---
 
-## Documentation
+## 📚 Documentation
 
 You can find the documentation for each single component and also a preview of its appeareance and usage by following these links:
 
 - [Elmbook documentation](https://elm.prima.design)
 - ~~[Elm packages documentation](https://to-be-defined)~~
+
+---
+
+## 👨‍💻 Migration guide
+
+If you already have a working application with a custom CSS, chances are that Pyxis nomenclature collide with it.
+Nevertheless you can anyway migrate your existing codebase to the latest Pyxis' release.
+
+If your application is written in Elm you're probably using its native _routing system_ via [Browser.Application](https://package.elm-lang.org/packages/elm/browser/latest/Browser#application). Also, you probably have a stylesheet in your HTML entrypoint file.
+
+Whether you're using `Webpack` or not at certain point you'll include your stylesheet and compiled Elm application into the `HTML` file.
+
+```html
+<html>
+  <head>
+    <!-- This import can be removed and handled directly inside the Elm application. -->
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="appRoot" />
+    <script src="/app.js"></script>
+  </body>
+</html>
+```
+
+Once [installed the CSS/SCSS module of Pyxis](./../pyxis-scss/README.md), what you want to do is **to delegate the stylesheet inclusion to the Elm application view basing on the route which is active**.
+
+By doing that you can fully upgrade your SPA's page or entire flow with the latest version of Pyxis without having CSS clashing or unexpected results.
+
+---
+
+##### Migration example
+
+```elm
+{-- Router.elm --}
+
+module App.Router exposing (Route(..), parser, shouldUsePyxis)
+
+{-| Separate the routes by using union types. Newer will use the latest version of Pyxis.
+Once the migration will be completed this division can be removed.
+-}
+type Route = Old WithoutPyxis | New WithPyxis
+
+type WithoutPyxis = About | Contacts
+
+type WithPyxis = Homepage
+
+parser : Url.Parser.Parser (Route -> a) a
+parser =
+    Url.Parser.oneOf
+        [ Url.Parser.map (About >> Old) (s "about")
+        , Url.Parser.map (Contacts >> Old) (s "contacts")
+        , Url.Parser.map (Homepage >> New) Url.Parser.top
+        ]
+```
+
+```elm
+{-- View.elm --}
+
+module App.View exposing (view)
+
+import App.Homepage as Homepage
+import App.Contacts as Contacts
+import App.About as About
+import App.Router as Router
+
+view : { model | route : Router.Route } -> Html msg
+view model =
+    div
+        []
+        (case model.route of
+            Router.New Router.Homepage ->
+                [ stylesheet "/pyxis.css", Homepage.view model ]
+
+            Router.Old Router.About ->
+                [ stylesheet "/style.css", About.view model ]
+
+            Router.Old Router.Contacts ->
+                [ stylesheet "/style.css", Contacts.view model ]
+        )
+
+
+
+stylesheet : String -> Html msg
+stylesheet path =
+     Html.node "link"
+        [ Html.Attributes.href path
+        , Html.Attributes.rel "stylesheet"
+        ]
+        []
+
+```
+
+You are now ready to continue upgrading your application with Pyxis.
