@@ -2,7 +2,7 @@ import React, {FC, useEffect, useState} from "react";
 import classNames from "classnames";
 import Button from "components/Button";
 import {IconCar, IconClose} from "components/Icon/Icons";
-import Badge from "../Badge/Badge";
+import Badge from "components/Badge";
 
 const getBackdropClasses = (show: boolean): string => classNames(
   "modal-backdrop",

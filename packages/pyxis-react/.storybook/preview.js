@@ -74,5 +74,12 @@ module.exports = {
     viewport: {
       viewports: customViewports
     },
+    html: {
+      prettier: {
+        tabWidth: 2,
+        useTabs: false,
+        htmlWhitespaceSensitivity: 'ignore',
+      },
+    },
   },
 };

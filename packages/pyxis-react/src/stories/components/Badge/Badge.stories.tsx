@@ -1,22 +1,27 @@
 import React from 'react';
-import {ComponentMeta} from '@storybook/react';
-import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
-import Badge, {badges} from "./Badge";
-import styles from "./Badge.module.scss"
+import {ComponentMeta, ComponentStory} from '@storybook/react';
+import Badge, {BadgeProps} from "components/Badge";
 
 export default {
-  title: 'Components/Badge 🚧/All Stories',
+  title: 'Components/Badge/All Stories',
+  component: Badge,
+  argTypes: {
+    variant: {
+      description: "Please use `neutralGradient` and `brandGradient` only without the `alt` prop. " +
+        "Instead, `ghost` variant will be visible only on dark background."
+    }
+  }
 } as ComponentMeta<typeof Badge>;
 
-export const Default = () => <Badge />
-Default.parameters = renderSourceAsHTML(Default());
+const Template: ComponentStory<typeof Badge> = (args: BadgeProps) => <Badge {...args}>Badge Text</Badge>;
 
-export const Variants = () => (<div className={styles.wrapper}>{badges()}</div>)
-Variants.parameters = renderSourceAsHTML(badges());
+export const Default = Template.bind({})
 
-export const AltBackground = () => (<div className={styles.wrapper}>{badges(true)}</div>)
+export const AltBackground = Template.bind({})
+AltBackground.args = {
+  alt: true,
+};
 
 AltBackground.parameters = {
   backgrounds: { default: 'dark' },
-  ...renderSourceAsHTML(badges(true))
 };

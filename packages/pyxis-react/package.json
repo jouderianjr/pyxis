@@ -78,7 +78,9 @@
     ]
   },
   "jest": {
-    "testMatch": [ "<rootDir>/src/components/**/*.test.{ts,tsx}" ],
+    "testMatch": [
+      "<rootDir>/src/components/**/*.test.{ts,tsx}"
+    ],
     "collectCoverageFrom": [
       "<rootDir>/src/components/**/*.{ts,tsx}",
       "!**/node_modules/**",
@@ -102,6 +104,7 @@
     "@types/shortid": "^0.0.29",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
+    "@whitespace/storybook-addon-html": "^5.0.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-import-resolver-typescript": "^2.5.0",

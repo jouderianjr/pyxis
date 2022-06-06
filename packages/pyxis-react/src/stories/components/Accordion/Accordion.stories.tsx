@@ -2,7 +2,6 @@ import React from 'react';
 import {ComponentMeta} from '@storybook/react';
 import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 import Accordion from "./Accordion";
-import {badges} from "../Badge/Badge";
 
 export default {
   title: 'Components/Accordion 🚧/All Stories',

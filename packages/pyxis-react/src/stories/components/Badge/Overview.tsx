@@ -3,23 +3,15 @@ import Table, {TableRow} from "stories/utils/Table";
 import CopyableCode from "stories/utils/CopyableCode";
 import shortid from "shortid";
 import OverviewTemplate from "stories/utils/OverviewTemplate";
-import {Canvas, Story} from "@storybook/addon-docs";
+import {ArgsTable, Canvas, Story} from "@storybook/addon-docs";
 import OverviewIndex from "stories/utils/OverviewIndex";
-import Badge from "./Badge";
+import Badge from "components/Badge";
 
 const overviewDescription = (
-  <>
-    <p>
-      <em>
-        Work in progress: React component will be developed soon. In this documentation there are only
-        examples developed in HTML + SCSS.
-      </em>
-    </p>
-    <p>
-      Badges are labels which hold small amounts of information. They are composed of text inside
-      a <code>span</code> element.
-    </p>
-  </>
+  <p>
+    Badges are labels which hold small amounts of information. They are composed of text inside
+    a <code>span</code> element.
+  </p>
 );
 
 const variantDescription = (
@@ -31,48 +23,48 @@ const variantDescription = (
 
 const generateVariantBody = (): TableRow[] =>  [
   [
-    <Badge key={shortid.generate()}/>,
+    <Badge key={shortid.generate()}>Neutral</Badge>,
     'Default',
     '-'
   ],
   [
-    <Badge variant="brand" key={shortid.generate()}/>,
+    <Badge variant="brand" key={shortid.generate()}>Brand</Badge>,
     'Brand',
     '-'
   ],
   [
-    <Badge variant="action" key={shortid.generate()}/>,
+    <Badge variant="action" key={shortid.generate()}>Action</Badge>,
     'Action',
     '-'
   ],
   [
-    <Badge variant="success" key={shortid.generate()}/>,
+    <Badge variant="success" key={shortid.generate()}>Success</Badge>,
     'Success',
     '-'
   ],
   [
-    <Badge variant="alert" key={shortid.generate()}/>,
+    <Badge variant="alert" key={shortid.generate()}>Alert</Badge>,
     'Alert',
     '-'
   ],
   [
-    <Badge variant="error" key={shortid.generate()}/>,
+    <Badge variant="error" key={shortid.generate()}>Error</Badge>,
     'Error',
     '-'
   ],
   [
-    <Badge variant="neutralGradient" key={shortid.generate()}/>,
+    <Badge variant="neutralGradient" key={shortid.generate()}>Neutral Gradient</Badge>,
     'Neutral Gradient',
     'Available only on light background'
   ],
   [
-    <Badge variant="brandGradient" key={shortid.generate()}/>,
+    <Badge variant="brandGradient" key={shortid.generate()}>Brand Gradient</Badge>,
     'Brand Gradient',
     'Available only on light background'
   ],
   [
     <div className="alt-wrapper" key={shortid.generate()}>
-      <Badge ghost alt/>
+      <Badge variant={"ghost"}>Ghost</Badge>
     </div>,
     'Ghost',
     'Available only on dark background'
@@ -88,86 +80,40 @@ const altDescription = (
 const generateAltBody = (): TableRow[] =>  [
   [
     <div className="alt-wrapper" key={shortid.generate()} >
-      <Badge alt />
+      <Badge alt >Neutral</Badge>
     </div>,
     'Alt version',
   ]
 ];
 
-const classDescription = (
+const apiDescription = (
   <p>
-    Badge is based upon this list of CSS classes.
+    Set props to change variant to badge.
   </p>
 );
 
-const tableClassBody: TableRow[] = [
-  [
-    <CopyableCode text="badge" key={shortid.generate()} />,
-    'Base Class',
-    '-',
-  ],
-  [
-    <CopyableCode text="badge--brand" key={shortid.generate()} />,
-    'Variant Modifier',
-    '-',
-  ],
-  [
-    <CopyableCode text="badge--action" key={shortid.generate()} />,
-    'Variant Modifier',
-    '-',
-  ],
-  [
-    <CopyableCode text="badge--success" key={shortid.generate()} />,
-    'Variant Modifier',
-    '-',
-  ],
-  [
-    <CopyableCode text="badge--alert" key={shortid.generate()} />,
-    'Variant Class',
-    '-',
-  ],
-  [
-    <CopyableCode text="badge--error" key={shortid.generate()} />,
-    'Variant Class',
-    '-',
-  ],
-  [
-    <CopyableCode text="badge--neutral-gradient" key={shortid.generate()} />,
-    'Variant Class',
-    'Don\'t use it with `badge--alt`.',
-  ],
-  [
-    <CopyableCode text="badge--brand-gradient" key={shortid.generate()} />,
-    'Variant Class',
-    'Don\'t use it with `badge--alt`.',
-  ],
-  [
-    <CopyableCode text="badge--ghost" key={shortid.generate()} />,
-    'Variant Class',
-    'Use it only with `badge--alt`.',
-  ],
-  [
-    <CopyableCode text="badge--alt" key={shortid.generate()} />,
-    'Alternative Background Class',
-    '-',
-  ],
-];
+const classDescription = (
+  <p>
+    The list of Badge CSS classes is
+    available <a href="https://prima.design/3794e337c/p/64fbee-badge" className="link" target="_blank">on zeroheight documentation</a>.
+  </p>
+);
 
 const Overview: FC = () => (
   <>
-    <OverviewTemplate title="Badge 🚧" description={overviewDescription} category="Component" isMain>
+    <OverviewTemplate title="Badge" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-badge-🚧-all-stories--default" />
+        <Story id="components-badge-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">
-      <OverviewIndex titles={["Variants", "Alt Background", "Overview of CSS classes"]} />
+      <OverviewIndex titles={["Variants", "Alt Background", "Component API", "Overview of CSS classes"]} />
     </OverviewTemplate>
     <OverviewTemplate title="Variants" description={variantDescription}>
       <Table
         head={['Sample', 'Variant', 'Note']}
         body={generateVariantBody()}
-        gridTemplateColumns="100px"
+        gridTemplateColumns="200px"
       />
     </OverviewTemplate>
     <OverviewTemplate title="Alt Background" description={altDescription}>
@@ -177,13 +123,10 @@ const Overview: FC = () => (
         gridTemplateColumns="100px"
       />
     </OverviewTemplate>
-    <OverviewTemplate title="Overview of CSS classes" description={classDescription}>
-      <Table
-        head={['Class', 'Type', 'Note']}
-        body={tableClassBody}
-        gridTemplateColumns="300px 1fr 1fr"
-      />
+    <OverviewTemplate title="Component API" description={apiDescription}>
+      <ArgsTable of={Badge} />
     </OverviewTemplate>
+    <OverviewTemplate title="Overview of CSS classes" description={classDescription}/>
   </>
 )
 

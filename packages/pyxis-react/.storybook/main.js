@@ -16,6 +16,7 @@ module.exports = {
             actions: false,
         }
     },
+    '@whitespace/storybook-addon-html',
     "@storybook/addon-a11y",
     "@storybook/addon-links",
     "@storybook/preset-create-react-app",
