@@ -2,10 +2,9 @@ module Pyxis.Components.Toggle exposing
     ( Config
     , config
     , withClassList
-    , withId
     , withAriaLabel
     , withDisabled
-    , withText
+    , withLabel
     , render
     )
 
@@ -21,10 +20,9 @@ module Pyxis.Components.Toggle exposing
 ## Generics
 
 @docs withClassList
-@docs withId
 @docs withAriaLabel
 @docs withDisabled
-@docs withText
+@docs withLabel
 
 
 ## Rendering
@@ -39,6 +37,7 @@ import Html.Events
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Commons.String as CommonsString
+import Pyxis.Components.Field.Label as Label
 
 
 {-| Internal. The internal Toggle configuration.
@@ -47,8 +46,8 @@ type alias ConfigData msg =
     { ariaLabel : Maybe String
     , classList : List ( String, Bool )
     , disabled : Bool
-    , id : Maybe String
-    , text : Maybe String
+    , id : String
+    , label : Maybe Label.Config
     , onCheck : Bool -> msg
     }
 
@@ -70,14 +69,14 @@ type Config msg
                 |> Toggle.render initialState
 
 -}
-config : (Bool -> msg) -> Config msg
-config onCheck =
+config : String -> (Bool -> msg) -> Config msg
+config id onCheck =
     Config
         { ariaLabel = Nothing
         , classList = []
         , disabled = False
-        , id = Nothing
-        , text = Nothing
+        , id = id
+        , label = Nothing
         , onCheck = onCheck
         }
 
@@ -96,18 +95,11 @@ withAriaLabel ariaLabel (Config configuration) =
     Config { configuration | ariaLabel = Just ariaLabel }
 
 
-{-| Sets an id to the Toggle.
--}
-withId : String -> Config msg -> Config msg
-withId id (Config configuration) =
-    Config { configuration | id = Just id }
-
-
 {-| Adds a textual content to the Toggle.
 -}
-withText : String -> Config msg -> Config msg
-withText text (Config configuration) =
-    Config { configuration | text = Just text }
+withLabel : Label.Config -> Config msg -> Config msg
+withLabel label (Config configuration) =
+    Config { configuration | label = Just label }
 
 
 {-| Adds a classList to the Toggle.
@@ -120,18 +112,16 @@ withClassList classes (Config configuration) =
 {-| Renders the toggle.
 -}
 render : Bool -> Config msg -> Html msg
-render value (Config { ariaLabel, classList, disabled, text, onCheck, id }) =
-    Html.label
+render value (Config { ariaLabel, classList, disabled, label, onCheck, id }) =
+    Html.div
         [ Html.Attributes.classList
             [ ( "toggle", True )
             , ( "toggle--disabled", disabled )
             ]
         , Html.Attributes.classList classList
-        , CommonsAttributes.maybe Html.Attributes.id id
-        , CommonsAttributes.maybe CommonsAttributes.testId id
         ]
-        [ text
-            |> Maybe.map Html.text
+        [ label
+            |> Maybe.map (renderLabel id)
             |> CommonsRender.renderMaybe
         , Html.input
             [ Html.Attributes.type_ "checkbox"
@@ -141,7 +131,18 @@ render value (Config { ariaLabel, classList, disabled, text, onCheck, id }) =
             , Html.Attributes.disabled disabled
             , Html.Attributes.checked value
             , Html.Events.onCheck onCheck
+            , Html.Attributes.id id
+            , CommonsAttributes.testId id
             , CommonsAttributes.maybe CommonsAttributes.ariaLabel ariaLabel
             ]
             []
         ]
+
+
+{-| Internal.
+-}
+renderLabel : String -> Label.Config -> Html msg
+renderLabel id label =
+    label
+        |> Label.withFor id
+        |> Label.render

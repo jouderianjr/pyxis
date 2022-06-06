@@ -38,15 +38,15 @@ const stateDescription = (
 
 const generateStateBody = (): TableRow[] => [
   [
-    <Toggle />,
+    <Toggle id="toggle-id"/>,
     "Default",
   ],
   [
-    <Toggle checked />,
+    <Toggle id="toggle-id-checked" checked />,
     "Checked",
   ],
   [
-    <Toggle disabled />,
+    <Toggle id="toggle-id-disabled" disabled />,
     "Disabled",
   ],
 ];

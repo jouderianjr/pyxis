@@ -7,11 +7,11 @@ export default {
   title: 'Components/Toggle 🚧/All Stories',
 } as ComponentMeta<typeof Toggle>;
 
-export const Default = () => <Toggle />
+export const Default = () => <Toggle id="toggle-id"/>
 Default.parameters = renderSourceAsHTML(Default());
 
-export const WithLabel = () => <Toggle label />
+export const WithLabel = () => <Toggle label id="toggle-id-label"/>
 WithLabel.parameters = renderSourceAsHTML(WithLabel());
 
-export const Disabled = () => <Toggle disabled />
+export const Disabled = () => <Toggle disabled id="toggle-id-disabled"/>
 Disabled.parameters = renderSourceAsHTML(Disabled());

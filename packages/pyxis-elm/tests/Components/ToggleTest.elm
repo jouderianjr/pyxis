@@ -2,6 +2,7 @@ module Components.ToggleTest exposing (suite)
 
 import Expect
 import Html.Attributes
+import Pyxis.Components.Field.Label as Label
 import Pyxis.Components.Toggle as Toggle
 import Test exposing (Test)
 import Test.Html.Query as Query
@@ -19,10 +20,7 @@ suite =
             \() ->
                 renderConfig True identity
                     |> Expect.all
-                        [ Query.has
-                            [ Selector.class "toggle"
-                            , Selector.tag "label"
-                            ]
+                        [ Query.has [ Selector.class "toggle" ]
                         , Query.find [ Selector.tag "input" ]
                             >> Query.has
                                 [ Selector.class "toggle__input"
@@ -30,10 +28,18 @@ suite =
                                 , Selector.attribute (Html.Attributes.attribute "type" "checkbox")
                                 ]
                         ]
+        , Test.test "has `id` and `data-test-id`" <|
+            \() ->
+                renderConfig False identity
+                    |> Query.has
+                        [ Selector.id "toggle-id"
+                        , Selector.attribute (Html.Attributes.id "toggle-id")
+                        , Selector.attribute (Html.Attributes.attribute "data-test-id" "toggle-id")
+                        ]
         , Test.test "if a text is passed, it is rendered" <|
             \() ->
-                renderConfig True (Toggle.withText "Label")
-                    |> Query.has [ Selector.text "Label" ]
+                renderConfig True (Toggle.withLabel (Label.config "Label"))
+                    |> Query.has [ Selector.class "form-label" ]
         , Test.test "if an aria-label is passed, it is rendered" <|
             \() ->
                 renderConfig True (Toggle.withAriaLabel "Label")
@@ -57,14 +63,6 @@ suite =
                         , Query.find [ Selector.tag "input" ]
                             >> Query.has [ Selector.attribute (Html.Attributes.disabled True) ]
                         ]
-        , Test.test "has `id` and `data-test-id` if one is set" <|
-            \() ->
-                renderConfig False (Toggle.withId "toggle-id")
-                    |> Query.has
-                        [ Selector.id "toggle-id"
-                        , Selector.attribute (Html.Attributes.id "toggle-id")
-                        , Selector.attribute (Html.Attributes.attribute "data-test-id" "toggle-id")
-                        ]
         , Test.test "has the correct list of class" <|
             \() ->
                 renderConfig False
@@ -79,7 +77,7 @@ suite =
 
 renderConfig : Bool -> (Toggle.Config Msg -> Toggle.Config Msg) -> Query.Single Msg
 renderConfig initialState modifiers =
-    Toggle.config OnToggle
+    Toggle.config "toggle-id" OnToggle
         |> modifiers
         |> Toggle.render initialState
         |> Query.fromHtml

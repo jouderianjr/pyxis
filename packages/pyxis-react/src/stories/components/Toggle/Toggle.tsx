@@ -10,22 +10,24 @@ const getClasses = (disabled:boolean) => classNames(
     'toggle--disabled': disabled
   });
 
-const Toggle:FC<ToggleProps> = ({disabled = false, checked = false, label=false}) => (
-  <label className={getClasses(disabled)}>
-    {label && "Label"}
+const Toggle:FC<ToggleProps> = ({disabled = false, checked = false, label=false, id}) => (
+  <div className={getClasses(disabled)}>
+    {label && <label className="form-label" htmlFor={id}>Label</label>}
     <input
       aria-label={label ? undefined : "description"}
       aria-checked={checked}
+      id={id}
       type="checkbox"
       role="switch"
       className="toggle__input"
       disabled={disabled}
       defaultChecked={checked} />
-  </label>
+  </div>
 );
 
 interface ToggleProps {
   disabled?:boolean;
+  id:string;
   checked?:boolean;
   label?:boolean;
 }

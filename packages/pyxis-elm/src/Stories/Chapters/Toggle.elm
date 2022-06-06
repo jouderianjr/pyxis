@@ -4,6 +4,7 @@ import ElmBook
 import ElmBook.Actions
 import ElmBook.Chapter
 import Html exposing (Html)
+import Pyxis.Components.Field.Label as Label
 import Pyxis.Components.Toggle as Toggle
 
 
@@ -20,47 +21,31 @@ Toggle allow users to choose between two mutually exclusive options, and they sh
 type Msg =
     OnToggle Bool
 
-toggle : Bool -> Html Msg
-toggle initialState =
-    Toggle.config OnToggle
+toggle : String -> Bool -> Html Msg
+toggle id initialState =
+    Toggle.config id OnToggle
         |> Toggle.render initialState
 ```
-## With Text
+## With Label
 <component with-label="WithText" />
 ```
-toggle : Bool -> Html Msg
-toggle initialState =
-    Toggle.config OnToggle
-        |> Toggle.withText "Label"
-        |> Toggle.render initialState
+Toggle.config id OnToggle
+    |> Toggle.withLabel (Label.config "Label")
+    |> Toggle.render initialState
 ```
 ## With AriaLabel
 <component with-label="WithAriaLabel" />
 ```
-toggle : Bool -> Html Msg
-toggle initialState =
-    Toggle.config OnToggle
-        |> Toggle.withAriaLabel "Label"
-        |> Toggle.render initialState
+Toggle.config id OnToggle
+    |> Toggle.withAriaLabel "Label"
+    |> Toggle.render initialState
 ```
 ## With Disabled
 <component with-label="WithDisabled" />
 ```
-toggle : Bool -> Html Msg
-toggle initialState =
-    Toggle.config OnToggle
-        |> Toggle.withDisabled True
-        |> Toggle.render initialState
-```
-
-## With Id
-<component with-label="WithId" />
-```
-toggle : Bool -> Html Msg
-toggle initialState =
-    Toggle.config OnToggle
-        |> Toggle.withId "toggle-id"
-        |> Toggle.render initialState
+Toggle.config id OnToggle
+    |> Toggle.withDisabled True
+    |> Toggle.render initialState
 ```
 """
 
@@ -74,7 +59,6 @@ type alias Model =
     , disabled : Bool
     , label : Bool
     , ariaLabel : Bool
-    , id : Bool
     }
 
 
@@ -84,38 +68,35 @@ init =
     , disabled = False
     , label = False
     , ariaLabel = False
-    , id = False
     }
 
 
 componentsList : List ( String, SharedState x -> Html (ElmBook.Msg (SharedState x)) )
 componentsList =
     [ ( "Default"
-      , statefulComponent identity .base setBase
+      , statefulComponent "toggle-id" identity .base setBase
       )
     , ( "WithDisabled"
-      , statefulComponent (Toggle.withDisabled True) .disabled setDisabled
+      , statefulComponent "toggle-id-disabled" (Toggle.withDisabled True) .disabled setDisabled
       )
     , ( "WithText"
-      , statefulComponent (Toggle.withText "Label") .label setLabel
+      , statefulComponent "toggle-id-label" (Toggle.withLabel (Label.config "Label")) .label setLabel
       )
     , ( "WithAriaLabel"
-      , statefulComponent (Toggle.withAriaLabel "Label") .ariaLabel setAriaLabel
-      )
-    , ( "WithId"
-      , statefulComponent (Toggle.withId "toggle-id") .id setId
+      , statefulComponent "toggle-id-aria-label" (Toggle.withAriaLabel "Label") .ariaLabel setAriaLabel
       )
     ]
 
 
 statefulComponent :
-    (Toggle.Config (ElmBook.Msg (SharedState x)) -> Toggle.Config (ElmBook.Msg (SharedState x)))
+    String
+    -> (Toggle.Config (ElmBook.Msg (SharedState x)) -> Toggle.Config (ElmBook.Msg (SharedState x)))
     -> (Model -> Bool)
     -> (Bool -> Model -> Model)
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
-statefulComponent configModifier modelPicker updater sharedState =
-    Toggle.config (ElmBook.Actions.updateStateWith (updater >> mapModel))
+statefulComponent id configModifier modelPicker updater sharedState =
+    Toggle.config id (ElmBook.Actions.updateStateWith (updater >> mapModel))
         |> configModifier
         |> Toggle.render (sharedState.toggle |> modelPicker)
 
@@ -138,11 +119,6 @@ setDisabled value model =
 setLabel : Bool -> Model -> Model
 setLabel value model =
     { model | label = value }
-
-
-setId : Bool -> Model -> Model
-setId value model =
-    { model | id = value }
 
 
 setAriaLabel : Bool -> Model -> Model
