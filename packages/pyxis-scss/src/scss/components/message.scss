@@ -27,8 +27,13 @@ $_states: (brand, alert, success, error);
 }
 
 .message--ghost {
+  align-items: start;
   background-color: transparent;
   padding: 0;
+
+  .message__icon {
+    padding-top: foundations.rem(1px);
+  }
 }
 
 .message__title {

@@ -249,8 +249,11 @@ defaultIcon variant =
         Alert ->
             IconSet.Alert
 
-        _ ->
+        Error ->
             IconSet.ExclamationCircle
+
+        _ ->
+            IconSet.InfoCircle
 
 
 {-| Renders the Message.

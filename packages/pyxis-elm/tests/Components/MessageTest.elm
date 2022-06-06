@@ -31,7 +31,7 @@ suite =
                         ]
         , Test.describe "when neutral"
             [ hasProperClassAndRoleTest "message" "status" neutralMessageConfig
-            , hasCorrectIconTest IconSet.ExclamationCircle neutralMessageConfig
+            , hasCorrectIconTest IconSet.InfoCircle neutralMessageConfig
             ]
         , Test.describe "when brand"
             [ brandMessageConfig Message.defaultBackground |> hasProperClassAndRoleTest "message--brand" "status"
@@ -61,7 +61,7 @@ suite =
             ]
         , Test.describe "when ghost"
             [ hasProperClassAndRoleTest "message--ghost" "status" ghostMessageConfig
-            , ghostMessageConfig |> hasCorrectIconTest IconSet.ExclamationCircle
+            , ghostMessageConfig |> hasCorrectIconTest IconSet.InfoCircle
             ]
         , Test.describe "when is dismissible"
             [ Test.test "has a closing icon" <|

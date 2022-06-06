@@ -1,5 +1,12 @@
 import React, {FC, ReactElement} from "react";
-import {IconAlert, IconCheckCircle, IconClose, IconExclamationCircle, IconThumbUp} from "components/Icon/Icons";
+import {
+  IconAlert,
+  IconCheckCircle,
+  IconClose,
+  IconExclamationCircle,
+  IconInfoCircle,
+  IconThumbUp
+} from "components/Icon/Icons";
 import classNames from "classnames";
 import "./Message.module.scss";
 
@@ -33,8 +40,10 @@ const setIcon = (state?: string):ReactElement => {
       return <IconCheckCircle description={"Success."}/>;
     case "alert":
       return <IconAlert description={"Attention!"}/>;
+    case "error":
+      return <IconExclamationCircle description={"Error."}/>
     default:
-      return <IconExclamationCircle description={state === "error" ? "Error." : undefined}/>
+      return <IconInfoCircle />
   }
 }
 
