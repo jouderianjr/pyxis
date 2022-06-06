@@ -1,5 +1,5 @@
 /* jshint node: true */
-import { sortStories } from "./sortStories";
+const { sortStories } = require("./sortStories");
 
 const customViewports = {
   xxsmall: {
@@ -46,7 +46,7 @@ const customViewports = {
   },
 };
 
-export default {
+module.exports = {
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
     backgrounds: { values: [
@@ -72,9 +72,7 @@ export default {
       ),
     },
     viewport: {
-      viewports: {
-        ...customViewports,
-      },
+      viewports: customViewports
     },
   },
 };
