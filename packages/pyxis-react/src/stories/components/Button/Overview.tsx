@@ -96,6 +96,11 @@ const generateOptionsBody = (): TableRow[] => [
     'Adds a loading animation to the button. This option removes the ability to click the button. Is not allowed with `ghost` variant.'
   ],
   [
+    <Button disabled>Button</Button>,
+    <CopyableCode text="disabled" key={shortid.generate()} />,
+    '-'
+  ],
+  [
     <Button contentWidth>Button</Button>,
     <CopyableCode text="contentWidth" key={shortid.generate()} />,
     'Remove the min-width to the button. Is not allowed with `ghost` variant and iconPlacement `only`'

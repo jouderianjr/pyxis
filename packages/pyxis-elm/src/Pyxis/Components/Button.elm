@@ -29,6 +29,7 @@ module Pyxis.Components.Button exposing
     , withLoading
     , withOnClick
     , withShadow
+    , withTabIndex
     , withText
     , render
     )
@@ -88,6 +89,7 @@ module Pyxis.Components.Button exposing
 @docs withLoading
 @docs withOnClick
 @docs withShadow
+@docs withTabIndex
 @docs withText
 
 
@@ -123,6 +125,7 @@ type alias ConfigData msg =
     , onClick : Maybe msg
     , shadow : Bool
     , size : Size
+    , tabIndex : Maybe Int
     , text : String
     , theme : Theme
     , type_ : Type
@@ -147,6 +150,7 @@ type alias CommonConstraints constraints =
         , iconPrepend : CommonsConstraints.Allowed
         , id : CommonsConstraints.Allowed
         , size : CommonsConstraints.Allowed
+        , tabIndex : CommonsConstraints.Allowed
         , sizeSmall : CommonsConstraints.Allowed
         , text : CommonsConstraints.Allowed
         , theme : CommonsConstraints.Allowed
@@ -242,9 +246,10 @@ config variant =
         , onClick = Nothing
         , shadow = False
         , size = Large
+        , tabIndex = Nothing
         , text = ""
         , theme = Theme.default
-        , type_ = Submit
+        , type_ = Button
         , variant = variant
         }
 
@@ -579,6 +584,16 @@ withShadow (Config configuration) =
     Config { configuration | shadow = True }
 
 
+{-| Adds a tabIndex to the Button.
+-}
+withTabIndex :
+    Int
+    -> Config { c | text : CommonsConstraints.Allowed } msg
+    -> Config { c | text : CommonsConstraints.Denied } msg
+withTabIndex tabIndex (Config configuration) =
+    Config { configuration | tabIndex = Just tabIndex }
+
+
 {-| Adds a textual content to the Button.
 -}
 withText :
@@ -638,6 +653,7 @@ render ((Config configData) as configuration) =
          , CommonsAttributes.maybe Html.Attributes.id configData.id
          , CommonsAttributes.maybe CommonsAttributes.testId configData.id
          , CommonsAttributes.maybe CommonsAttributes.ariaLabel configData.ariaLabel
+         , CommonsAttributes.maybe Html.Attributes.tabindex (applyTabIndex configData.tabIndex configData.loading)
          ]
             ++ typeToAttribute configData.type_
         )
@@ -689,3 +705,18 @@ applyIconSize size =
 
     else
         Icon.withSize Icon.small
+
+
+{-| Internal.
+-}
+applyTabIndex : Maybe Int -> Bool -> Maybe Int
+applyTabIndex maybeTabIndex loading =
+    case ( maybeTabIndex, loading ) of
+        ( Just tabIndex, False ) ->
+            Just tabIndex
+
+        ( _, True ) ->
+            Just -1
+
+        _ ->
+            Nothing

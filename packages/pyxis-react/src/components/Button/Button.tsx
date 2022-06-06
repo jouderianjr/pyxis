@@ -45,8 +45,9 @@ const Button:ButtonFC = (props) => {
     loading,
     shadow,
     size = 'medium',
-    type = 'submit',
+    type = 'button',
     variant = 'primary',
+    tabIndex,
     ...restProps
   } = props;
 
@@ -82,6 +83,7 @@ const Button:ButtonFC = (props) => {
         className={classList}
         data-testid={id}
         id={id}
+        tabIndex={loading ? -1 : tabIndex}
         {...restProps as AnchorHTMLAttributes<HTMLAnchorElement>}
       >
         <Content />
@@ -94,7 +96,7 @@ const Button:ButtonFC = (props) => {
       className={classList}
       data-testid={id}
       id={id}
-      tabIndex={0}
+      tabIndex={loading ? -1 : tabIndex}
       type={type as ButtonHTMLAttributes<HTMLButtonElement>['type']}
       {...restProps as ButtonHTMLAttributes<HTMLButtonElement>}
     >

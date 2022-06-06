@@ -10,7 +10,7 @@ describe('Button component', () => {
       expect(button).toBeInTheDocument();
       expect(button).toHaveTextContent('Primary');
       expect(button).toHaveClass('button button--medium');
-      expect(button).toHaveAttribute('type', 'submit');
+      expect(button).toHaveAttribute('type', 'button');
     });
   });
 
@@ -117,11 +117,17 @@ describe('Button component', () => {
     test('should be loading', () => {
       render(<Button id="loading-button" loading variant="primary">Button</Button>);
       expect(screen.getByTestId('loading-button')).toHaveClass('button--loading');
+      expect(screen.getByTestId('loading-button')).toHaveAttribute('tabIndex', '-1');
     });
 
     test('should be content-width', () => {
       render(<Button contentWidth id="content-width-button" variant="primary">Button</Button>);
       expect(screen.getByTestId('content-width-button')).toHaveClass('button--content-width');
+    });
+
+    test('should have tabIndex', () => {
+      render(<Button id="tab-index-button" tabIndex={-1} variant="primary">Button</Button>);
+      expect(screen.getByTestId('tab-index-button')).toHaveAttribute('tabIndex', '-1');
     });
   });
 });

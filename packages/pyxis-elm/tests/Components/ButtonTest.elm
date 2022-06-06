@@ -114,12 +114,12 @@ suite =
                         |> Query.has [ Selector.classes [ "button", "button--small" ] ]
             ]
         , Test.describe "Button type"
-            [ Test.test "is submit by default" <|
+            [ Test.test "is button by default" <|
                 \() ->
                     Button.primary
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ Selector.attribute (Html.Attributes.type_ "submit") ]
+                        |> Query.has [ Selector.attribute (Html.Attributes.type_ "button") ]
             , Test.test "is button" <|
                 \() ->
                     Button.primary
@@ -249,7 +249,10 @@ suite =
                         |> Button.withLoading True
                         |> Button.render
                         |> Query.fromHtml
-                        |> Query.has [ Selector.classes [ "button", "button--loading" ] ]
+                        |> Query.has
+                            [ Selector.classes [ "button", "button--loading" ]
+                            , Selector.attribute (Html.Attributes.attribute "tabIndex" "-1")
+                            ]
             , Test.test "has an accessible label" <|
                 \() ->
                     Button.primary
@@ -265,5 +268,12 @@ suite =
                         |> Button.render
                         |> Query.fromHtml
                         |> Query.has [ Selector.classes [ "button", "button--alt" ] ]
+            , Test.test "has tabIndex" <|
+                \() ->
+                    Button.brand
+                        |> Button.withTabIndex 10
+                        |> Button.render
+                        |> Query.fromHtml
+                        |> Query.has [ Selector.attribute (Html.Attributes.attribute "tabIndex" "10") ]
             ]
         ]

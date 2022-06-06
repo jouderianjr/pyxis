@@ -183,7 +183,7 @@ $_sizes: (
   user-select: none;
   will-change: background, border-color, box-shadow, color, outline, transform;
 
-  &:active {
+  &:active:not(:disabled, [disabled]) {
     transform: scale(0.97);
   }
 
