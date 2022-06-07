@@ -1,7 +1,7 @@
 import React, { FC, LabelHTMLAttributes } from 'react';
 import classNames from 'classnames';
 
-const getClasses = (size: LabelSize, className: string) => classNames(
+const getClasses = (size: LabelSize, className?: string) => classNames(
   'form-label',
   className,
   { 'form-label--small': size === 'small' },
@@ -9,8 +9,8 @@ const getClasses = (size: LabelSize, className: string) => classNames(
 
 const Label: FC<LabelProps> = ({
   children,
-  className = '',
-  id = '',
+  className,
+  id,
   size = 'medium',
   subText,
   ...restProps

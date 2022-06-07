@@ -3,7 +3,6 @@ import {ComponentMeta} from '@storybook/react';
 import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 import Form from "./Form";
 import Legend from "./Legend/Legend";
-import {CheckboxCardGroup} from "../CheckboxCard/CheckboxCard";
 
 export default {
   title: 'Components/Form 🚧/All Stories',

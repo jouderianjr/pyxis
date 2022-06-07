@@ -24,7 +24,7 @@ const getIds = (id:string) => ({
 
 const Item: FC<ItemProps> = ({
   children,
-  className = '',
+  className,
   errorMessage,
   hint,
   id,
@@ -39,7 +39,7 @@ const Item: FC<ItemProps> = ({
 
   return (
     <div
-      className={`form-item ${className}`}
+      className={`form-item ${className || ''}`}
       data-testid={id}
       id={id}
     >
