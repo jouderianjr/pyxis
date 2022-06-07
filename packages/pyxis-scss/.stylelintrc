@@ -14,7 +14,10 @@
     "color-named": "never",
     "comment-no-empty": true,
     "declaration-block-no-shorthand-property-overrides": true,
-    "declaration-block-no-duplicate-properties": true,
+    "declaration-block-no-duplicate-properties": [
+      true,
+      { "ignore": ["consecutive-duplicates-with-different-values"] }
+    ],
     "declaration-block-no-redundant-longhand-properties": null,
     "declaration-block-trailing-semicolon": "always",
     "declaration-no-important": true,

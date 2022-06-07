@@ -59,13 +59,14 @@
 //
 // @param {Value} $minHeight - Minimum bottomSheet height
 @mixin bottomSheet($minHeight) {
-  @include foundations.radius(m, top);
   @include foundations.fixed($top: initial);
   @include foundations.hideScrollbar;
+  @include foundations.radius(m, top);
   background-color: foundations.color(neutralLight);
   grid-auto-rows: min-content;
   height: min-content;
-  max-height: calc(100vh - #{foundations.spacing(2xl)});
+  max-height: calc(100% - #{foundations.spacing(2xl)});
+  max-height: calc(100dvh - #{foundations.spacing(2xl)});
   min-height: $minHeight;
   transform: translateY(100%);
   transition-duration: foundations.duration(slow);
