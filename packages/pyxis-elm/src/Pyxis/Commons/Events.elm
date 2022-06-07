@@ -1,6 +1,7 @@
 module Pyxis.Commons.Events exposing
     ( PointerType(..)
     , onClickPreventDefault, alwaysStopPropagationOn
+    , stopPropagationAndPreventDefaultOn
     )
 
 {-|
@@ -67,5 +68,17 @@ onClickPreventDefault tagger =
 {-| Stops propagation of a provided event.
 -}
 alwaysStopPropagationOn : String -> msg -> Html.Attribute msg
-alwaysStopPropagationOn evt msg =
-    Html.Events.stopPropagationOn evt (Json.Decode.succeed ( msg, True ))
+alwaysStopPropagationOn event msg =
+    Html.Events.stopPropagationOn event (Json.Decode.succeed ( msg, True ))
+
+
+stopPropagationAndPreventDefaultOn : String -> msg -> Html.Attribute msg
+stopPropagationAndPreventDefaultOn event msg =
+    Html.Events.custom
+        event
+        (Json.Decode.succeed
+            { message = msg
+            , stopPropagation = True
+            , preventDefault = True
+            }
+        )

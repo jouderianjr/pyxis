@@ -79,7 +79,8 @@ initialData =
         , residentialProvince =
             Result.fromMaybe ""
                 |> always
-                |> Select.init (Just (Province.getName Province.capitalProvince))
+                |> Select.init "residential-province" (Just (Province.getName Province.capitalProvince))
+                |> Select.setOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
         }
 
 

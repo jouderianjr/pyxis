@@ -1,6 +1,11 @@
 module Pyxis.Components.Field.Select exposing
     ( Model
     , init
+    , getValue
+    , setDropdownClosed
+    , setId
+    , setValue
+    , validate
     , Config
     , config
     , small
@@ -11,19 +16,15 @@ module Pyxis.Components.Field.Select exposing
     , withClassList
     , withDisabled
     , withHint
-    , withId
     , withIsSubmitted
     , withLabel
     , withPlaceholder
     , withStrategy
     , Msg
     , update
-    , updateValue
-    , getValue
-    , validate
     , Option
     , option
-    , withOptions
+    , setOptions
     , render
     )
 
@@ -34,6 +35,11 @@ module Pyxis.Components.Field.Select exposing
 
 @docs Model
 @docs init
+@docs getValue
+@docs setDropdownClosed
+@docs setId
+@docs setValue
+@docs validate
 
 
 ## Config
@@ -56,7 +62,6 @@ module Pyxis.Components.Field.Select exposing
 @docs withClassList
 @docs withDisabled
 @docs withHint
-@docs withId
 @docs withIsSubmitted
 @docs withLabel
 @docs withPlaceholder
@@ -67,20 +72,13 @@ module Pyxis.Components.Field.Select exposing
 
 @docs Msg
 @docs update
-@docs updateValue
-
-
-## Readers
-
-@docs getValue
-@docs validate
 
 
 ## Options
 
 @docs Option
 @docs option
-@docs withOptions
+@docs setOptions
 
 
 ## Rendering
@@ -89,18 +87,18 @@ module Pyxis.Components.Field.Select exposing
 
 -}
 
-import Browser.Dom
+import Array
+import Browser.Dom as Dom
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import PrimaFunction
 import PrimaUpdate
-import Process
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Events as CommonsEvents
 import Pyxis.Commons.Events.KeyDown as KeyDown
-import Pyxis.Commons.List as CommonsList
 import Pyxis.Commons.Render as CommonsRender
-import Pyxis.Components.Field.Error as Error
+import Pyxis.Commons.String as CommonsString
 import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
 import Pyxis.Components.Field.Error.Strategy.Internal as StrategyInternal
 import Pyxis.Components.Field.Hint as Hint
@@ -110,326 +108,111 @@ import Pyxis.Components.Form.FormItem as FormItem
 import Pyxis.Components.Icon as Icon
 import Pyxis.Components.IconSet as IconSet
 import Result.Extra
-import Task exposing (Task)
+import Task
 
 
 {-| A type representing the internal component `Msg`
 -}
 type Msg
-    = Selected String
-    | Blurred String -- The id of the select
-    | ClickedLabel String (Maybe CommonsEvents.PointerType)
-    | HoveredOption String
-    | FocusedItem (Result Browser.Dom.Error ())
-    | FocusedSelect
-    | SelectKeyDown { id : String, options : List Option } KeyDown.Event
-    | DropdownWrapperItemKeydown
-        { id : String
-        , previous : ( Int, Option )
-        , next : ( Int, Option )
-        }
-        KeyDown.Event
-    | DropdownItemMouseDown
-    | Noop
+    = NoOp
+    | OnBlur
+    | OnClick Target
+    | OnFocus
+    | OnKeyDown Target KeyDown.Event
+    | OnSelect String
 
 
-{-| Internal
--}
-type DropDownState
-    = Open (Maybe String)
-    | Closed
-
-
-{-| Internal.
--}
-type alias ModelData ctx parsedValue =
-    { isBlurringInternally : Bool
-    , dropDownState : DropDownState
-    , validation : ctx -> Maybe String -> Result String parsedValue
-    , value : Maybe String
-    , fieldStatus : FieldStatus.Status
-    }
+type Target
+    = Label
+    | Select
+    | DropdownOption Option
 
 
 {-| A type representing the select field internal state
 -}
-type Model ctx parsedValue
-    = Model (ModelData ctx parsedValue)
-
-
-{-| Initialize the select internal state. This belongs to your app's `Model`.
-Takes a validation function as argument.
--}
-init : Maybe String -> (ctx -> Maybe String -> Result String parsedValue) -> Model ctx parsedValue
-init initialValue validation =
-    Model
-        { dropDownState = Closed
-        , validation = validation
-        , value = initialValue
-        , isBlurringInternally = False
-        , fieldStatus = FieldStatus.Untouched
+type Model context parsedValue
+    = Model
+        { activeOption : Maybe Option
+        , fieldStatus : FieldStatus.Status
+        , id : String
+        , isOpen : Bool
+        , name : String
+        , options : List Option
+        , selectedValue : Maybe String
+        , validation : context -> Maybe String -> Result String parsedValue
         }
 
 
-{-| Returns the current native value of the Select
+{-| Initialize the select internal state. This belongs to your app's `Model`.
 -}
-getValue : Model ctx parsedValue -> String
-getValue (Model { value }) =
-    Maybe.withDefault "" value
+init : String -> Maybe String -> (context -> Maybe String -> Result String parsedValue) -> Model context parsedValue
+init name initialValue validation =
+    Model
+        { activeOption = Nothing
+        , fieldStatus = FieldStatus.Untouched
+        , id = "id-" ++ name
+        , isOpen = False
+        , name = name
+        , options = []
+        , selectedValue = initialValue
+        , validation = validation
+        }
 
 
-{-| Returns the validated value of the select
+{-| A type representing a `<select>` option
 -}
-validate : ctx -> Model ctx parsedValue -> Result String parsedValue
-validate ctx (Model { value, validation }) =
-    validation ctx value
+type Option
+    = Option OptionData
 
 
-{-| Internal.
--}
-focusSelect : String -> Cmd Msg
-focusSelect =
-    Browser.Dom.focus >> Task.attempt (always FocusedSelect)
-
-
-{-| Update the internal state of the Select component
--}
-update : Msg -> Model ctx parsedValue -> ( Model ctx parsedValue, Cmd Msg )
-update msg model =
-    case msg of
-        Noop ->
-            model
-                |> PrimaUpdate.withoutCmds
-
-        DropdownItemMouseDown ->
-            model
-                |> setIsBlurringInternally True
-                |> PrimaUpdate.withoutCmds
-
-        FocusedItem _ ->
-            model
-                |> setIsBlurringInternally False
-                |> PrimaUpdate.withoutCmds
-
-        ClickedLabel id pointerEvent ->
-            setClickedLabel id pointerEvent model
-
-        Selected value ->
-            model
-                |> setValue value
-                |> setIsOpen False
-                |> setIsBlurringInternally False
-                |> mapFieldStatus FieldStatus.onInput
-                |> PrimaUpdate.withoutCmds
-
-        Blurred id ->
-            model
-                |> mapFieldStatus FieldStatus.onBlur
-                |> setIsBlurred id
-
-        HoveredOption optionValue ->
-            model
-                |> setKeyboardHoveredValue optionValue
-                |> PrimaUpdate.withoutCmds
-
-        DropdownWrapperItemKeydown viewData keyCode ->
-            setDropdownWrapperItemKeydown viewData keyCode model
-
-        SelectKeyDown configData keyCode ->
-            setSelectKeydown configData keyCode model
-
-        FocusedSelect ->
-            model
-                |> mapFieldStatus FieldStatus.onFocus
-                |> PrimaUpdate.withoutCmds
-
-
-{-| Update the field value.
--}
-updateValue : String -> Model ctx parsedValue -> ( Model ctx parsedValue, Cmd Msg )
-updateValue value =
-    update (Selected value)
-
-
-{-| Internal.
--}
-setClickedLabel : String -> Maybe CommonsEvents.PointerType -> Model ctx b -> PrimaUpdate.PrimaUpdate (Model ctx b) Msg
-setClickedLabel id pointerType ((Model { dropDownState }) as model) =
-    case dropDownState of
-        Open _ ->
-            model
-                |> setIsOpen False
-                |> PrimaUpdate.withoutCmds
-
-        Closed ->
-            model
-                |> setClickedClosedLabel pointerType
-                |> PrimaUpdate.withCmds [ focusSelect id ]
-
-
-{-| Internal.
--}
-setClickedClosedLabel : Maybe CommonsEvents.PointerType -> Model ctx parsedValue -> Model ctx parsedValue
-setClickedClosedLabel pointerType ((Model modelData) as model) =
-    case ( Maybe.withDefault CommonsEvents.Mouse pointerType, modelData.dropDownState ) of
-        ( CommonsEvents.Mouse, Closed ) ->
-            setIsOpen True model
-
-        _ ->
-            model
-
-
-{-| Internal.
--}
-setIsBlurred : String -> Model ctx parsedValue -> PrimaUpdate.PrimaUpdate (Model ctx parsedValue) Msg
-setIsBlurred id ((Model modelData) as model) =
-    case ( modelData.isBlurringInternally, modelData.dropDownState ) of
-        ( False, Open _ ) ->
-            model
-                |> setIsOpen False
-                |> PrimaUpdate.withCmd (focusSelect id)
-
-        _ ->
-            model
-                |> setIsBlurringInternally False
-                |> PrimaUpdate.withoutCmds
-
-
-{-| Internal.
--}
-setDropdownWrapperItemKeydown :
+type alias OptionData =
     { id : String
-    , previous : ( Int, Option )
-    , next : ( Int, Option )
+    , index : Int
+    , label : String
+    , value : String
     }
-    -> KeyDown.Event
-    -> Model ctx b
-    -> ( Model ctx b, Cmd Msg )
-setDropdownWrapperItemKeydown { id, next, previous } keyCode ((Model modelData) as model) =
-    case modelData.dropDownState of
-        Open open ->
-            if KeyDown.isArrowDown keyCode then
-                handleVerticalArrowDropdownItem id next model
-
-            else if KeyDown.isArrowUp keyCode then
-                handleVerticalArrowDropdownItem id previous model
-
-            else if KeyDown.isSpace keyCode || KeyDown.isEnter keyCode then
-                model
-                    |> setIsOpen False
-                    |> setSelectedValueWhenJust open
-                    |> PrimaUpdate.withCmd (focusSelect id)
-
-            else if KeyDown.isEsc keyCode then
-                model
-                    |> setIsOpen False
-                    |> PrimaUpdate.withCmd (focusSelect id)
-
-            else
-                model
-                    |> PrimaUpdate.withoutCmds
-
-        _ ->
-            model
-                |> PrimaUpdate.withoutCmds
 
 
-{-| Internal.
+{-| Create an Option
 -}
-setSelectKeydown : { a | id : String, options : List Option } -> KeyDown.Event -> Model ctx parsedValue -> PrimaUpdate.PrimaUpdate (Model ctx parsedValue) Msg
-setSelectKeydown configData keyCode ((Model modelData) as model) =
-    case modelData.dropDownState of
-        Open open ->
-            if KeyDown.isSpace keyCode || KeyDown.isEnter keyCode then
-                model
-                    |> setIsOpen False
-                    |> setSelectedValueWhenJust open
-                    |> PrimaUpdate.withCmd (focusSelect configData.id)
-
-            else if KeyDown.isArrowDown keyCode || KeyDown.isArrowUp keyCode then
-                hoverFirstDropdownItem
-                    { delayed = False
-                    , id = configData.id
-                    , options = configData.options
-                    }
-                    model
-
-            else if KeyDown.isEsc keyCode then
-                model
-                    |> setIsOpen False
-                    |> PrimaUpdate.withoutCmds
-
-            else
-                model
-                    |> PrimaUpdate.withoutCmds
-
-        Closed ->
-            if KeyDown.isSpace keyCode || KeyDown.isArrowDown keyCode || KeyDown.isArrowUp keyCode then
-                hoverFirstDropdownItem
-                    { options = configData.options
-                    , id = configData.id
-                    , delayed = True
-                    }
-                    model
-
-            else
-                model
-                    |> PrimaUpdate.withoutCmds
+option : { value : String, label : String } -> Option
+option { value, label } =
+    Option { value = value, label = label, id = "id-" ++ String.toLower label, index = 0 }
 
 
-{-| Internal.
+{-| Represents the Select view configuration.
 -}
-getHoveredValueAndIndex : List Option -> String -> Maybe ( Int, String )
-getHoveredValueAndIndex options target =
-    options
-        |> List.indexedMap Tuple.pair
-        |> CommonsList.find (\( _, Option { value } ) -> value == target)
-        |> Maybe.map (\( index, Option { value } ) -> ( index, value ))
+type Config
+    = Config
+        { additionalContent : Maybe (Html Never)
+        , classList : List ( String, Bool )
+        , hint : Maybe Hint.Config
+        , isDisabled : Bool
+        , isMobile : Bool
+        , isSubmitted : Bool
+        , label : Maybe Label.Config
+        , placeholder : Maybe String
+        , size : Size
+        , strategy : Strategy
+        }
 
 
-{-| Internal.
+{-| Creates the Select view configuration.
 -}
-getSelectedValueAndIndex : List Option -> Maybe String -> Maybe ( Int, String )
-getSelectedValueAndIndex options =
-    Maybe.andThen (getHoveredValueAndIndex options)
-
-
-{-| Internal.
--}
-hoverFirstDropdownItem :
-    { options : List Option, id : String, delayed : Bool }
-    -> Model ctx value
-    -> PrimaUpdate.PrimaUpdate (Model ctx value) Msg
-hoverFirstDropdownItem { options, id, delayed } ((Model modelData) as model) =
-    case ( getSelectedValueAndIndex options modelData.value, options ) of
-        ( Just ( index, value ), _ ) ->
-            model
-                |> setIsOpen True
-                |> hoverDropdownItem
-                    { selectId = id
-                    , index = index
-                    , value = value
-                    , delayed = delayed
-                    }
-
-        ( _, [] ) ->
-            model
-                |> setIsOpen True
-                |> PrimaUpdate.withoutCmds
-
-        ( _, (Option { value }) :: _ ) ->
-            model
-                |> setIsOpen True
-                |> hoverDropdownItem
-                    { selectId = id
-                    , index = 0
-                    , value = value
-                    , delayed = delayed
-                    }
-
-
-
--- View config
+config : Bool -> Config
+config isMobile =
+    Config
+        { additionalContent = Nothing
+        , classList = []
+        , hint = Nothing
+        , isDisabled = False
+        , isMobile = isMobile
+        , isSubmitted = False
+        , label = Nothing
+        , placeholder = Nothing
+        , size = Medium
+        , strategy = Strategy.onBlur
+        }
 
 
 {-| Select size
@@ -453,138 +236,11 @@ medium =
     Medium
 
 
-{-| Internal.
+{-| Append an additional custom html.
 -}
-type alias ConfigData =
-    { additionalContent : Maybe (Html Never)
-    , classList : List ( String, Bool )
-    , disabled : Bool
-    , hint : Maybe Hint.Config
-    , id : String
-    , isMobile : Bool
-    , name : String
-    , options : List Option
-    , placeholder : Maybe String
-    , size : Size
-    , label : Maybe Label.Config
-    , strategy : Strategy
-    , isSubmitted : Bool
-    }
-
-
-{-| A type representing the select rendering options.
-This should not belong to the app `Model`
--}
-type Config msg
-    = Config ConfigData
-
-
-{-| Create a [`Select.Config`](Select#Config) with the default options applied.
-You can apply different options with the `withX` modifiers
--}
-config : Bool -> String -> Config msg
-config isMobile name =
-    Config
-        { additionalContent = Nothing
-        , classList = []
-        , disabled = False
-        , hint = Nothing
-        , id = "id-" ++ name
-        , isMobile = isMobile
-        , name = name
-        , options = []
-        , placeholder = Nothing
-        , size = Medium
-        , label = Nothing
-        , strategy = Strategy.onBlur
-        , isSubmitted = False
-        }
-
-
-{-| A type representing a `<select>` option
--}
-type Option
-    = Option
-        { value : String
-        , label : String
-        }
-
-
-{-| Create an Option
--}
-option : { value : String, label : String } -> Option
-option =
-    Option
-
-
-{-| Sets the validation strategy (when to show the error, if present)
--}
-withStrategy : Strategy -> Config msg -> Config msg
-withStrategy strategy (Config configuration) =
-    Config { configuration | strategy = strategy }
-
-
-{-| Sets whether the form was submitted
--}
-withIsSubmitted : Bool -> Config msg -> Config msg
-withIsSubmitted isSubmitted (Config configuration) =
-    Config { configuration | isSubmitted = isSubmitted }
-
-
-{-| Set the select options
--}
-withOptions : List Option -> Config msg -> Config msg
-withOptions options (Config select) =
-    Config { select | options = options }
-
-
-{-| Set the text visible when no option is selected
-Note: this is not a native placeholder attribute
--}
-withPlaceholder : String -> Config msg -> Config msg
-withPlaceholder placeholder (Config select) =
-    Config { select | placeholder = Just placeholder }
-
-
-{-| Set the disabled attribute
--}
-withDisabled : Bool -> Config msg -> Config msg
-withDisabled disabled (Config select) =
-    Config { select | disabled = disabled }
-
-
-{-| Adds the hint to the Select.
--}
-withHint : String -> Config msg -> Config msg
-withHint hintMessage (Config configuration) =
-    Config
-        { configuration
-            | hint =
-                Hint.config hintMessage
-                    |> Hint.withFieldId configuration.id
-                    |> Just
-        }
-
-
-{-| Set the id attribute
--}
-withId : String -> Config msg -> Config msg
-withId id (Config select) =
-    Config { select | id = id }
-
-
-{-| Set the select size
--}
-withSize : Size -> Config msg -> Config msg
-withSize size (Config select) =
-    Config { select | size = size }
-
-
-{-| Sets the component label
--}
-withLabel : Label.Config -> Config msg -> Config msg
-withLabel label (Config select) =
-    Config { select | label = Just label }
+withAdditionalContent : Html Never -> Config -> Config
+withAdditionalContent additionalContent (Config configuration) =
+    Config { configuration | additionalContent = Just additionalContent }
 
 
 {-| Set the classes of the <select> element
@@ -599,367 +255,198 @@ Only has the "b" class
 _WARNING_: this function is considered unstable and should be used only as an emergency escape hatch
 
 -}
-withClassList : List ( String, Bool ) -> Config msg -> Config msg
+withClassList : List ( String, Bool ) -> Config -> Config
 withClassList classList (Config select) =
     Config { select | classList = classList }
 
 
-{-| Append an additional custom html.
+{-| Set the disabled attribute
 -}
-withAdditionalContent : Html Never -> Config msg -> Config msg
-withAdditionalContent additionalContent (Config configuration) =
-    Config { configuration | additionalContent = Just additionalContent }
+withDisabled : Bool -> Config -> Config
+withDisabled isDisabled (Config select) =
+    Config { select | isDisabled = isDisabled }
 
 
-
--- Render
-
-
-{-| Internal
-
-Returns true if the event should call preventDefault()
-
+{-| Sets the component label
 -}
-shouldKeydownPreventDefault : KeyDown.Event -> Bool
-shouldKeydownPreventDefault keydownEvent =
-    List.any ((|>) keydownEvent)
-        [ KeyDown.isSpace
-        , KeyDown.isEnter
-        , KeyDown.isArrowUp
-        , KeyDown.isArrowDown
-        , KeyDown.isEsc
+withLabel : Label.Config -> Config -> Config
+withLabel label (Config configData) =
+    Config { configData | label = Just label }
+
+
+{-| Adds the hint to the Select.
+-}
+withHint : String -> Config -> Config
+withHint hintMessage (Config configuration) =
+    Config
+        { configuration
+            | hint =
+                Hint.config hintMessage
+                    |> Just
+        }
+
+
+{-| Sets whether the form was submitted
+-}
+withIsSubmitted : Bool -> Config -> Config
+withIsSubmitted isSubmitted (Config configuration) =
+    Config { configuration | isSubmitted = isSubmitted }
+
+
+{-| Set the text visible when no option is selected
+Note: this is not a native placeholder attribute
+-}
+withPlaceholder : String -> Config -> Config
+withPlaceholder placeholder (Config select) =
+    Config { select | placeholder = Just placeholder }
+
+
+{-| Set the select size
+-}
+withSize : Size -> Config -> Config
+withSize size (Config select) =
+    Config { select | size = size }
+
+
+{-| Sets the validation strategy (when to show the error, if present)
+-}
+withStrategy : Strategy -> Config -> Config
+withStrategy strategy (Config configuration) =
+    Config { configuration | strategy = strategy }
+
+
+{-| Internal.
+-}
+renderOptions : Model context parsedValue -> List (Html Msg)
+renderOptions (Model { selectedValue, activeOption, options }) =
+    let
+        isActive : String -> Bool
+        isActive value =
+            activeOption
+                |> Maybe.map (pickOptionData >> .value >> (==) value)
+                |> Maybe.withDefault False
+    in
+    options
+        |> List.map
+            (\((Option { value, label, id }) as option_) ->
+                Html.div
+                    [ Html.Attributes.classList
+                        [ ( "form-dropdown__item", True )
+                        , ( "form-dropdown__item--hover", isActive value )
+                        ]
+                    , Html.Attributes.id id
+                    , CommonsAttributes.role "option"
+                    , CommonsAttributes.ariaSelected (CommonsString.fromBool (Just value == selectedValue))
+                    , CommonsEvents.alwaysStopPropagationOn "click" (OnClick (DropdownOption option_))
+                    , Html.Attributes.tabindex 0
+                    , KeyDown.onKeyDownPreventDefaultOn (handleKeydown (DropdownOption option_))
+                    ]
+                    [ Html.text label ]
+            )
+
+
+renderNativeOptions : Config -> Model context parsedValue -> List (Html msg)
+renderNativeOptions (Config { placeholder }) (Model { selectedValue, options }) =
+    options
+        |> List.map
+            (\(Option { value, label }) ->
+                Html.option
+                    [ Html.Attributes.value value
+                    , Html.Attributes.selected (Just value == selectedValue)
+                    ]
+                    [ Html.text label ]
+            )
+        |> (::)
+            (Html.option
+                [ Html.Attributes.hidden True
+                , Html.Attributes.disabled True
+                , Html.Attributes.selected True
+                ]
+                [ placeholder
+                    |> Maybe.map Html.text
+                    |> CommonsRender.renderMaybe
+                ]
+            )
+
+
+renderAddon : Html msg
+renderAddon =
+    Html.div [ Html.Attributes.class "form-field__addon" ]
+        [ IconSet.ChevronDown
+            |> Icon.config
+            |> Icon.render
         ]
-
-
-{-| Internal
--}
-handleSelectKeydown : ConfigData -> KeyDown.Event -> ( Msg, Bool )
-handleSelectKeydown configData key =
-    ( SelectKeyDown { id = configData.id, options = configData.options } key
-    , shouldKeydownPreventDefault key && not configData.isMobile
-    )
 
 
 {-| Render the html
 -}
-render : (Msg -> msg) -> ctx -> Model ctx parsedValue -> Config msg -> Html msg
-render tagger ctx ((Model modelData) as model) ((Config configData) as configuration) =
+render : (Msg -> msg) -> context -> Model context parsedValue -> Config -> Html.Html msg
+render tagger context ((Model modelData) as model) ((Config configData) as configuration) =
     let
-        shownValidation : Result String ()
-        shownValidation =
-            StrategyInternal.getShownValidation
+        validationResult : Result String ()
+        validationResult =
+            StrategyInternal.getValidationResult
                 modelData.fieldStatus
-                (modelData.validation ctx modelData.value)
+                (modelData.validation context modelData.selectedValue)
                 configData.isSubmitted
                 configData.strategy
-
-        customizedLabel : Maybe Label.Config
-        customizedLabel =
-            Maybe.map (configData.size |> mapLabelSize |> Label.withSize) configData.label
     in
-    renderField shownValidation model configuration
-        |> FormItem.config configData
-        |> FormItem.withLabel customizedLabel
-        |> FormItem.render shownValidation
-        |> Html.map tagger
-
-
-renderField : Result String () -> Model ctx value -> Config msg -> Html Msg
-renderField shownValidation ((Model modelData) as model) (Config configData) =
     Html.div
         [ Html.Attributes.classList
             [ ( "form-field", True )
             , ( "form-field--with-select-dropdown", not configData.isMobile )
-            , ( "form-field--with-opened-dropdown", not configData.isMobile && isDropDownOpen model )
-            , ( "form-field--error", Result.Extra.error shownValidation /= Nothing )
-            , ( "form-field--disabled", configData.disabled )
+            , ( "form-field--with-opened-dropdown", not configData.isMobile && modelData.isOpen )
+            , ( "form-field--error", Result.Extra.error validationResult /= Nothing )
+            , ( "form-field--disabled", configData.isDisabled )
             ]
         ]
         [ Html.label
             [ Html.Attributes.class "form-field__wrapper"
-            , ClickedLabel configData.id
-                |> CommonsEvents.onClickPreventDefault
-                |> CommonsAttributes.renderIf (not configData.isMobile && not configData.disabled)
+            , Html.Events.onClick (OnClick Label)
             ]
             [ Html.select
                 [ Html.Attributes.classList
                     [ ( "form-field__select", True )
-                    , ( "form-field__select--filled", modelData.value /= Nothing )
+                    , ( "form-field__select--filled", modelData.selectedValue /= Nothing )
                     , ( "form-field__select--small", Small == configData.size )
                     ]
-                , Html.Attributes.id configData.id
-                , CommonsAttributes.testId configData.id
                 , Html.Attributes.classList configData.classList
-                , Html.Attributes.disabled configData.disabled
-                , shownValidation
-                    |> Error.fromResult
-                    |> Maybe.map (always (Error.toId configData.id))
-                    |> CommonsAttributes.ariaDescribedByErrorOrHint
-                        (Maybe.map (always (Hint.toId configData.id)) configData.hint)
-
-                -- Conditional attributes
-                , CommonsAttributes.maybe Html.Attributes.value modelData.value
-                , Html.Attributes.name configData.name
-
-                -- Events
-                , Html.Events.onInput Selected
-                , Html.Events.onBlur (Blurred configData.id)
-                , KeyDown.onKeyDownPreventDefaultOn (handleSelectKeydown configData)
-                , CommonsEvents.alwaysStopPropagationOn "click" Noop
+                , Html.Attributes.name modelData.name
+                , Html.Attributes.id modelData.id
+                , CommonsAttributes.testId modelData.id
+                , Html.Attributes.disabled configData.isDisabled
+                , Html.Events.onInput OnSelect
+                , Html.Events.onFocus OnFocus
+                , Html.Events.onBlur OnBlur
+                , CommonsAttributes.renderIf (not configData.isMobile) (KeyDown.onKeyDownPreventDefaultOn (handleKeydown Select))
                 ]
-                (Html.option
-                    [ Html.Attributes.hidden True
-                    , Html.Attributes.disabled True
-                    , Html.Attributes.selected True
-                    ]
-                    [ configData.placeholder
-                        |> Maybe.map Html.text
-                        |> CommonsRender.renderMaybe
-                    ]
-                    :: List.map (renderNativeOption modelData.value) configData.options
-                )
-            , Html.div
-                [ Html.Attributes.class "form-field__addon" ]
-                [ IconSet.ChevronDown
-                    |> Icon.config
-                    |> Icon.render
+                (renderNativeOptions configuration model)
+            , renderAddon
+            ]
+        , Html.div
+            [ Html.Attributes.class "form-dropdown-wrapper"
+            ]
+            [ Html.div
+                [ Html.Attributes.class "form-dropdown"
+                , Html.Attributes.id "form-dropdown"
+                , CommonsAttributes.role "listbox"
                 ]
+                (renderOptions model)
             ]
-        , renderDropdownWrapper model (Config configData)
         ]
+        |> FormItem.config
+            { id = modelData.id
+            , hint = Maybe.map (Hint.withFieldId modelData.id) configData.hint
+            }
+        |> FormItem.withAdditionalContent configData.additionalContent
+        |> FormItem.withLabel (getLabelConfig configuration)
+        |> FormItem.render validationResult
+        |> Html.map tagger
 
 
-{-| Internal.
--}
-renderDropdownWrapper : Model ctx parsedValue -> Config msg -> Html Msg
-renderDropdownWrapper (Model model) (Config select) =
-    -- Currently not using renderIf for performance reasons
-    if select.isMobile then
-        Html.text ""
-
-    else
-        Html.div
-            [ Html.Attributes.classList
-                [ ( "form-dropdown-wrapper", True )
-                , ( "form-dropdown-wrapper--small", Small == select.size )
-                ]
-            ]
-            [ Html.div [ Html.Attributes.class "form-dropdown" ]
-                (select.options
-                    |> List.indexedMap Tuple.pair
-                    |> CommonsList.withPreviousAndNext
-                    |> List.map (renderDropdownItem model (Config select))
-                )
-            ]
-
-
-{-| Internal.
--}
-getHoveredValue : DropDownState -> Maybe String
-getHoveredValue dropDownState =
-    case dropDownState of
-        Open hoveredValue ->
-            hoveredValue
-
-        _ ->
-            Nothing
-
-
-{-| Internal.
--}
-getDropDownItemId : String -> Int -> String
-getDropDownItemId id index =
-    id ++ "-dropdown-item-" ++ String.fromInt index
-
-
-{-| Internal.
--}
-renderDropdownItem :
-    ModelData ctx parsed
-    -> Config msg
-    -> ( ( Int, Option ), ( Int, Option ), ( Int, Option ) )
-    -> Html Msg
-renderDropdownItem { dropDownState, value } (Config configData) ( previous, ( index, Option option_ ), next ) =
-    let
-        handleKeydown : KeyDown.Event -> ( Msg, Bool )
-        handleKeydown keydownEvent =
-            ( DropdownWrapperItemKeydown
-                { id = configData.id
-                , previous = previous
-                , next = next
-                }
-                keydownEvent
-            , KeyDown.isTab keydownEvent || shouldKeydownPreventDefault keydownEvent
-            )
-
-        isItemSelected : Bool
-        isItemSelected =
-            getHoveredValue dropDownState == Just option_.value
-    in
-    Html.div
-        [ Html.Attributes.classList
-            [ ( "form-dropdown__item", True )
-            , ( "form-dropdown__item--hover", isItemSelected )
-            , ( "form-dropdown__item--active", value == Just option_.value )
-            ]
-        , Html.Events.onBlur (Blurred configData.id)
-        , Html.Attributes.attribute "role" "button"
-        , Html.Attributes.tabindex -1
-        , Html.Attributes.id (getDropDownItemId configData.id index)
-        , Html.Events.onClick (Selected option_.value)
-        , Html.Events.onMouseDown DropdownItemMouseDown
-        , Html.Events.onMouseOver (HoveredOption option_.value)
-        , CommonsAttributes.renderIf isItemSelected (KeyDown.onKeyDownPreventDefaultOn handleKeydown)
-        ]
-        [ Html.text option_.label
-        ]
-
-
-{-| Internal.
--}
-renderNativeOption : Maybe String -> Option -> Html msg
-renderNativeOption selectedValue (Option { value, label }) =
-    Html.option
-        [ Html.Attributes.value value
-        , Html.Attributes.selected (Just value == selectedValue)
-        ]
-        [ Html.text label ]
-
-
-{-| Internal
-
-The delay is needed for the focus to work, when the element to focus is not visible yet
-
--}
-hoverDropdownItem :
-    { selectId : String
-    , value : String
-    , index : Int
-    , delayed : Bool
-    }
-    -> Model ctx value
-    -> ( Model ctx value, Cmd Msg )
-hoverDropdownItem { selectId, value, index, delayed } model =
-    model
-        |> setIsBlurringInternally True
-        |> setHoveredValue (Just value)
-        |> PrimaUpdate.withCmd (focusDropDownItem delayed selectId index)
-
-
-{-| Internal
--}
-handleVerticalArrowDropdownItem : String -> ( Int, Option ) -> Model ctx value -> ( Model ctx value, Cmd Msg )
-handleVerticalArrowDropdownItem id ( index, Option { value } ) =
-    hoverDropdownItem
-        { index = index
-        , selectId = id
-        , value = value
-        , delayed = False
-        }
-
-
-
--- Getters boilerplate
-
-
-{-| Internal
--}
-animationDuration : Float
-animationDuration =
-    -- A future improvement might be to use transitionEnd event
-    75
-
-
-{-| Internal
--}
-maybeDelay : Bool -> Task x ()
-maybeDelay delay =
-    if delay then
-        Process.sleep animationDuration
-
-    else
-        Task.succeed ()
-
-
-{-| Internal
--}
-focusDropDownItem : Bool -> String -> Int -> Cmd Msg
-focusDropDownItem delay value index =
-    delay
-        |> maybeDelay
-        |> Task.andThen (\() -> Browser.Dom.focus (getDropDownItemId value index))
-        |> Task.attempt FocusedItem
-
-
-{-| Internal
--}
-setKeyboardHoveredValue : String -> Model ctx parsedValue -> Model ctx parsedValue
-setKeyboardHoveredValue value (Model model) =
-    case model.dropDownState of
-        Closed ->
-            Model model
-
-        Open _ ->
-            Model { model | dropDownState = Open (Just value) }
-
-
-{-| Internal
--}
-isDropDownOpen : Model ctx parsedValue -> Bool
-isDropDownOpen (Model model) =
-    case model.dropDownState of
-        Open _ ->
-            True
-
-        Closed ->
-            False
-
-
-{-| Internal.
--}
-setIsOpen : Bool -> Model ctx parsedValue -> Model ctx parsedValue
-setIsOpen condition (Model model) =
-    if condition then
-        Model { model | dropDownState = Open model.value }
-
-    else
-        Model { model | dropDownState = Closed }
-
-
-{-| Internal.
--}
-setIsBlurringInternally : Bool -> Model ctx parsedValue -> Model ctx parsedValue
-setIsBlurringInternally isBlurringInternally (Model model) =
-    Model { model | isBlurringInternally = isBlurringInternally }
-
-
-{-| Internal.
--}
-setHoveredValue : Maybe String -> Model ctx parsedValue -> Model ctx parsedValue
-setHoveredValue hoveredValue (Model model) =
-    Model { model | dropDownState = Open hoveredValue }
-
-
-{-| Internal.
-Acts as identity when maybeValue == Nothing
--}
-setSelectedValueWhenJust : Maybe String -> Model ctx parsedValue -> Model ctx parsedValue
-setSelectedValueWhenJust =
-    Maybe.map setValue >> Maybe.withDefault identity
-
-
-{-| Internal.
--}
-setValue : String -> Model ctx parsedValue -> Model ctx parsedValue
-setValue value (Model model) =
-    Model { model | value = Just value }
-
-
-{-| Internal.
--}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx parsedValue -> Model ctx parsedValue
-mapFieldStatus f (Model model) =
-    Model { model | fieldStatus = f model.fieldStatus }
+getLabelConfig : Config -> Maybe Label.Config
+getLabelConfig (Config configData) =
+    Maybe.map (configData.size |> mapLabelSize |> Label.withSize) configData.label
 
 
 mapLabelSize : Size -> Label.Size
@@ -970,3 +457,230 @@ mapLabelSize size =
 
         Medium ->
             Label.medium
+
+
+{-| Update the internal state of the Select component
+-}
+update : Msg -> Model ctx parsedValue -> ( Model ctx parsedValue, Cmd Msg )
+update msg ((Model modelData) as model) =
+    case msg of
+        OnSelect value ->
+            Model { modelData | selectedValue = Just value, isOpen = False }
+                |> mapFieldStatus FieldStatus.onInput
+                |> PrimaUpdate.withoutCmds
+
+        OnClick Label ->
+            Model { modelData | isOpen = True }
+                |> PrimaUpdate.withoutCmds
+
+        OnClick (DropdownOption (Option { value })) ->
+            Model { modelData | selectedValue = Just value, isOpen = False }
+                |> PrimaUpdate.withoutCmds
+
+        OnClick _ ->
+            model
+                |> PrimaUpdate.withoutCmds
+
+        OnKeyDown Select event ->
+            Model
+                { modelData
+                    | isOpen =
+                        if KeyDown.isArrowDown event || KeyDown.isSpace event then
+                            True
+
+                        else
+                            modelData.isOpen
+                }
+                |> updateOnSelectKeyEvent event
+
+        OnKeyDown (DropdownOption option_) event ->
+            model
+                |> updateOnOptionKeyEvent option_ event
+                |> focusOnActiveOption
+
+        OnKeyDown _ _ ->
+            model
+                |> PrimaUpdate.withoutCmds
+
+        OnBlur ->
+            model
+                |> mapFieldStatus FieldStatus.onBlur
+                |> PrimaUpdate.withoutCmds
+
+        OnFocus ->
+            model
+                |> mapFieldStatus FieldStatus.onFocus
+                |> PrimaUpdate.withoutCmds
+
+        NoOp ->
+            model
+                |> PrimaUpdate.withoutCmds
+
+
+focusOnActiveOption : Model context parsedValue -> PrimaUpdate.PrimaUpdate (Model context parsedValue) Msg
+focusOnActiveOption ((Model modelData) as model) =
+    model
+        |> PrimaUpdate.withCmds
+            [ modelData.activeOption
+                |> Maybe.map (pickOptionData >> .id >> Dom.focus >> Task.attempt (always NoOp))
+                |> Maybe.withDefault (Dom.focus modelData.id |> Task.attempt (always NoOp))
+            ]
+
+
+updateOnSelectKeyEvent : KeyDown.Event -> Model ctx value -> ( Model ctx value, Cmd Msg )
+updateOnSelectKeyEvent event model =
+    if KeyDown.isArrowDown event || KeyDown.isSpace event then
+        model
+            |> updateActiveOption 1 Nothing
+            |> PrimaUpdate.withCmdsMap
+                [ \(Model { options }) ->
+                    options
+                        |> List.head
+                        |> Maybe.map (pickOptionData >> .id >> Dom.focus >> Task.attempt (always NoOp))
+                        |> Maybe.withDefault Cmd.none
+                ]
+
+    else if KeyDown.isEsc event then
+        model
+            |> setDropdownClosed
+            |> PrimaUpdate.withoutCmds
+
+    else
+        model
+            |> PrimaUpdate.withoutCmds
+
+
+updateOnOptionKeyEvent : Option -> KeyDown.Event -> Model ctx value -> Model ctx value
+updateOnOptionKeyEvent option_ event ((Model modelData) as model) =
+    if KeyDown.isArrowDown event then
+        updateActiveOption 1 (Just option_) model
+
+    else if KeyDown.isArrowUp event then
+        updateActiveOption -1 (Just option_) model
+
+    else if KeyDown.isEsc event then
+        setDropdownClosed model
+
+    else if KeyDown.isEnter event || KeyDown.isSpace event then
+        modelData.activeOption
+            |> Maybe.map (pickOptionData >> .value >> PrimaFunction.flip updateSelectedValue model)
+            |> Maybe.withDefault model
+            |> setDropdownClosed
+
+    else
+        model
+
+
+{-| Internal.
+-}
+updateSelectedValue : String -> Model ctx value -> Model ctx value
+updateSelectedValue value (Model modelData) =
+    Model { modelData | selectedValue = Just value }
+
+
+updateActiveOption : Int -> Maybe Option -> Model ctx value -> Model ctx value
+updateActiveOption moveByPositions currentOption (Model modelData) =
+    let
+        newActiveOptionIndex : Int
+        newActiveOptionIndex =
+            currentOption
+                |> Maybe.map (\(Option { index }) -> index)
+                |> Maybe.withDefault -1
+                |> (+) moveByPositions
+    in
+    Model
+        { modelData
+            | activeOption =
+                if newActiveOptionIndex < 0 then
+                    Nothing
+
+                else if newActiveOptionIndex >= List.length modelData.options then
+                    modelData.options
+                        |> Array.fromList
+                        |> Array.get 0
+
+                else
+                    modelData.options
+                        |> Array.fromList
+                        |> Array.get newActiveOptionIndex
+        }
+
+
+{-| Update the Autocomplete Model closing the dropdown
+-}
+setDropdownClosed : Model ctx value -> Model ctx value
+setDropdownClosed (Model modelData) =
+    Model { modelData | isOpen = False, activeOption = Nothing }
+
+
+{-| Set the select options
+-}
+setOptions : List Option -> Model context parsedValue -> Model context parsedValue
+setOptions options (Model modelData) =
+    Model
+        { modelData
+            | options =
+                List.indexedMap
+                    (\index (Option { value, label, id }) ->
+                        Option
+                            { value = value
+                            , label = label
+                            , index = index
+                            , id = id
+                            }
+                    )
+                    options
+        }
+
+
+{-| Set the id attribute
+-}
+setId : String -> Model context msg -> Model context msg
+setId id (Model modelData) =
+    Model { modelData | id = id }
+
+
+{-| Internal.
+-}
+setValue : String -> Model ctx parsedValue -> Model ctx parsedValue
+setValue selectedValue (Model model) =
+    Model { model | selectedValue = Just selectedValue }
+
+
+{-| Returns the current native value of the Select
+-}
+getValue : Model ctx parsedValue -> Maybe String
+getValue (Model { selectedValue }) =
+    selectedValue
+
+
+{-| Internal
+-}
+handleKeydown : Target -> KeyDown.Event -> ( Msg, Bool )
+handleKeydown target key =
+    ( OnKeyDown target key
+    , List.any
+        (\check -> check key)
+        [ KeyDown.isArrowUp, KeyDown.isArrowDown, KeyDown.isEnter, KeyDown.isSpace ]
+    )
+
+
+{-| Returns the validated value of the select
+-}
+validate : ctx -> Model ctx parsedValue -> Result String parsedValue
+validate ctx (Model { selectedValue, validation }) =
+    validation ctx selectedValue
+
+
+{-| Internal.
+-}
+pickOptionData : Option -> OptionData
+pickOptionData (Option optionData) =
+    optionData
+
+
+{-| Internal.
+-}
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx parsedValue -> Model ctx parsedValue
+mapFieldStatus f (Model model) =
+    Model { model | fieldStatus = f model.fieldStatus }

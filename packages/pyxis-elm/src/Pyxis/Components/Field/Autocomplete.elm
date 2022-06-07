@@ -432,7 +432,7 @@ type Config value msg
         }
 
 
-{-| Creates the Autocomplete view configuration..
+{-| Creates the Autocomplete view configuration.
 -}
 config : String -> Config value msg
 config name =
@@ -556,7 +556,7 @@ withStrategy strategy (Config configuration) =
 
 getValidationResult : Model ctx value msg -> Config a msg -> ctx -> Result String ()
 getValidationResult (Model modelData) (Config configData) ctx =
-    StrategyInternal.getShownValidation
+    StrategyInternal.getValidationResult
         modelData.fieldStatus
         (modelData.validation ctx modelData.value)
         configData.isSubmitted
