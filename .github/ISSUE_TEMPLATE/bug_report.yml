@@ -1,0 +1,85 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: input
+    id: pyxis_version
+    attributes:
+      label: Pyxis version
+      placeholder: ex. v1.0.5
+    validations:
+      required: true
+  - type: dropdown
+    id: pyxis_module
+    attributes:
+      label: Pyxis module
+      multiple: true
+      options:
+        - SCSS
+        - React
+        - Elm
+        - Icons
+        - Tokens
+    validations:
+      required: true
+  - type: textarea
+    id: bug_description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: bug_to_reproduce
+    attributes:
+      label: To Reproduce
+      description: A clear and concise description of what you expected to happen.
+      value: |
+        1. _step 1_
+        2. _step 2_
+        3. _step 3_
+        4. ...
+    validations:
+      required: true
+  - type: textarea
+    id: bug_affected_devices_and_resolutions
+    attributes:
+      label: Affected devices, browsers and resolutions
+      description: Add device type, browser type and version, O.S. and resolution to help us reproducing the bug.
+      value: |
+        1. Device type (desktop, tablet, mobile, all of them)
+        2. Browser type and version
+        3. O.S.
+        4. Resolution
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Screenshots
+      description: |
+        If applicable, add screenshots to help explain your problem.
+
+        Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: false
+  - type: dropdown
+    id: bug_priority
+    attributes:
+      label: Priority
+      description: How much is this bug critical for your development or business?
+      multiple: true
+      options:
+        - Show stopper
+        - Critical
+        - Major
+        - Minor
+    validations:
+      required: true
