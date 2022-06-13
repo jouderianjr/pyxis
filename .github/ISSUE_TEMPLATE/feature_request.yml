@@ -54,7 +54,6 @@ body:
     attributes:
       label: Priority
       description: How much is this feature critical for your development or business?
-      multiple: true
       options:
         - Show stopper
         - Critical
