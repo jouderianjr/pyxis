@@ -38,7 +38,7 @@ validation _ value =
         Ok value
 
 
-textFieldModel : Input.Model FormData
+textFieldModel : Input.Model FormData Input.Msg
 textFieldModel =
     Input.init "" validation
 
@@ -181,13 +181,13 @@ type alias Msg x =
 
 
 type alias Model =
-    { base : Input.Model () String
-    , date : Input.Model () Date
-    , email : Input.Model () String
-    , number : Input.Model () Float
-    , password : Input.Model () String
-    , text : Input.Model () String
-    , withValidation : Input.Model () String
+    { base : Input.Model () String Input.Msg
+    , date : Input.Model () Date Input.Msg
+    , email : Input.Model () String Input.Msg
+    , number : Input.Model () Float Input.Msg
+    , password : Input.Model () String Input.Msg
+    , text : Input.Model () String Input.Msg
+    , withValidation : Input.Model () String Input.Msg
     }
 
 
@@ -318,7 +318,7 @@ componentsList =
 statelessComponent : Html Input.Msg -> Html (Msg x)
 statelessComponent =
     Html.map
-        (ElmBook.Actions.mapUpdate
+        (ElmBook.Actions.mapUpdateWithCmd
             { toState = toState
             , fromState = .input
             , update = updateBase
@@ -327,12 +327,12 @@ statelessComponent =
 
 
 statefulComponent :
-    (Input.Msg -> Model -> Model)
+    (Input.Msg -> Model -> ( Model, Cmd Input.Msg ))
     -> Html Input.Msg
     -> Html (Msg x)
 statefulComponent update =
     Html.map
-        (ElmBook.Actions.mapUpdate
+        (ElmBook.Actions.mapUpdateWithCmd
             { toState = toState
             , fromState = .input
             , update = update
@@ -345,36 +345,64 @@ toState state model =
     { state | input = model }
 
 
-updateBase : Input.Msg -> Model -> Model
+updateBase : Input.Msg -> Model -> ( Model, Cmd Input.Msg )
 updateBase msg model =
-    { model | base = Input.update msg model.base }
+    let
+        ( updatedModel, cmd ) =
+            Input.update msg model.base
+    in
+    ( { model | base = updatedModel }, cmd )
 
 
-updateText : Input.Msg -> Model -> Model
+updateText : Input.Msg -> Model -> ( Model, Cmd Input.Msg )
 updateText msg model =
-    { model | text = Input.update msg model.text }
+    let
+        ( updatedModel, cmd ) =
+            Input.update msg model.text
+    in
+    ( { model | text = updatedModel }, cmd )
 
 
-updateNumber : Input.Msg -> Model -> Model
+updateNumber : Input.Msg -> Model -> ( Model, Cmd Input.Msg )
 updateNumber msg model =
-    { model | number = Input.update msg model.number }
+    let
+        ( updatedModel, cmd ) =
+            Input.update msg model.number
+    in
+    ( { model | number = updatedModel }, cmd )
 
 
-updateEmail : Input.Msg -> Model -> Model
+updateEmail : Input.Msg -> Model -> ( Model, Cmd Input.Msg )
 updateEmail msg model =
-    { model | email = Input.update msg model.email }
+    let
+        ( updatedModel, cmd ) =
+            Input.update msg model.email
+    in
+    ( { model | email = updatedModel }, cmd )
 
 
-updatePassword : Input.Msg -> Model -> Model
+updatePassword : Input.Msg -> Model -> ( Model, Cmd Input.Msg )
 updatePassword msg model =
-    { model | password = Input.update msg model.password }
+    let
+        ( updatedModel, cmd ) =
+            Input.update msg model.password
+    in
+    ( { model | password = updatedModel }, cmd )
 
 
-updateDate : Input.Msg -> Model -> Model
+updateDate : Input.Msg -> Model -> ( Model, Cmd Input.Msg )
 updateDate msg model =
-    { model | date = Input.update msg model.date }
+    let
+        ( updatedModel, cmd ) =
+            Input.update msg model.date
+    in
+    ( { model | date = updatedModel }, cmd )
 
 
-updateWithValidation : Input.Msg -> Model -> Model
+updateWithValidation : Input.Msg -> Model -> ( Model, Cmd Input.Msg )
 updateWithValidation msg model =
-    { model | withValidation = Input.update msg model.withValidation }
+    let
+        ( updatedModel, cmd ) =
+            Input.update msg model.withValidation
+    in
+    ( { model | withValidation = updatedModel }, cmd )

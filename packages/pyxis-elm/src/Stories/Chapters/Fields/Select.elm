@@ -32,7 +32,7 @@ type Msg
     = OnSelectMsg (Select.Msg)
 
 
-validation : formData -> Maybe String -> Result String Job
+validation : () -> Maybe String -> Result String Job
 validation _ maybeValue =
     maybeValue
         |> Maybe.andThen toJob

@@ -1,7 +1,8 @@
 module Examples.Form.Views.ClaimType exposing (view)
 
-import Examples.Form.Data as Data exposing (Data(..))
-import Examples.Form.Model as Model
+import Examples.Form.Data exposing (Data(..))
+import Examples.Form.Msg as Msg exposing (Msg)
+import Examples.Form.Types as Fields
 import Html
 import Html.Attributes
 import Pyxis.Components.Button as Button
@@ -14,12 +15,12 @@ import Pyxis.Components.Form.Legend as Legend
 import Pyxis.Components.IconSet as IconSet
 
 
-view : Data -> FieldSet.Config Model.Msg
+view : Data -> FieldSet.Config Msg
 view ((Data config) as data) =
     FieldSet.config
         |> FieldSet.withHeader
             [ Grid.simpleOneColRow
-                [ Legend.config "Scegli la tipologia di sinistro"
+                [ Legend.config "Choose the accident type"
                     |> Legend.withAddon (Legend.imageAddon "../../../assets/placeholder.svg")
                     |> Legend.render
                 ]
@@ -31,33 +32,36 @@ view ((Data config) as data) =
                     [ "claim-type"
                         |> RadioCardGroup.config
                         |> RadioCardGroup.withStrategy Strategy.onSubmit
+                        |> RadioCardGroup.withIsSubmitted config.isFormSubmitted
                         |> RadioCardGroup.withLayout RadioCardGroup.vertical
                         |> RadioCardGroup.withOptions
                             [ RadioCardGroup.option
-                                { value = Data.CarAccident
-                                , title = Just "Incidenti stradali"
-                                , text = Just "Urti, collisioni, uscite di strada..."
+                                { value = Fields.CarAccident
+                                , title = Just "Car crash"
+                                , text = Just "Lorem ipsum dolor sit amet."
                                 , addon = RadioCardGroup.iconAddon IconSet.VehicleCollisionKasko
                                 }
                             , RadioCardGroup.option
-                                { value = Data.OtherClaims
-                                , title = Just "Altre tipologie di sinistro"
-                                , text = Just "Infortuni, furti, danni ai cristalli..."
+                                { value = Fields.OtherClaims
+                                , title = Just "Others"
+                                , text = Just "Theft, fire, etc."
                                 , addon = RadioCardGroup.iconAddon IconSet.VehicleFullKasko
                                 }
                             ]
-                        |> RadioCardGroup.render Model.ClaimTypeChanged data config.claimType
+                        |> RadioCardGroup.render Msg.ClaimTypeChanged data config.claimType
                     ]
                 ]
             ]
         |> FieldSet.withFooter
             [ Grid.simpleOneColRow
                 [ Html.div
-                    [ Html.Attributes.class "button-row justify-content-center" ]
+                    [ Html.Attributes.class "button-row"
+                    , Html.Attributes.style "justify-content" "center"
+                    ]
                     [ Button.secondary
                         |> Button.withType Button.button
-                        |> Button.withOnClick (Model.ShowModal True)
-                        |> Button.withText "Show Modal"
+                        |> Button.withOnClick (Msg.ShowModal True)
+                        |> Button.withText "Read more about our policy."
                         |> Button.render
                     ]
                 ]

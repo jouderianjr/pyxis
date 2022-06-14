@@ -1,5 +1,5 @@
 module Pyxis.Commons.Events exposing
-    ( PointerEvent, PointerType(..)
+    ( PointerType(..)
     , onClickPreventDefault, alwaysStopPropagationOn
     )
 
@@ -8,7 +8,7 @@ module Pyxis.Commons.Events exposing
 
 ## Events utilities
 
-@docs PointerEvent, PointerType
+@docs PointerType
 @docs onClickPreventDefault, alwaysStopPropagationOn
 
 -}
@@ -16,15 +16,6 @@ module Pyxis.Commons.Events exposing
 import Html
 import Html.Events
 import Json.Decode
-
-
-{-| The PointerEvent data
-The decoding is very permissive in order to prevent weird
-bugs in older browsers and fallbacks to Nothing instead of failing
--}
-type alias PointerEvent =
-    { pointerType : Maybe PointerType
-    }
 
 
 {-| The event .pointerType field
@@ -37,10 +28,11 @@ type PointerType
 
 {-| Internal
 -}
-pointerEventDecoder : Json.Decode.Decoder PointerEvent
+pointerEventDecoder : Json.Decode.Decoder (Maybe PointerType)
 pointerEventDecoder =
-    Json.Decode.map PointerEvent
-        (Json.Decode.maybe (Json.Decode.field "pointerType" pointerTypeDecoder))
+    pointerTypeDecoder
+        |> Json.Decode.field "pointerType"
+        |> Json.Decode.maybe
 
 
 {-| Internal
@@ -67,7 +59,7 @@ pointerTypeDecoder =
 
 {-| A version of onClick that decodes extra data about the PointerEvent.
 -}
-onClickPreventDefault : (PointerEvent -> value) -> Html.Attribute value
+onClickPreventDefault : (Maybe PointerType -> value) -> Html.Attribute value
 onClickPreventDefault tagger =
     Html.Events.on "click" (Json.Decode.map tagger pointerEventDecoder)
 

@@ -1,6 +1,9 @@
 module Pyxis.Components.Field.Input exposing
     ( Model
     , init
+    , setOnBlur
+    , setOnFocus
+    , setOnInput
     , date
     , DateConfig
     , email
@@ -34,9 +37,6 @@ module Pyxis.Components.Field.Input exposing
     , withStrategy
     , withValueMapper
     , Msg
-    , isOnBlur
-    , isOnFocus
-    , isOnInput
     , update
     , updateValue
     , getValue
@@ -51,6 +51,9 @@ module Pyxis.Components.Field.Input exposing
 
 @docs Model
 @docs init
+@docs setOnBlur
+@docs setOnFocus
+@docs setOnInput
 
 
 ## Config
@@ -104,9 +107,6 @@ module Pyxis.Components.Field.Input exposing
 ## Update
 
 @docs Msg
-@docs isOnBlur
-@docs isOnFocus
-@docs isOnInput
 @docs update
 @docs updateValue
 
@@ -127,7 +127,9 @@ import Date
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import PrimaUpdate
 import Pyxis.Commons.Attributes as CommonsAttributes
+import Pyxis.Commons.Commands as Commands
 import Pyxis.Commons.Constraints as CommonsConstraints
 import Pyxis.Commons.Properties.Placement as Placement exposing (Placement)
 import Pyxis.Commons.Render as CommonsRender
@@ -151,125 +153,124 @@ type Msg
     | OnBlur
 
 
-{-| Returns True if the message is triggered by `Html.Events.onInput`
--}
-isOnInput : Msg -> Bool
-isOnInput msg =
-    case msg of
-        OnInput _ ->
-            True
-
-        _ ->
-            False
-
-
-{-| Returns True if the message is triggered by `Html.Events.onFocus`
--}
-isOnFocus : Msg -> Bool
-isOnFocus msg =
-    case msg of
-        OnFocus ->
-            True
-
-        _ ->
-            False
-
-
-{-| Returns True if the message is triggered by `Html.Events.onBlur`
--}
-isOnBlur : Msg -> Bool
-isOnBlur msg =
-    case msg of
-        OnBlur ->
-            True
-
-        _ ->
-            False
-
-
 {-| The Input model.
 -}
-type Model ctx parsedValue
+type Model ctx value msg
     = Model
-        { validation : ctx -> String -> Result String parsedValue
+        { validation : ctx -> String -> Result String value
         , value : String
         , fieldStatus : FieldStatus.Status
+        , onFocus : Maybe msg
+        , onBlur : Maybe msg
+        , onInput : Maybe msg
         }
 
 
 {-| Inits the Input model.
 -}
-init : String -> (ctx -> String -> Result String parsedValue) -> Model ctx parsedValue
+init : String -> (ctx -> String -> Result String value) -> Model ctx value msg
 init initialValue validation =
     Model
         { validation = validation
         , value = initialValue
         , fieldStatus = FieldStatus.Untouched
+        , onFocus = Nothing
+        , onBlur = Nothing
+        , onInput = Nothing
         }
 
 
 {-| Update the input internal model
 -}
-update : Msg -> Model ctx parsedValue -> Model ctx parsedValue
-update msg model =
+update : Msg -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+update msg ((Model modelData) as model) =
     case msg of
         OnBlur ->
             model
                 |> mapFieldStatus FieldStatus.onBlur
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onBlur
+                    ]
 
         OnFocus ->
             model
                 |> mapFieldStatus FieldStatus.onFocus
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onFocus
+                    ]
 
         OnInput value ->
-            model
-                |> setValue value
+            Model { modelData | value = value }
                 |> mapFieldStatus FieldStatus.onInput
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onInput
+                    ]
 
 
 {-| Update the field value.
 -}
-updateValue : String -> Model ctx parsedValue -> Model ctx parsedValue
+updateValue : String -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
 updateValue value =
     update (OnInput value)
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx parsedValue -> Model ctx parsedValue
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
 mapFieldStatus mapper (Model model) =
     Model { model | fieldStatus = mapper model.fieldStatus }
 
 
-{-| Return the input value
+{-| Sets an OnBlur side effect.
 -}
-getValue : Model ctx parsedValue -> String
+setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
+setOnBlur msg (Model configuration) =
+    Model { configuration | onBlur = Just msg }
+
+
+{-| Sets an OnFocus side effect.
+-}
+setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
+setOnFocus msg (Model configuration) =
+    Model { configuration | onFocus = Just msg }
+
+
+{-| Sets an OnInput side effect.
+-}
+setOnInput : msg -> Model ctx value msg -> Model ctx value msg
+setOnInput msg (Model configuration) =
+    Model { configuration | onInput = Just msg }
+
+
+{-| Return the input value.
+-}
+getValue : Model ctx value msg -> String
 getValue (Model { value }) =
     value
 
 
 {-| Returns the validated value by running the function you gave to the init.
 -}
-validate : ctx -> Model ctx parsedValue -> Result String parsedValue
+validate : ctx -> Model ctx value msg -> Result String value
 validate ctx (Model { value, validation }) =
     validation ctx value
 
 
-{-| Input size
+{-| Input size.
 -}
 type Size
     = Small
     | Medium
 
 
-{-| Input size small
+{-| Input size small.
 -}
 small : Size
 small =
     Small
 
 
-{-| Input size medium
+{-| Input size medium.
 -}
 medium : Size
 medium =
@@ -705,13 +706,6 @@ withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
 
-{-| Sets the input value attribute
--}
-setValue : String -> Model ctx parsedValue -> Model ctx parsedValue
-setValue value (Model configuration) =
-    Model { configuration | value = value }
-
-
 {-| Internal
 -}
 addIconCalendarToDateField : Config constraints -> Config constraints
@@ -726,7 +720,7 @@ addIconCalendarToDateField ((Config configData) as config_) =
 
 {-| Renders the Input.Stories/Chapters/DateField.elm
 -}
-render : (Msg -> msg) -> ctx -> Model ctx parsedValue -> Config constraints -> Html msg
+render : (Msg -> msg) -> ctx -> Model ctx value msg -> Config constraints -> Html msg
 render tagger ctx ((Model modelData) as model) ((Config configData) as config_) =
     let
         shownValidation : Result String ()
@@ -749,7 +743,7 @@ render tagger ctx ((Model modelData) as model) ((Config configData) as config_) 
 
 {-| Internal.
 -}
-renderField : Result String () -> Model ctx parsedValue -> Config constraints -> Html Msg
+renderField : Result String () -> Model ctx value msg -> Config constraints -> Html Msg
 renderField shownValidation model ((Config { disabled, addon }) as configuration) =
     Html.div
         [ Html.Attributes.classList
@@ -767,7 +761,7 @@ renderField shownValidation model ((Config { disabled, addon }) as configuration
 
 {-| Internal.
 -}
-renderAddon : Result String () -> Model ctx parsedValue -> Config constraints -> Addon -> Html Msg
+renderAddon : Result String () -> Model ctx value msg -> Config constraints -> Addon -> Html Msg
 renderAddon validationResult model configuration addon =
     Html.label
         [ Html.Attributes.class "form-field__wrapper" ]
@@ -798,7 +792,7 @@ renderAddonByType type_ =
 
 {-| Internal.
 -}
-renderInput : Result String () -> Model ctx parsedValue -> Config constraints -> Html Msg
+renderInput : Result String () -> Model ctx value msg -> Config constraints -> Html Msg
 renderInput validationResult (Model modelData) (Config configData) =
     Html.input
         [ Html.Attributes.id configData.id

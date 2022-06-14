@@ -110,6 +110,14 @@ suite =
         ]
 
 
+type alias ComponentModel =
+    RadioGroup.Model () Option Option ComponentMsg
+
+
+type alias ComponentMsg =
+    RadioGroup.Msg Option
+
+
 findInputs : Query.Single msg -> Query.Multiple msg
 findInputs =
     Query.findAll [ Selector.tag "input" ]
@@ -129,32 +137,32 @@ radioGroupConfig =
         |> RadioGroup.withId "gender"
 
 
-renderRadioGroup : RadioGroup.Config Option -> Query.Single (RadioGroup.Msg Option)
+renderRadioGroup : RadioGroup.Config Option -> Query.Single ComponentMsg
 renderRadioGroup =
     RadioGroup.render identity () (RadioGroup.init Nothing validation)
         >> Query.fromHtml
 
 
-simulationWithValidation : Simulation.Simulation (RadioGroup.Model () Option Option) (RadioGroup.Msg Option)
+simulationWithValidation : Simulation.Simulation ComponentModel ComponentMsg
 simulationWithValidation =
     Simulation.fromSandbox
         { init = RadioGroup.init Nothing validation
-        , update = \subMsg model -> RadioGroup.update subMsg model
+        , update = \subMsg model -> Tuple.first (RadioGroup.update subMsg model)
         , view = \model -> RadioGroup.render identity () model radioGroupConfig
         }
 
 
 validation : ctx -> Maybe Option -> Result String Option
 validation _ value =
-    case value of
-        Nothing ->
-            Err "Required"
-
-        Just x ->
-            Ok x
+    value
+        |> Maybe.map Ok
+        |> Maybe.withDefault (Err "Required")
 
 
-simulateEvents : String -> Simulation.Simulation (RadioGroup.Model () Option Option) (RadioGroup.Msg Option) -> Simulation.Simulation (RadioGroup.Model () Option Option) (RadioGroup.Msg Option)
+simulateEvents :
+    String
+    -> Simulation.Simulation ComponentModel ComponentMsg
+    -> Simulation.Simulation ComponentModel ComponentMsg
 simulateEvents testId simulation =
     simulation
         |> Simulation.simulate ( Event.check True, [ Selector.attribute (CommonsAttributes.testId testId) ] )

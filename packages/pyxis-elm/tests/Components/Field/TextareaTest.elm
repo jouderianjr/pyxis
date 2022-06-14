@@ -10,7 +10,7 @@ import Test.Extra as Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector
-import Test.Simulation as Simulation
+import Test.Simulation as Simulation exposing (Simulation)
 
 
 suite : Test
@@ -120,6 +120,14 @@ suite =
         ]
 
 
+type alias ComponentModel =
+    TextareaField.Model () TextareaField.Msg
+
+
+type alias ComponentMsg =
+    TextareaField.Msg
+
+
 findTextarea : Query.Single msg -> Query.Single msg
 findTextarea =
     Query.find [ Selector.tag "textarea" ]
@@ -130,7 +138,7 @@ findLabel =
     Query.find [ Selector.tag "label", Selector.class "form-label" ]
 
 
-fieldModel : TextareaField.Model ctx
+fieldModel : ComponentModel
 fieldModel =
     TextareaField.init "" (always Ok)
 
@@ -141,15 +149,15 @@ fieldConfig =
         |> TextareaField.withId "textarea-id"
 
 
-fieldRender : ctx -> TextareaField.Model ctx -> TextareaField.Config -> Query.Single TextareaField.Msg
+fieldRender : () -> ComponentModel -> TextareaField.Config -> Query.Single TextareaField.Msg
 fieldRender ctx model =
     TextareaField.render identity ctx model >> Query.fromHtml
 
 
-simulation : TextareaField.Config -> Simulation.Simulation (TextareaField.Model ()) TextareaField.Msg
+simulation : TextareaField.Config -> Simulation ComponentModel ComponentMsg
 simulation config =
     Simulation.fromSandbox
         { init = TextareaField.init "" (always Ok)
-        , update = TextareaField.update
+        , update = \subMsg model -> Tuple.first (TextareaField.update subMsg model)
         , view = \model -> TextareaField.render identity () model config
         }

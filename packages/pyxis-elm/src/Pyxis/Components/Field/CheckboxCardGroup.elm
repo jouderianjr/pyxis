@@ -1,6 +1,9 @@
 module Pyxis.Components.Field.CheckboxCardGroup exposing
     ( Model
     , init
+    , setOnBlur
+    , setOnFocus
+    , setOnCheck
     , Config
     , config
     , Addon
@@ -22,7 +25,6 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
     , large
     , withSize
     , Msg
-    , isOnCheck
     , update
     , updateValue
     , getValue
@@ -41,6 +43,9 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
 
 @docs Model
 @docs init
+@docs setOnBlur
+@docs setOnFocus
+@docs setOnCheck
 
 
 ## Config
@@ -86,7 +91,6 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
 ## Update
 
 @docs Msg
-@docs isOnCheck
 @docs update
 @docs updateValue
 
@@ -113,6 +117,8 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
 
 import Html exposing (Html)
 import PrimaFunction
+import PrimaUpdate
+import Pyxis.Commons.Commands as Commands
 import Pyxis.Components.CardGroup as CardGroup
 import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
 import Pyxis.Components.Field.Error.Strategy.Internal as InternalStrategy
@@ -122,27 +128,30 @@ import Pyxis.Components.Field.Status as FieldStatus
 import Pyxis.Components.IconSet as IconSet
 
 
-type alias ModelData ctx value parsedValue =
-    { checkedValues : List value
-    , validation : ctx -> List value -> Result String parsedValue
-    , fieldStatus : FieldStatus.Status
-    }
-
-
 {-| The CheckboxCardGroup model.
 -}
-type Model ctx value parsedValue
-    = Model (ModelData ctx value parsedValue)
+type Model ctx value parsedValue msg
+    = Model
+        { checkedValues : List value
+        , validation : ctx -> List value -> Result String parsedValue
+        , fieldStatus : FieldStatus.Status
+        , onBlur : Maybe msg
+        , onFocus : Maybe msg
+        , onCheck : Maybe msg
+        }
 
 
 {-| Initialize the CheckboxCardGroup Model.
 -}
-init : List value -> (ctx -> List value -> Result String parsedValue) -> Model ctx value parsedValue
+init : List value -> (ctx -> List value -> Result String parsedValue) -> Model ctx value parsedValue msg
 init initialValues validation =
     Model
         { checkedValues = initialValues
         , validation = validation
         , fieldStatus = FieldStatus.Untouched
+        , onBlur = Nothing
+        , onFocus = Nothing
+        , onCheck = Nothing
         }
 
 
@@ -191,77 +200,92 @@ config name =
 {-| Represent the messages which the CheckboxCardGroup can handle.
 -}
 type Msg value
-    = Checked value Bool
-    | Focused value
-    | Blurred value
+    = OnCheck value Bool
+    | OnFocus value
+    | OnBlur value
 
 
 {-| Update the CheckboxGroup Model.
 -}
-update : Msg value -> Model ctx value parsedValue -> Model ctx value parsedValue
-update msg model =
+update : Msg value -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
+update msg ((Model modelData) as model) =
     case msg of
-        Checked value check ->
+        OnBlur _ ->
+            model
+                |> mapFieldStatus FieldStatus.onBlur
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onBlur ]
+
+        OnFocus _ ->
+            model
+                |> mapFieldStatus FieldStatus.onFocus
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onFocus ]
+
+        OnCheck value check ->
             model
                 |> PrimaFunction.ifThenElseMap (always check)
                     (checkValue value)
                     (uncheckValue value)
                 |> mapFieldStatus FieldStatus.onChange
-
-        Focused _ ->
-            model
-                |> mapFieldStatus FieldStatus.onFocus
-
-        Blurred _ ->
-            model
-                |> mapFieldStatus FieldStatus.onBlur
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onCheck ]
 
 
 {-| Update the field value.
 -}
-updateValue : value -> Bool -> Model ctx value parsedValue -> Model ctx value parsedValue
+updateValue : value -> Bool -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
 updateValue value checked =
-    update (Checked value checked)
+    update (OnCheck value checked)
 
 
 {-| Internal
 -}
-checkValue : value -> Model ctx value parsedValue -> Model ctx value parsedValue
+checkValue : value -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
 checkValue value =
     mapCheckedValues ((::) value)
 
 
 {-| Internal
 -}
-uncheckValue : value -> Model ctx value parsedValue -> Model ctx value parsedValue
+uncheckValue : value -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
 uncheckValue value =
     mapCheckedValues (List.filter ((/=) value))
 
 
+{-| Sets an OnBlur side effect.
+-}
+setOnBlur : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnBlur msg (Model configuration) =
+    Model { configuration | onBlur = Just msg }
+
+
+{-| Sets an OnFocus side effect.
+-}
+setOnFocus : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnFocus msg (Model configuration) =
+    Model { configuration | onFocus = Just msg }
+
+
+{-| Sets an OnCheck side effect.
+-}
+setOnCheck : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnCheck msg (Model configuration) =
+    Model { configuration | onCheck = Just msg }
+
+
 {-| Return the selected value.
 -}
-getValue : Model ctx value parsedValue -> List value
+getValue : Model ctx value parsedValue msg -> List value
 getValue (Model { checkedValues }) =
     checkedValues
 
 
 {-| Get the parsed value
 -}
-validate : ctx -> Model ctx value parsedValue -> Result String parsedValue
+validate : ctx -> Model ctx value parsedValue msg -> Result String parsedValue
 validate ctx (Model { checkedValues, validation }) =
     validation ctx checkedValues
-
-
-{-| Returns True if the message is triggered by `Html.Events.onCheck`
--}
-isOnCheck : Msg value -> Bool
-isOnCheck msg =
-    case msg of
-        Checked _ _ ->
-            True
-
-        _ ->
-            False
 
 
 {-| Represent the single Checkbox option.
@@ -446,7 +470,7 @@ withAdditionalContent additionalContent (Config configuration) =
 
 {-| Render the checkboxCardGroup
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue -> Config value -> Html msg
+render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue msg -> Config value -> Html msg
 render tagger ctx (Model modelData) (Config configData) =
     let
         shownValidation : Result String ()
@@ -467,9 +491,9 @@ render tagger ctx (Model modelData) (Config configData) =
 -}
 mapOption : (Msg value -> msg) -> List value -> Option value -> CardGroup.Option msg
 mapOption tagger checkedValues (Option { value, text, title, addon, disabled }) =
-    { onCheck = Checked value >> tagger
-    , onBlur = Blurred value |> tagger
-    , onFocus = Focused value |> tagger
+    { onCheck = OnCheck value >> tagger
+    , onBlur = OnBlur value |> tagger
+    , onFocus = OnFocus value |> tagger
     , addon = Maybe.map (\(Addon a) -> a) addon
     , text = text
     , title = title
@@ -484,13 +508,13 @@ mapOption tagger checkedValues (Option { value, text, title, addon, disabled }) 
 
 {-| Internal
 -}
-mapCheckedValues : (List value -> List value) -> Model ctx value parsedValue -> Model ctx value parsedValue
+mapCheckedValues : (List value -> List value) -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
 mapCheckedValues f (Model r) =
     Model { r | checkedValues = f r.checkedValues }
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value parsedValue -> Model ctx value parsedValue
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
 mapFieldStatus f (Model model) =
     Model { model | fieldStatus = f model.fieldStatus }

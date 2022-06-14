@@ -1,6 +1,11 @@
 module Pyxis.Components.Field.Autocomplete exposing
     ( Model
     , init
+    , setOnBlur
+    , setOnFocus
+    , setOnReset
+    , setOnInput
+    , setOnSelect
     , Config
     , config
     , withAdditionalContent
@@ -19,9 +24,6 @@ module Pyxis.Components.Field.Autocomplete exposing
     , withAddonAction
     , withAddonHeader
     , withAddonSuggestion
-    , isOnInput
-    , isOnReset
-    , isOnSelect
     , Msg
     , setDropdownClosed
     , setOptions
@@ -39,6 +41,11 @@ module Pyxis.Components.Field.Autocomplete exposing
 
 @docs Model
 @docs init
+@docs setOnBlur
+@docs setOnFocus
+@docs setOnReset
+@docs setOnInput
+@docs setOnSelect
 
 
 ## Configuration
@@ -78,9 +85,6 @@ module Pyxis.Components.Field.Autocomplete exposing
 
 ## Update
 
-@docs isOnInput
-@docs isOnReset
-@docs isOnSelect
 @docs Msg
 @docs setDropdownClosed
 @docs setOptions
@@ -108,6 +112,7 @@ import Maybe.Extra
 import PrimaFunction
 import PrimaUpdate
 import Pyxis.Commons.Attributes as CommonsAttributes
+import Pyxis.Commons.Commands as Commands
 import Pyxis.Commons.Events.KeyDown as KeyDown
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Field.Error as Error
@@ -126,7 +131,7 @@ import Result.Extra
 
 {-| Represents the Autocomplete state.
 -}
-type Model ctx value
+type Model ctx value msg
     = Model
         { activeOption : Maybe (Option value)
         , isDropdownOpen : Bool
@@ -138,6 +143,11 @@ type Model ctx value
         , validation : ctx -> Maybe value -> Result String value
         , value : Maybe value
         , valueToString : value -> String
+        , onBlur : Maybe msg
+        , onFocus : Maybe msg
+        , onInput : Maybe msg
+        , onReset : Maybe msg
+        , onSelect : Maybe msg
         }
 
 
@@ -148,7 +158,7 @@ init :
     -> (value -> String)
     -> (String -> value -> Bool)
     -> (ctx -> Maybe value -> Result String value)
-    -> Model ctx value
+    -> Model ctx value msg
 init value valueToString optionsFilter validation =
     Model
         { activeOption = Nothing
@@ -161,6 +171,11 @@ init value valueToString optionsFilter validation =
         , validation = validation
         , value = value
         , valueToString = valueToString
+        , onBlur = Nothing
+        , onFocus = Nothing
+        , onInput = Nothing
+        , onReset = Nothing
+        , onSelect = Nothing
         }
 
 
@@ -173,7 +188,7 @@ type alias Option value =
 
 {-| Allow to updates the options list.
 -}
-setOptions : RemoteData err (List value) -> Model ctx value -> Model ctx value
+setOptions : RemoteData err (List value) -> Model ctx value msg -> Model ctx value msg
 setOptions optionsRemoteData (Model modelData) =
     Model { modelData | values = RemoteData.mapError (always ()) optionsRemoteData, isDropdownOpen = True }
 
@@ -188,69 +203,41 @@ type Msg value
     | OnKeyDown KeyDown.Event
 
 
-{-| Tells if the Autocomplete is currently filtering options or at least the filter has been modified.
--}
-isOnInput : Msg value -> Bool
-isOnInput msg =
-    case msg of
-        OnInput _ ->
-            True
-
-        _ ->
-            False
-
-
-{-| Tells if the Autocomplete is currently selecting a option.
--}
-isOnSelect : Msg value -> Bool
-isOnSelect msg =
-    case msg of
-        OnSelect _ ->
-            True
-
-        _ ->
-            False
-
-
-{-| Tells if the Autocomplete filter has been erased by reset icon click..
--}
-isOnReset : Msg value -> Bool
-isOnReset msg =
-    case msg of
-        OnReset ->
-            True
-
-        _ ->
-            False
-
-
 {-| Updates the Autocomplete.
 -}
-update : Msg value -> Model ctx value -> ( Model ctx value, Cmd (Msg value) )
+update : Msg value -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnFocus ->
             Model { modelData | isDropdownOpen = True }
                 |> mapFieldStatus Status.onFocus
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onFocus
+                    ]
 
         OnInput value ->
             Model { modelData | filter = value, isFiltering = True }
                 |> mapFieldStatus Status.onInput
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onInput
+                    ]
 
         OnReset ->
             modelData.validation
                 |> init Nothing modelData.valueToString modelData.optionsFilter
                 |> mapFieldStatus Status.onInput
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onReset
+                    ]
 
         OnSelect value ->
             model
                 |> updateSelectedValue value
                 |> setDropdownClosed
                 |> mapFieldStatus Status.onInput
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onSelect
+                    ]
 
         OnKeyDown event ->
             model
@@ -258,7 +245,7 @@ update msg ((Model modelData) as model) =
                 |> PrimaUpdate.withoutCmds
 
 
-updateOnKeyEvent : KeyDown.Event -> Model ctx value -> Model ctx value
+updateOnKeyEvent : KeyDown.Event -> Model ctx value msg -> Model ctx value msg
 updateOnKeyEvent event ((Model modelData) as model) =
     if KeyDown.isArrowDown event then
         updateActiveOption 1 model
@@ -279,21 +266,56 @@ updateOnKeyEvent event ((Model modelData) as model) =
         model
 
 
+{-| Sets an OnBlur side effect.
+-}
+setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
+setOnBlur msg (Model configuration) =
+    Model { configuration | onBlur = Just msg }
+
+
+{-| Sets an OnFocus side effect.
+-}
+setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
+setOnFocus msg (Model configuration) =
+    Model { configuration | onFocus = Just msg }
+
+
+{-| Sets an OnReset side effect.
+-}
+setOnReset : msg -> Model ctx value msg -> Model ctx value msg
+setOnReset msg (Model configuration) =
+    Model { configuration | onReset = Just msg }
+
+
+{-| Sets an OnInput side effect.
+-}
+setOnInput : msg -> Model ctx value msg -> Model ctx value msg
+setOnInput msg (Model configuration) =
+    Model { configuration | onInput = Just msg }
+
+
+{-| Sets an OnSelect side effect.
+-}
+setOnSelect : msg -> Model ctx value msg -> Model ctx value msg
+setOnSelect msg (Model configuration) =
+    Model { configuration | onSelect = Just msg }
+
+
 {-| Update the Autocomplete Model closing the dropdown
 -}
-setDropdownClosed : Model ctx value -> Model ctx value
+setDropdownClosed : Model ctx value msg -> Model ctx value msg
 setDropdownClosed (Model modelData) =
     Model { modelData | isFiltering = False, isDropdownOpen = False, activeOption = Nothing }
 
 
 {-| Internal.
 -}
-updateSelectedValue : value -> Model ctx value -> Model ctx value
+updateSelectedValue : value -> Model ctx value msg -> Model ctx value msg
 updateSelectedValue value (Model modelData) =
     Model { modelData | value = Just value }
 
 
-updateActiveOption : Int -> Model ctx value -> Model ctx value
+updateActiveOption : Int -> Model ctx value msg -> Model ctx value msg
 updateActiveOption moveByPositions ((Model modelData) as model) =
     let
         newActiveOptionIndex : Int
@@ -321,7 +343,7 @@ updateActiveOption moveByPositions ((Model modelData) as model) =
         }
 
 
-getValuesLength : Model ctx value -> Int
+getValuesLength : Model ctx value msg -> Int
 getValuesLength (Model modelData) =
     modelData.values
         |> RemoteData.withDefault []
@@ -331,35 +353,35 @@ getValuesLength (Model modelData) =
 
 {-| Return the input value
 -}
-getValue : Model ctx value -> Maybe value
+getValue : Model ctx value msg -> Maybe value
 getValue (Model { value }) =
     value
 
 
 {-| Return the input value
 -}
-getFilter : Model ctx value -> String
+getFilter : Model ctx value msg -> String
 getFilter (Model { filter }) =
     filter
 
 
 {-| Returns the validated value by running the function you gave to the init.
 -}
-validate : ctx -> Model ctx value -> Result String value
+validate : ctx -> Model ctx value msg -> Result String value
 validate ctx (Model { validation, value }) =
     validation ctx value
 
 
 {-| Internal.
 -}
-mapFieldStatus : (Status.Status -> Status.Status) -> Model ctx value -> Model ctx value
+mapFieldStatus : (Status.Status -> Status.Status) -> Model ctx value msg -> Model ctx value msg
 mapFieldStatus mapper (Model modelData) =
     Model { modelData | fieldStatus = mapper modelData.fieldStatus }
 
 
 {-| Internal.
 -}
-getOptions : Model ctx value -> List (Option value)
+getOptions : Model ctx value msg -> List (Option value)
 getOptions (Model modelData) =
     modelData.values
         |> RemoteData.toMaybe
@@ -532,7 +554,7 @@ withStrategy strategy (Config configuration) =
     Config { configuration | strategy = strategy }
 
 
-getValidationResult : Model c value -> Config a msg -> c -> Result String ()
+getValidationResult : Model ctx value msg -> Config a msg -> ctx -> Result String ()
 getValidationResult (Model modelData) (Config configData) ctx =
     StrategyInternal.getShownValidation
         modelData.fieldStatus
@@ -543,7 +565,7 @@ getValidationResult (Model modelData) (Config configData) ctx =
 
 {-| Renders the Autocomplete.
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value -> Config value msg -> Html msg
+render : (Msg value -> msg) -> ctx -> Model ctx value msg -> Config value msg -> Html msg
 render msgMapper ctx ((Model modelData) as model) ((Config configData) as configuration) =
     let
         validationResult : Result String ()
@@ -584,7 +606,7 @@ handleSelectKeydown key =
 
 {-| Internal.
 -}
-renderField : Result String () -> (Msg value -> msg) -> Model ctx value -> Config value msg -> Html msg
+renderField : Result String () -> (Msg value -> msg) -> Model ctx value msg -> Config value msg -> Html msg
 renderField validationResult msgMapper ((Model modelData) as model) (Config configData) =
     let
         activeOptionId : String
@@ -645,7 +667,7 @@ renderField validationResult msgMapper ((Model modelData) as model) (Config conf
 
 {-| Internal.
 -}
-renderFieldIconAddon : Model ctx value -> Html (Msg value)
+renderFieldIconAddon : Model ctx value msg -> Html (Msg value)
 renderFieldIconAddon ((Model modelData) as model) =
     Html.div
         [ Html.Attributes.class "form-field__addon"
@@ -671,7 +693,7 @@ renderFieldIconAddon ((Model modelData) as model) =
 
 {-| Internal.
 -}
-getFieldAddonIcon : Model ctx value -> Icon.Config
+getFieldAddonIcon : Model ctx value msg -> Icon.Config
 getFieldAddonIcon (Model modelData) =
     if RemoteData.isLoading modelData.values then
         IconSet.Loader
@@ -687,7 +709,7 @@ getFieldAddonIcon (Model modelData) =
 
 {-| Internal.
 -}
-renderDropdown : (Msg value -> msg) -> Model ctx value -> Config value msg -> Maybe (Html msg)
+renderDropdown : (Msg value -> msg) -> Model ctx value msg -> Config value msg -> Maybe (Html msg)
 renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
     let
         renderedOptions : List (Html msg)
@@ -745,7 +767,7 @@ renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
 
 {-| Internal.
 -}
-renderOptionsItem : (Msg value -> msg) -> Model ctx value -> Int -> Option value -> Html msg
+renderOptionsItem : (Msg value -> msg) -> Model ctx value msg -> Int -> Option value -> Html msg
 renderOptionsItem msgMapper (Model modelData) index { id, value } =
     let
         isActive : Bool

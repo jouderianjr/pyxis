@@ -1,6 +1,9 @@
 module Pyxis.Components.Field.RadioCardGroup exposing
     ( Model
     , init
+    , setOnBlur
+    , setOnFocus
+    , setOnCheck
     , Config
     , config
     , Addon
@@ -23,7 +26,6 @@ module Pyxis.Components.Field.RadioCardGroup exposing
     , large
     , withSize
     , Msg
-    , isOnCheck
     , update
     , updateValue
     , getValue
@@ -41,6 +43,9 @@ module Pyxis.Components.Field.RadioCardGroup exposing
 
 @docs Model
 @docs init
+@docs setOnBlur
+@docs setOnFocus
+@docs setOnCheck
 
 
 ## Config
@@ -87,7 +92,6 @@ module Pyxis.Components.Field.RadioCardGroup exposing
 ## Update
 
 @docs Msg
-@docs isOnCheck
 @docs update
 @docs updateValue
 
@@ -112,6 +116,8 @@ module Pyxis.Components.Field.RadioCardGroup exposing
 -}
 
 import Html exposing (Html)
+import PrimaUpdate
+import Pyxis.Commons.Commands as Commands
 import Pyxis.Components.CardGroup as CardGroup
 import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
 import Pyxis.Components.Field.Error.Strategy.Internal as InternalStrategy
@@ -123,22 +129,28 @@ import Pyxis.Components.IconSet as IconSet
 
 {-| The RadioCardGroup model.
 -}
-type Model ctx value parsedValue
+type Model ctx value parsedValue msg
     = Model
         { selectedValue : Maybe value
         , validation : ctx -> Maybe value -> Result String parsedValue
         , fieldStatus : FieldStatus.Status
+        , onBlur : Maybe msg
+        , onFocus : Maybe msg
+        , onCheck : Maybe msg
         }
 
 
 {-| Initialize the RadioCardGroup Model.
 -}
-init : Maybe value -> (ctx -> Maybe value -> Result String parsedValue) -> Model ctx value parsedValue
+init : Maybe value -> (ctx -> Maybe value -> Result String parsedValue) -> Model ctx value parsedValue msg
 init initialValue validation =
     Model
         { selectedValue = initialValue
         , validation = validation
         , fieldStatus = FieldStatus.Untouched
+        , onBlur = Nothing
+        , onFocus = Nothing
+        , onCheck = Nothing
         }
 
 
@@ -188,20 +200,8 @@ config name =
 -}
 type Msg value
     = OnCheck value
-    | Focused value
-    | Blurred value
-
-
-{-| Returns True if the message is triggered by `Html.Events.onCheck`
--}
-isOnCheck : Msg value -> Bool
-isOnCheck msg =
-    case msg of
-        OnCheck _ ->
-            True
-
-        _ ->
-            False
+    | OnFocus
+    | OnBlur
 
 
 {-| Represent the single Radio option.
@@ -376,7 +376,7 @@ withStrategy strategy (Config configuration) =
 
 {-| Render the RadioCardGroup.
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue -> Config value -> Html msg
+render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue msg -> Config value -> Html msg
 render tagger ctx (Model modelData) (Config configData) =
     let
         shownValidation : Result String ()
@@ -387,17 +387,17 @@ render tagger ctx (Model modelData) (Config configData) =
                 configData.isSubmitted
                 configData.strategy
     in
-    CardGroup.renderRadio shownValidation
-        configData
-        (List.map (mapOption configData modelData.selectedValue) configData.options)
+    configData.options
+        |> List.map (mapOption configData.isDisabled modelData.selectedValue)
+        |> CardGroup.renderRadio shownValidation configData
         |> Html.map tagger
 
 
-mapOption : { config | isDisabled : Bool } -> Maybe value -> Option value -> CardGroup.Option (Msg value)
-mapOption { isDisabled } checkedValue (Option { value, text, title, addon }) =
+mapOption : Bool -> Maybe value -> Option value -> CardGroup.Option (Msg value)
+mapOption isDisabled checkedValue (Option { value, text, title, addon }) =
     { onCheck = always (OnCheck value)
-    , onFocus = Focused value
-    , onBlur = Blurred value
+    , onFocus = OnFocus
+    , onBlur = OnBlur
     , addon = Maybe.map (\(Addon a) -> a) addon
     , text = text
     , title = title
@@ -408,53 +408,72 @@ mapOption { isDisabled } checkedValue (Option { value, text, title, addon }) =
 
 {-| Update the RadioGroup Model.
 -}
-update : Msg value -> Model ctx value parsedValue -> Model ctx value parsedValue
-update msg model =
+update : Msg value -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
+update msg ((Model modelData) as model) =
     case msg of
         OnCheck value ->
-            model
-                |> setValue value
+            Model { modelData | selectedValue = Just value }
                 |> mapFieldStatus FieldStatus.onChange
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onCheck ]
 
-        Blurred _ ->
+        OnBlur ->
             model
                 |> mapFieldStatus FieldStatus.onBlur
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onBlur ]
 
-        Focused _ ->
+        OnFocus ->
             model
                 |> mapFieldStatus FieldStatus.onFocus
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onFocus ]
 
 
 {-| Update the field value.
 -}
-updateValue : value -> Model ctx value parsedValue -> Model ctx value parsedValue
+updateValue : value -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
 updateValue value =
     update (OnCheck value)
 
 
-{-| Internal.
+{-| Sets an OnBlur side effect.
 -}
-setValue : value -> Model ctx value parsedValue -> Model ctx value parsedValue
-setValue value (Model model) =
-    Model { model | selectedValue = Just value }
+setOnBlur : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnBlur msg (Model configuration) =
+    Model { configuration | onBlur = Just msg }
+
+
+{-| Sets an OnFocus side effect.
+-}
+setOnFocus : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnFocus msg (Model configuration) =
+    Model { configuration | onFocus = Just msg }
+
+
+{-| Sets an OnCheck side effect.
+-}
+setOnCheck : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnCheck msg (Model configuration) =
+    Model { configuration | onCheck = Just msg }
 
 
 {-| Return the selected value.
 -}
-getValue : Model ctx value parsedValue -> Maybe value
+getValue : Model ctx value parsedValue msg -> Maybe value
 getValue (Model { selectedValue }) =
     selectedValue
 
 
 {-| Get the parsed value
 -}
-validate : ctx -> Model ctx value parsedValue -> Result String parsedValue
+validate : ctx -> Model ctx value parsedValue msg -> Result String parsedValue
 validate ctx (Model { selectedValue, validation }) =
     validation ctx selectedValue
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value parsedValue -> Model ctx value parsedValue
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
 mapFieldStatus f (Model model) =
     Model { model | fieldStatus = f model.fieldStatus }

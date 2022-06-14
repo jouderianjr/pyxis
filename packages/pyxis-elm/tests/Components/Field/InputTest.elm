@@ -240,7 +240,7 @@ suite =
         ]
 
 
-fieldModel : Input.Model ctx String
+fieldModel : Input.Model ctx String msg
 fieldModel =
     Input.init "" (always Ok)
 

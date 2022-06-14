@@ -162,7 +162,7 @@ config =
         |> Autocomplete.withId "autocomplete-id"
 
 
-init : Autocomplete.Model () Job
+init : Autocomplete.Model () Job (Autocomplete.Msg Job)
 init =
     Autocomplete.init Nothing getJobName filterJobs (always validation)
 
@@ -189,7 +189,7 @@ validation maybeJob =
         |> Maybe.withDefault (Err "Select a job.")
 
 
-simulation : Autocomplete.Config Job (Autocomplete.Msg Job) -> Simulation (Autocomplete.Model () Job) (Autocomplete.Msg Job)
+simulation : Autocomplete.Config Job (Autocomplete.Msg Job) -> Simulation (Autocomplete.Model () Job (Autocomplete.Msg Job)) (Autocomplete.Msg Job)
 simulation config_ =
     Simulation.fromElement
         { init =

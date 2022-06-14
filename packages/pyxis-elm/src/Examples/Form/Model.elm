@@ -1,60 +1,45 @@
 module Examples.Form.Model exposing
     ( Model
-    , Msg(..)
     , initialModel
     , mapData
-    , mapResidentialCity
-    , setCitiesApi
-    , setData
-    , updateResponse
+    , submit
+    , updateCities
+    , updateDataAndDispatch
+    , updateFaqs
+    , updateModal
+    , validate
     )
 
 import Date exposing (Date)
 import Examples.Form.Api.City exposing (City)
 import Examples.Form.Data as Data exposing (Data(..))
+import Examples.Form.Msg as Msg exposing (Msg)
+import Examples.Form.Types as Fields
 import Http
+import PrimaUpdate
 import Pyxis.Components.Accordion as Accordion
 import Pyxis.Components.Field.Autocomplete as Autocomplete
-import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Input as Input
 import Pyxis.Components.Field.RadioCardGroup as RadioCardGroup
-import Pyxis.Components.Field.Select as Select
 import Pyxis.Components.Field.Textarea as Textarea
 import RemoteData exposing (RemoteData)
 
 
-type Msg
-    = CitiesFetched (RemoteData Http.Error (List City))
-    | Submit
-    | AutocompleteFieldChanged Data.AutocompleteField (Autocomplete.Msg City)
-    | TextFieldChanged Data.TextField Input.Msg
-    | TextareaFieldChanged Data.TextareaField Textarea.Msg
-    | DateFieldChanged Data.DateField Input.Msg
-    | InsuranceTypeChanged (RadioCardGroup.Msg Data.InsuranceType)
-    | PrivacyChanged (CheckboxGroup.Msg ())
-    | ClaimTypeChanged (RadioCardGroup.Msg Data.ClaimType)
-    | PeopleInvolvedChanged (RadioCardGroup.Msg Data.PeopleInvolved)
-    | SelectFieldChanged Data.SelectField Select.Msg
-    | ShowModal Bool
-    | AccordionChanged Accordion.Msg
-
-
 type alias Model =
     { data : Data
-    , response : Maybe (Result String Response)
     , citiesApi : RemoteData Http.Error (List City)
     , showModal : Bool
-    , accordion : Accordion.Model
+    , faqs : Accordion.Model
     }
 
 
 type alias Response =
     { birth : Date
     , claimDate : Date
-    , claimType : Data.ClaimType
+    , claimType : Fields.Claim
     , dynamic : String
-    , insuranceType : Data.InsuranceType
-    , peopleInvolved : Data.PeopleInvolved
+    , insuranceType : Fields.Insurance
+    , peopleInvolved : Bool
     , plate : String
     , residentialCity : City
     }
@@ -64,9 +49,8 @@ initialModel : Model
 initialModel =
     { data = Data.initialData
     , citiesApi = RemoteData.NotAsked
-    , response = Nothing
     , showModal = False
-    , accordion = Accordion.init (Accordion.singleOpening (Just "accordion-1"))
+    , faqs = Accordion.init (Accordion.singleOpening (Just "accordion-1"))
     }
 
 
@@ -75,23 +59,40 @@ mapData mapper model =
     { model | data = mapper model.data }
 
 
-setData : Data -> Model -> Model
-setData data model =
-    { model | data = data }
+updateDataAndDispatch : (Data -> ( Data, Cmd msg )) -> Model -> ( Model, Cmd msg )
+updateDataAndDispatch mapper model =
+    let
+        ( data, cmd ) =
+            mapper model.data
+    in
+    ( { model | data = data }, cmd )
 
 
-setCitiesApi : RemoteData Http.Error (List City) -> Model -> Model
-setCitiesApi remoteData model =
+updateCities : RemoteData Http.Error (List City) -> Model -> Model
+updateCities remoteData model =
     { model | citiesApi = remoteData }
-        |> mapData
-            (\(Data d) ->
-                Data { d | residentialCity = Autocomplete.setOptions remoteData d.residentialCity }
-            )
 
 
-updateResponse : Model -> Model
-updateResponse model =
-    { model | response = Just (validate model.data) }
+updateFaqs : Accordion.Msg -> Model -> ( Model, Cmd Msg )
+updateFaqs msg model =
+    let
+        ( accordionModel, accordionCmd ) =
+            Accordion.update msg model.faqs
+    in
+    { model | faqs = accordionModel }
+        |> PrimaUpdate.withCmd (Cmd.map Msg.FaqToggled accordionCmd)
+
+
+updateModal : Bool -> Model -> ( Model, Cmd Msg )
+updateModal isOpen model =
+    PrimaUpdate.withoutCmds { model | showModal = isOpen }
+
+
+submit : Model -> ( Model, Cmd Msg )
+submit model =
+    model
+        |> mapData (\(Data d) -> Data { d | isFormSubmitted = True })
+        |> PrimaUpdate.withoutCmds
 
 
 validate : Data -> Result String Response
@@ -110,16 +111,3 @@ validate ((Data config) as data) =
 parseAndThen : Result x a -> Result x (a -> b) -> Result x b
 parseAndThen result =
     Result.andThen (\partial -> Result.map partial result)
-
-
-mapResidentialCity : Autocomplete.Msg City -> Data -> ( Data, Cmd (Autocomplete.Msg City) )
-mapResidentialCity subMsg data =
-    case data of
-        Data d ->
-            let
-                ( autocompleteModel, cmd ) =
-                    Autocomplete.update subMsg d.residentialCity
-            in
-            ( Data { d | residentialCity = autocompleteModel }
-            , cmd
-            )

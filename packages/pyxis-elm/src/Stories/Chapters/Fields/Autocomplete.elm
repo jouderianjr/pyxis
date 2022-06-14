@@ -60,8 +60,8 @@ type Msg
 {-| Define your model.
 -}
 type alias Model = {
-        job : Autocomplete.Model () Job
-    }
+    job : Autocomplete.Model () Job (Autocomplete.Msg Job)
+}
 
 initialModel : Model
 initialModel =
@@ -88,7 +88,7 @@ update msg model =
                 ( autocompleteModel, autocompleteCmd ) =
                     Autocomplete.update subMsg model.job
             in
-            ( { model | job = autocompleteModel }, Cmd.map AutocompleteMsg autocompleteCmd )
+            ( { model | job = autocompleteModel }, autocompleteCmd )
 
 
 {-| Render your autocomplete.
@@ -191,7 +191,7 @@ type Job
 
 
 type alias Model =
-    Autocomplete.Model () Job
+    Autocomplete.Model () Job (Autocomplete.Msg Job)
 
 
 type alias Models =
@@ -200,10 +200,19 @@ type alias Models =
     }
 
 
+initAutocomplete : Model
+initAutocomplete =
+    Autocomplete.init
+        Nothing
+        jobToLabel
+        optionsFilter
+        (always (Result.fromMaybe "Required field"))
+
+
 init : Models
 init =
-    { base = Autocomplete.init Nothing jobToLabel optionsFilter (always (Result.fromMaybe "Required field"))
-    , noResult = Autocomplete.init Nothing jobToLabel optionsFilter (always (Result.fromMaybe "Required field"))
+    { base = initAutocomplete
+    , noResult = initAutocomplete
     }
 
 
@@ -285,12 +294,17 @@ updateBase msg model =
     let
         ( autocompleteModel, autocompleteCmd ) =
             Autocomplete.update msg model.base
+
+        hasReachedThreshold : String -> Bool
+        hasReachedThreshold str =
+            String.length str > 3
     in
     ( { model
         | base =
             autocompleteModel
-                |> PrimaFunction.ifThenMap (always (Autocomplete.isOnInput msg))
+                |> PrimaFunction.ifThenElseMap (Autocomplete.getFilter >> hasReachedThreshold)
                     (Autocomplete.setOptions (RemoteData.Success [ Designer, Developer, ProductManager ]))
+                    (Autocomplete.setOptions RemoteData.Loading)
       }
     , autocompleteCmd
     )
@@ -301,12 +315,17 @@ updateNoResult msg model =
     let
         ( autocompleteModel, autocompleteCmd ) =
             Autocomplete.update msg model.noResult
+
+        hasReachedThreshold : String -> Bool
+        hasReachedThreshold str =
+            String.length str > 3
     in
     ( { model
         | noResult =
             autocompleteModel
-                |> PrimaFunction.ifThenMap (always (Autocomplete.isOnInput msg))
-                    (Autocomplete.setOptions (RemoteData.Success [ Designer, Developer, ProductManager ]))
+                |> PrimaFunction.ifThenElseMap (Autocomplete.getFilter >> hasReachedThreshold)
+                    (Autocomplete.setOptions (RemoteData.Success []))
+                    (Autocomplete.setOptions RemoteData.Loading)
       }
     , autocompleteCmd
     )

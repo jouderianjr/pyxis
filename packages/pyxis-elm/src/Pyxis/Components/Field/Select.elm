@@ -118,7 +118,7 @@ import Task exposing (Task)
 type Msg
     = Selected String
     | Blurred String -- The id of the select
-    | ClickedLabel String CommonsEvents.PointerEvent
+    | ClickedLabel String (Maybe CommonsEvents.PointerType)
     | HoveredOption String
     | FocusedItem (Result Browser.Dom.Error ())
     | FocusedSelect
@@ -136,7 +136,7 @@ type Msg
 {-| Internal
 -}
 type DropDownState
-    = Open { hoveredValue : Maybe String }
+    = Open (Maybe String)
     | Closed
 
 
@@ -253,8 +253,8 @@ updateValue value =
 
 {-| Internal.
 -}
-setClickedLabel : String -> CommonsEvents.PointerEvent -> Model ctx b -> PrimaUpdate.PrimaUpdate (Model ctx b) Msg
-setClickedLabel id pointerEvent ((Model { dropDownState }) as model) =
+setClickedLabel : String -> Maybe CommonsEvents.PointerType -> Model ctx b -> PrimaUpdate.PrimaUpdate (Model ctx b) Msg
+setClickedLabel id pointerType ((Model { dropDownState }) as model) =
     case dropDownState of
         Open _ ->
             model
@@ -263,7 +263,7 @@ setClickedLabel id pointerEvent ((Model { dropDownState }) as model) =
 
         Closed ->
             model
-                |> setClickedClosedLabel pointerEvent.pointerType
+                |> setClickedClosedLabel pointerType
                 |> PrimaUpdate.withCmds [ focusSelect id ]
 
 
@@ -317,7 +317,7 @@ setDropdownWrapperItemKeydown { id, next, previous } keyCode ((Model modelData) 
             else if KeyDown.isSpace keyCode || KeyDown.isEnter keyCode then
                 model
                     |> setIsOpen False
-                    |> setSelectedValueWhenJust open.hoveredValue
+                    |> setSelectedValueWhenJust open
                     |> PrimaUpdate.withCmd (focusSelect id)
 
             else if KeyDown.isEsc keyCode then
@@ -343,7 +343,7 @@ setSelectKeydown configData keyCode ((Model modelData) as model) =
             if KeyDown.isSpace keyCode || KeyDown.isEnter keyCode then
                 model
                     |> setIsOpen False
-                    |> setSelectedValueWhenJust open.hoveredValue
+                    |> setSelectedValueWhenJust open
                     |> PrimaUpdate.withCmd (focusSelect configData.id)
 
             else if KeyDown.isArrowDown keyCode || KeyDown.isArrowUp keyCode then
@@ -758,7 +758,7 @@ renderDropdownWrapper (Model model) (Config select) =
 getHoveredValue : DropDownState -> Maybe String
 getHoveredValue dropDownState =
     case dropDownState of
-        Open { hoveredValue } ->
+        Open hoveredValue ->
             hoveredValue
 
         _ ->
@@ -900,7 +900,7 @@ setKeyboardHoveredValue value (Model model) =
             Model model
 
         Open _ ->
-            Model { model | dropDownState = Open { hoveredValue = Just value } }
+            Model { model | dropDownState = Open (Just value) }
 
 
 {-| Internal
@@ -920,7 +920,7 @@ isDropDownOpen (Model model) =
 setIsOpen : Bool -> Model ctx parsedValue -> Model ctx parsedValue
 setIsOpen condition (Model model) =
     if condition then
-        Model { model | dropDownState = Open { hoveredValue = model.value } }
+        Model { model | dropDownState = Open model.value }
 
     else
         Model { model | dropDownState = Closed }
@@ -937,7 +937,7 @@ setIsBlurringInternally isBlurringInternally (Model model) =
 -}
 setHoveredValue : Maybe String -> Model ctx parsedValue -> Model ctx parsedValue
 setHoveredValue hoveredValue (Model model) =
-    Model { model | dropDownState = Open { hoveredValue = hoveredValue } }
+    Model { model | dropDownState = Open hoveredValue }
 
 
 {-| Internal.

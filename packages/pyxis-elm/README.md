@@ -69,12 +69,12 @@ We tried to enforce consistency in our api so you can quickly guess how to use a
 
 | Terminology | Description                                                                                            |
 | ----------- | ------------------------------------------------------------------------------------------------------ |
-| `Config`    | The configuration for the component's _view_. This **should not be stored on your application model**. |
+| `Config`    | The configuration for the component's _view_. This **should not be stored in your application model**. |
 | `config`    | The method which instantiate a component's `Config`.                                                   |
 | `render`    | The method which renders a component.                                                                  |
 | `Model`     | The _state_ of the component which **should be stored in your own application model**.                 |
 | `init`      | The method which instantiates a component's `Model`.                                                   |
-| `update`    | The method which updates a component's `Model`. This may give return you a side effect (`Cmd msg`)     |
+| `update`    | The method which updates a component's `Model`. This may return you a side effect (`Cmd msg`)          |
 | `withXXX`   | A method which maps over `Config`. Used to customize a component _view_.                               |
 | `setXXX`    | A method which maps over `Model`. Used to customize a component _state_.                               |
 
@@ -91,7 +91,8 @@ To use a stateless component you'll need:
 3. to invoke the `render` method by passing it the `Config`.
 
 ```elm
-import Components.Field.Label
+import Html exposing (Html)
+import Pyxis.Components.Field.Label as Label
 
 -- Your application model
 type alias Model {}
@@ -124,17 +125,17 @@ To use a stateful component you'll need:
 
 ```elm
 import Html exposing (Html)
-import Components.Field.Text as Text
-import Components.Field.Label as Label
+import Pyxis.Components.Field.Input as Input
+import Pyxis.Components.Field.Label as Label
 
 -- Your application model which should contain the component's model.
 type alias Model = {
-    email : Text.Model ()
+    email : Input.Model () Input.Msg
 }
 
 initialModel : Model
 initialModel =
-    { email = Text.init "" (always Ok) }
+    { email = Input.init "" (always Ok) }
 
 
 -- Your application Msg
@@ -147,7 +148,7 @@ update msg model =
     case msg of
         -- Your stateful component will need to handle this message.
         EmailFieldChanged subMsg ->
-            ({ model | email = Text.update subMsg model.email }, Cmd.none)
+            ({ model | email = Input.update subMsg model.email }, Cmd.none)
 
 -- Your view function
 view : Model -> Html Msg
@@ -155,10 +156,10 @@ view model =
     {--  Note that the Text module doesn't have a "config" method like few others components.
     This because it's much more expressive to use "Text.email" or "Text.password" than "Text.config Password" or "Text.config Email".
     --}
-    Text.email "email"
-        |> Text.withLabel (Label.config "Your email address")
-        |> Text.withPlaceholder "it-department@prima.it"
-        |> Text.render EmailFieldChanged model.email
+    Input.email "email"
+        |> Input.withLabel (Label.config "Your email address")
+        |> Input.withPlaceholder "it-department@prima.it"
+        |> Input.render EmailFieldChanged model.email
 
 
 ```

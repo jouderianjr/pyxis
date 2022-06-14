@@ -1,6 +1,9 @@
 module Pyxis.Components.Field.Textarea exposing
     ( Model
     , init
+    , setOnBlur
+    , setOnFocus
+    , setOnInput
     , Config
     , config
     , Size
@@ -18,9 +21,6 @@ module Pyxis.Components.Field.Textarea exposing
     , withStrategy
     , withValueMapper
     , Msg
-    , isOnBlur
-    , isOnFocus
-    , isOnInput
     , update
     , updateValue
     , getValue
@@ -35,6 +35,9 @@ module Pyxis.Components.Field.Textarea exposing
 
 @docs Model
 @docs init
+@docs setOnBlur
+@docs setOnFocus
+@docs setOnInput
 
 
 ## Config
@@ -68,9 +71,6 @@ module Pyxis.Components.Field.Textarea exposing
 ## Update
 
 @docs Msg
-@docs isOnBlur
-@docs isOnFocus
-@docs isOnInput
 @docs update
 @docs updateValue
 
@@ -90,7 +90,9 @@ module Pyxis.Components.Field.Textarea exposing
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import PrimaUpdate
 import Pyxis.Commons.Attributes as CommonsAttributes
+import Pyxis.Commons.Commands as Commands
 import Pyxis.Components.Field.Error as Error
 import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
 import Pyxis.Components.Field.Error.Strategy.Internal as StrategyInternal
@@ -103,27 +105,28 @@ import Result.Extra
 
 {-| The Textarea model.
 -}
-type Model ctx
-    = Model (ModelData ctx)
-
-
-{-| Internal.
--}
-type alias ModelData ctx =
-    { value : String
-    , validation : ctx -> String -> Result String String
-    , fieldStatus : FieldStatus.Status
-    }
+type Model ctx msg
+    = Model
+        { value : String
+        , validation : ctx -> String -> Result String String
+        , fieldStatus : FieldStatus.Status
+        , onBlur : Maybe msg
+        , onFocus : Maybe msg
+        , onInput : Maybe msg
+        }
 
 
 {-| Initializes the Textarea model.
 -}
-init : String -> (ctx -> String -> Result String String) -> Model ctx
+init : String -> (ctx -> String -> Result String String) -> Model ctx msg
 init initialValue validation =
     Model
         { value = initialValue
         , validation = validation
         , fieldStatus = FieldStatus.Untouched
+        , onBlur = Nothing
+        , onFocus = Nothing
+        , onInput = Nothing
         }
 
 
@@ -291,92 +294,75 @@ type Msg
     | OnBlur
 
 
-{-| Returns True if the message is triggered by `Html.Events.onInput`
--}
-isOnInput : Msg -> Bool
-isOnInput msg =
-    case msg of
-        OnInput _ ->
-            True
-
-        _ ->
-            False
-
-
-{-| Returns True if the message is triggered by `Html.Events.onFocus`
--}
-isOnFocus : Msg -> Bool
-isOnFocus msg =
-    case msg of
-        OnFocus ->
-            True
-
-        _ ->
-            False
-
-
-{-| Returns True if the message is triggered by `Html.Events.onBlur`
--}
-isOnBlur : Msg -> Bool
-isOnBlur msg =
-    case msg of
-        OnBlur ->
-            True
-
-        _ ->
-            False
-
-
 {-| The update function.
 -}
-update : Msg -> Model ctx -> Model ctx
-update msg model =
+update : Msg -> Model ctx msg -> ( Model ctx msg, Cmd msg )
+update msg ((Model modelData) as model) =
     case msg of
         OnBlur ->
             model
                 |> mapFieldStatus FieldStatus.onBlur
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onBlur ]
 
         OnFocus ->
             model
                 |> mapFieldStatus FieldStatus.onFocus
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onFocus ]
 
         OnInput value ->
-            model
-                |> setValue value
+            Model { modelData | value = value }
                 |> mapFieldStatus FieldStatus.onInput
+                |> PrimaUpdate.withCmds
+                    [ Commands.dispatchFromMaybe modelData.onInput ]
 
 
 {-| Update the field value.
 -}
-updateValue : String -> Model ctx -> Model ctx
+updateValue : String -> Model ctx msg -> ( Model ctx msg, Cmd msg )
 updateValue value =
     update (OnInput value)
 
 
-{-| Internal.
+{-| Sets an OnBlur side effect.
 -}
-setValue : String -> Model ctx -> Model ctx
-setValue value (Model data) =
-    Model { data | value = value }
+setOnBlur : msg -> Model ctx msg -> Model ctx msg
+setOnBlur msg (Model configuration) =
+    Model { configuration | onBlur = Just msg }
+
+
+{-| Sets an OnFocus side effect.
+-}
+setOnFocus : msg -> Model ctx msg -> Model ctx msg
+setOnFocus msg (Model configuration) =
+    Model { configuration | onFocus = Just msg }
+
+
+{-| Sets an OnInput side effect.
+-}
+setOnInput : msg -> Model ctx msg -> Model ctx msg
+setOnInput msg (Model configuration) =
+    Model { configuration | onInput = Just msg }
 
 
 {-| Validate and update the internal model.
 -}
-validate : ctx -> Model ctx -> Result String String
+validate : ctx -> Model ctx msg -> Result String String
 validate ctx (Model { validation, value }) =
     validation ctx value
 
 
 {-| Returns the current value of the Textarea.
 -}
-getValue : Model ctx -> String
+getValue : Model ctx msg -> String
 getValue (Model { value }) =
     value
 
 
 {-| Renders the Textarea.
 -}
-render : (Msg -> msg) -> ctx -> Model ctx -> Config -> Html msg
+render : (Msg -> msg) -> ctx -> Model ctx msg -> Config -> Html msg
 render tagger ctx ((Model modelData) as model) ((Config configData) as configuration) =
     let
         customizedLabel : Maybe Label.Config
@@ -402,7 +388,7 @@ render tagger ctx ((Model modelData) as model) ((Config configData) as configura
 
 {-| Internal.
 -}
-renderTextarea : Result String value -> Model ctx -> Config -> Html Msg
+renderTextarea : Result String value -> Model ctx msg -> Config -> Html Msg
 renderTextarea validationResult (Model modelData) (Config configData) =
     Html.div
         [ Html.Attributes.classList
@@ -438,7 +424,7 @@ renderTextarea validationResult (Model modelData) (Config configData) =
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx -> Model ctx
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx msg -> Model ctx msg
 mapFieldStatus mapper (Model model) =
     Model { model | fieldStatus = mapper model.fieldStatus }
 

@@ -188,6 +188,14 @@ suite =
         ]
 
 
+type alias ComponentModel =
+    CheckboxGroup.Model () Lang (NonemptyList Lang) ComponentMsg
+
+
+type alias ComponentMsg =
+    CheckboxGroup.Msg Lang
+
+
 whenOk : (value -> Expect.Expectation) -> Result String value -> Expect.Expectation
 whenOk expectation result =
     case result of
@@ -220,7 +228,7 @@ findInput label =
     Query.find (inputSelectors label)
 
 
-renderCheckboxGroup : CheckboxGroup.Config value (CheckboxGroup.Msg value) -> Query.Single (CheckboxGroup.Msg value)
+renderCheckboxGroup : CheckboxGroup.Config Lang ComponentMsg -> Query.Single ComponentMsg
 renderCheckboxGroup =
     CheckboxGroup.render identity () (CheckboxGroup.init [] (always Ok)) >> Query.fromHtml
 
@@ -239,13 +247,10 @@ nonEmptyLangValidation () langs =
             Ok ( hd, tl )
 
 
-simulation :
-    Simulation
-        (CheckboxGroup.Model () Lang (NonemptyList Lang))
-        (CheckboxGroup.Msg Lang)
+simulation : Simulation ComponentModel ComponentMsg
 simulation =
     Simulation.fromSandbox
         { init = CheckboxGroup.init [] nonEmptyLangValidation
-        , update = CheckboxGroup.update
+        , update = \subMsg model -> Tuple.first (CheckboxGroup.update subMsg model)
         , view = \model -> CheckboxGroup.render identity () model langsConfig
         }

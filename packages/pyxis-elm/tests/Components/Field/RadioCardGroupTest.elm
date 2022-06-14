@@ -12,7 +12,7 @@ import Test.Extra as Test
 import Test.Html.Event as Event
 import Test.Html.Query as Query
 import Test.Html.Selector as Selector
-import Test.Simulation as Simulation
+import Test.Simulation as Simulation exposing (Simulation)
 
 
 type Option
@@ -167,6 +167,14 @@ suite =
         ]
 
 
+type alias ComponentModel =
+    RadioCardGroup.Model () Option Option ComponentMsg
+
+
+type alias ComponentMsg =
+    RadioCardGroup.Msg Option
+
+
 findInputs : Query.Single msg -> Query.Multiple msg
 findInputs =
     Query.findAll [ Selector.tag "input" ]
@@ -252,35 +260,28 @@ radioCardGroupConfig options =
         |> RadioCardGroup.withId "area"
 
 
-renderRadioCardGroup : RadioCardGroup.Config Option -> Query.Single (RadioCardGroup.Msg Option)
+renderRadioCardGroup : RadioCardGroup.Config Option -> Query.Single ComponentMsg
 renderRadioCardGroup =
     RadioCardGroup.render identity () (RadioCardGroup.init Nothing validation)
         >> Query.fromHtml
 
 
-simulationWithValidation : Simulation.Simulation (RadioCardGroup.Model () Option Option) (RadioCardGroup.Msg Option)
+simulationWithValidation : Simulation.Simulation ComponentModel ComponentMsg
 simulationWithValidation =
     Simulation.fromSandbox
         { init = RadioCardGroup.init Nothing validation
-        , update = \subMsg model -> RadioCardGroup.update subMsg model
+        , update = \subMsg model -> Tuple.first (RadioCardGroup.update subMsg model)
         , view = \model -> RadioCardGroup.render identity () model (radioCardGroupConfig noAddonOptions)
         }
 
 
 validation : ctx -> Maybe Option -> Result String Option
 validation _ value =
-    case value of
-        Nothing ->
-            Err "Required"
-
-        Just x ->
-            Ok x
+    value
+        |> Maybe.map Ok
+        |> Maybe.withDefault (Err "Required")
 
 
-simulateEvents :
-    String
-    -> Simulation.Simulation (RadioCardGroup.Model () Option Option) (RadioCardGroup.Msg Option)
-    -> Simulation.Simulation (RadioCardGroup.Model () Option Option) (RadioCardGroup.Msg Option)
+simulateEvents : String -> Simulation ComponentModel ComponentMsg -> Simulation ComponentModel ComponentMsg
 simulateEvents testId simulation =
-    simulation
-        |> Simulation.simulate ( Event.check True, [ Selector.attribute (CommonsAttributes.testId testId) ] )
+    Simulation.simulate ( Event.check True, [ Selector.attribute (CommonsAttributes.testId testId) ] ) simulation

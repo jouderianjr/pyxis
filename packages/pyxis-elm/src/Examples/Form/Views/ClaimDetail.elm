@@ -1,7 +1,7 @@
 module Examples.Form.Views.ClaimDetail exposing (view)
 
-import Examples.Form.Data as Data exposing (Data(..))
-import Examples.Form.Model as Model
+import Examples.Form.Data exposing (Data(..))
+import Examples.Form.Msg as Msg exposing (Msg)
 import Html
 import Html.Attributes
 import Pyxis.Components.Button as Button
@@ -15,12 +15,12 @@ import Pyxis.Components.Form.Grid.Row as Row
 import Pyxis.Components.Form.Legend as Legend
 
 
-view : Data -> FieldSet.Config Model.Msg
+view : Data -> FieldSet.Config Msg
 view ((Data config) as data) =
     FieldSet.config
         |> FieldSet.withHeader
             [ Grid.simpleOneColRow
-                [ Legend.config "Inserisci i dettagli del sinistro"
+                [ Legend.config "Claim details"
                     |> Legend.render
                 ]
             ]
@@ -31,12 +31,13 @@ view ((Data config) as data) =
                     [ "people-involved"
                         |> RadioCardGroup.config
                         |> RadioCardGroup.withStrategy Strategy.onSubmit
-                        |> RadioCardGroup.withLabel (Label.config "Il veicolo era in movimento?")
+                        |> RadioCardGroup.withIsSubmitted config.isFormSubmitted
+                        |> RadioCardGroup.withLabel (Label.config "Is there any involved people?")
                         |> RadioCardGroup.withOptions
-                            [ RadioCardGroup.option { value = Data.Involved, title = Nothing, text = Just "Sì", addon = Nothing }
-                            , RadioCardGroup.option { value = Data.NotInvolved, title = Nothing, text = Just "No", addon = Nothing }
+                            [ RadioCardGroup.option { value = True, title = Nothing, text = Just "Yes", addon = Nothing }
+                            , RadioCardGroup.option { value = False, title = Nothing, text = Just "No", addon = Nothing }
                             ]
-                        |> RadioCardGroup.render Model.PeopleInvolvedChanged data config.peopleInvolved
+                        |> RadioCardGroup.render Msg.PeopleInvolvedChanged data config.peopleInvolved
                     ]
                 ]
             , Grid.row
@@ -45,21 +46,24 @@ view ((Data config) as data) =
                     [ "claim-dynamic"
                         |> Textarea.config
                         |> Textarea.withStrategy Strategy.onSubmit
-                        |> Textarea.withLabel (Label.config "Dinamica del sinistro")
-                        |> Textarea.withPlaceholder "Descrivi la dinamica del sinistro (massimo 1.800 caratteri)"
-                        |> Textarea.withHint "Massimo 300 parole"
-                        |> Textarea.render (Model.TextareaFieldChanged Data.Dynamics) data config.dynamic
+                        |> Textarea.withIsSubmitted config.isFormSubmitted
+                        |> Textarea.withLabel (Label.config "Dynamic")
+                        |> Textarea.withPlaceholder "Briefly describe the dynamics of the accident."
+                        |> Textarea.withHint "Max. 300 words."
+                        |> Textarea.render Msg.DynamicsChanged data config.dynamic
                     ]
                 ]
             ]
         |> FieldSet.withFooter
             [ Grid.simpleOneColRow
                 [ Html.div
-                    [ Html.Attributes.class "button-row justify-content-center" ]
+                    [ Html.Attributes.class "button-row"
+                    , Html.Attributes.style "justify-content" "center"
+                    ]
                     [ Button.primary
                         |> Button.withType Button.button
-                        |> Button.withOnClick Model.Submit
-                        |> Button.withText "Procedi"
+                        |> Button.withOnClick Msg.Submit
+                        |> Button.withText "Send"
                         |> Button.render
                     ]
                 ]

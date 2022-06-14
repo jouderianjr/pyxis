@@ -29,21 +29,18 @@ type Option
 type Msg
     = OnCheckboxFieldMsg (CheckboxCardGroup.Msg Option)
 
-validation : formData -> Maybe Option -> Result String Option
+validation : () -> Maybe Option -> Result String Option
 validation _ value =
-    case value of
-        Nothing ->
-            Err "Invalid selection"
+    value
+        |> Maybe.map (Ok)
+        |> Maybe.withDefault (Err "Invalid selection")
 
-        Just opt ->
-            Ok opt
-
-checkboxCardGroupModel : Model formData value parsed
+checkboxCardGroupModel : Model () Option Option (CheckboxCardGroup.Msg Option)
 checkboxCardGroupModel =
     CheckboxCardGroup.init [] validation
 
 
-checkboxCardGroupView : formData -> Html Msg
+checkboxCardGroupView : () -> Html Msg
 checkboxCardGroupView formData =
     CheckboxCardGroup.config "checkboxCard-name"
         |> CheckboxCardGroup.withLabel (Label.config "Choose the area")
@@ -146,32 +143,26 @@ CheckboxGroup.config "checkboxgroup-name"
 
 
 type alias SharedState x =
-    { x
-        | checkboxCard : CheckboxCardFieldModels
-    }
+    { x | checkboxCard : Model }
 
 
 type alias Msg x =
     ElmBook.Msg (SharedState x)
 
 
-type Option
-    = M
-    | F
-
-
-type alias CheckboxCardFieldModels =
-    { base : CheckboxCardGroup.Model () Option (NonemptyList Option)
-    , vertical : CheckboxCardGroup.Model () Option (List Option)
-    , disabled : CheckboxCardGroup.Model () Option (List Option)
-    , large : CheckboxCardGroup.Model () Option (List Option)
-    , icon : CheckboxCardGroup.Model () Option (List Option)
-    , text : CheckboxCardGroup.Model () Option (List Option)
-    }
+type Product
+    = Motor
+    | Household
 
 
 type alias Model =
-    CheckboxCardFieldModels
+    { base : CheckboxCardGroup.Model () Product (NonemptyList Product) (CheckboxCardGroup.Msg Product)
+    , vertical : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
+    , disabled : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
+    , large : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
+    , icon : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
+    , text : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
+    }
 
 
 init : Model
@@ -195,7 +186,7 @@ type alias NonemptyList a =
     ( a, List a )
 
 
-validationRequired : () -> List Option -> Result String (NonemptyList Option)
+validationRequired : () -> List Product -> Result String (NonemptyList Product)
 validationRequired () langs =
     case langs of
         [] ->
@@ -205,16 +196,16 @@ validationRequired () langs =
             Ok ( hd, tl )
 
 
-optionsWithImage : List (CheckboxCardGroup.Option Option)
+optionsWithImage : List (CheckboxCardGroup.Option Product)
 optionsWithImage =
     [ CheckboxCardGroup.option
-        { value = M
+        { value = Motor
         , title = Just "Motor"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.imgAddon "../assets/placeholder.svg"
         }
     , CheckboxCardGroup.option
-        { value = F
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.imgAddon "../assets/placeholder.svg"
@@ -222,16 +213,16 @@ optionsWithImage =
     ]
 
 
-optionsWithIcon : List (CheckboxCardGroup.Option Option)
+optionsWithIcon : List (CheckboxCardGroup.Option Product)
 optionsWithIcon =
     [ CheckboxCardGroup.option
-        { value = M
+        { value = Motor
         , title = Just "Motor"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.iconAddon IconSet.Car
         }
     , CheckboxCardGroup.option
-        { value = F
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.iconAddon IconSet.Home
@@ -239,21 +230,57 @@ optionsWithIcon =
     ]
 
 
-optionsWithTextAddon : List (CheckboxCardGroup.Option Option)
+optionsWithTextAddon : List (CheckboxCardGroup.Option Product)
 optionsWithTextAddon =
     [ CheckboxCardGroup.option
-        { value = M
+        { value = Motor
         , title = Just "Motor"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.textAddon "€ 800,00"
         }
     , CheckboxCardGroup.option
-        { value = F
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.textAddon "€ 1.000,00"
         }
     ]
+
+
+type alias StatefulConfig parsed =
+    { name : String
+    , configModifier : CheckboxCardGroup.Config Product -> CheckboxCardGroup.Config Product
+    , modelPicker : Model -> CheckboxCardGroup.Model () Product parsed (CheckboxCardGroup.Msg Product)
+    , update : CheckboxCardGroup.Msg Product -> Model -> ( Model, Cmd (CheckboxCardGroup.Msg Product) )
+    }
+
+
+statefulComponent : StatefulConfig parsed -> SharedState x -> Html (Msg x)
+statefulComponent { name, configModifier, modelPicker, update } sharedState =
+    CheckboxCardGroup.config name
+        |> CheckboxCardGroup.withOptions
+            [ CheckboxCardGroup.option
+                { value = Motor
+                , title = Just "Motor"
+                , text = Just "Lorem ipsum dolor"
+                , addon = Nothing
+                }
+            , CheckboxCardGroup.option
+                { value = Household
+                , title = Just "Home"
+                , text = Just "Lorem ipsum dolor"
+                , addon = Nothing
+                }
+            ]
+        |> configModifier
+        |> CheckboxCardGroup.render identity () (sharedState.checkboxCard |> modelPicker)
+        |> Html.map
+            (ElmBook.Actions.mapUpdateWithCmd
+                { toState = \sharedState_ models -> { sharedState_ | checkboxCard = models }
+                , fromState = .checkboxCard
+                , update = update
+                }
+            )
 
 
 componentsList : List ( String, SharedState x -> Html (Msg x) )
@@ -263,7 +290,11 @@ componentsList =
             { name = "base"
             , configModifier = CheckboxCardGroup.withLabel (Label.config "Choose the area")
             , modelPicker = .base
-            , update = \msg models -> { models | base = CheckboxCardGroup.update msg models.base }
+            , update =
+                \msg models ->
+                    ( { models | base = Tuple.first (CheckboxCardGroup.update msg models.base) }
+                    , Tuple.second (CheckboxCardGroup.update msg models.base)
+                    )
             }
       )
     , ( "CheckboxCardGroup vertical"
@@ -271,7 +302,11 @@ componentsList =
             { name = "vertical"
             , configModifier = CheckboxCardGroup.withLayout CheckboxCardGroup.vertical
             , modelPicker = .vertical
-            , update = \msg models -> { models | vertical = CheckboxCardGroup.update msg models.vertical }
+            , update =
+                \msg models ->
+                    ( { models | vertical = Tuple.first (CheckboxCardGroup.update msg models.vertical) }
+                    , Tuple.second (CheckboxCardGroup.update msg models.vertical)
+                    )
             }
       )
     , ( "CheckboxCardGroup large"
@@ -279,7 +314,11 @@ componentsList =
             { name = "large"
             , configModifier = CheckboxCardGroup.withSize CheckboxCardGroup.large >> CheckboxCardGroup.withOptions optionsWithImage
             , modelPicker = .large
-            , update = \msg models -> { models | large = CheckboxCardGroup.update msg models.large }
+            , update =
+                \msg models ->
+                    ( { models | large = Tuple.first (CheckboxCardGroup.update msg models.large) }
+                    , Tuple.second (CheckboxCardGroup.update msg models.large)
+                    )
             }
       )
     , ( "CheckboxCardGroup with icon"
@@ -287,7 +326,11 @@ componentsList =
             { name = "icon"
             , configModifier = CheckboxCardGroup.withOptions optionsWithIcon
             , modelPicker = .icon
-            , update = \msg models -> { models | icon = CheckboxCardGroup.update msg models.icon }
+            , update =
+                \msg models ->
+                    ( { models | icon = Tuple.first (CheckboxCardGroup.update msg models.icon) }
+                    , Tuple.second (CheckboxCardGroup.update msg models.icon)
+                    )
             }
       )
     , ( "CheckboxCardGroup with text"
@@ -295,43 +338,11 @@ componentsList =
             { name = "with-text"
             , configModifier = CheckboxCardGroup.withOptions optionsWithTextAddon
             , modelPicker = .text
-            , update = \msg models -> { models | text = CheckboxCardGroup.update msg models.text }
+            , update =
+                \msg models ->
+                    ( { models | text = Tuple.first (CheckboxCardGroup.update msg models.text) }
+                    , Tuple.second (CheckboxCardGroup.update msg models.text)
+                    )
             }
       )
     ]
-
-
-type alias StatefulConfig parsed =
-    { name : String
-    , configModifier : CheckboxCardGroup.Config Option -> CheckboxCardGroup.Config Option
-    , modelPicker : Model -> CheckboxCardGroup.Model () Option parsed
-    , update : CheckboxCardGroup.Msg Option -> CheckboxCardFieldModels -> CheckboxCardFieldModels
-    }
-
-
-statefulComponent : StatefulConfig parsed -> SharedState x -> Html (Msg x)
-statefulComponent { name, configModifier, modelPicker, update } sharedState =
-    CheckboxCardGroup.config name
-        |> CheckboxCardGroup.withOptions
-            [ CheckboxCardGroup.option
-                { value = M
-                , title = Just "Motor"
-                , text = Just "Lorem ipsum dolor"
-                , addon = Nothing
-                }
-            , CheckboxCardGroup.option
-                { value = F
-                , title = Just "Home"
-                , text = Just "Lorem ipsum dolor"
-                , addon = Nothing
-                }
-            ]
-        |> configModifier
-        |> CheckboxCardGroup.render identity () (sharedState.checkboxCard |> modelPicker)
-        |> Html.map
-            (ElmBook.Actions.mapUpdate
-                { toState = \sharedState_ models -> { sharedState_ | checkboxCard = models }
-                , fromState = .checkboxCard
-                , update = update
-                }
-            )

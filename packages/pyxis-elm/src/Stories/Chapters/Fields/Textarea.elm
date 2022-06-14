@@ -22,12 +22,12 @@ type Msg
     = OnTextareaMsg Textarea.Msg
 
 
-textareaModel : Textarea.Model formData
+textareaModel : Textarea.Model () Textarea.Msg
 textareaModel =
     Textarea.init "" validation
 
 
-validation : formData -> String -> Result String String
+validation : () -> String -> Result String String
 validation _ value =
     if String.isEmpty value then
         Err "Required"
@@ -36,7 +36,7 @@ validation _ value =
         Ok value
 
 
-textareaField : String -> formData -> Html Msg
+textareaField : String -> () -> Html Msg
 textareaField name formData =
     Textarea.config name
         |> Textarea.withLabel (Label.config "Textarea")
@@ -85,8 +85,8 @@ type alias SharedState x =
 
 
 type alias Model =
-    { base : Textarea.Model ()
-    , withValidation : Textarea.Model ()
+    { base : Textarea.Model () Textarea.Msg
+    , withValidation : Textarea.Model () Textarea.Msg
     }
 
 
@@ -111,7 +111,13 @@ componentsList =
     [ ( "Textarea"
       , statefulComponent "Textarea"
             .withValidation
-            (\msg model -> { model | withValidation = Textarea.update msg model.withValidation })
+            (\msg model ->
+                let
+                    ( updatedModel, cmd ) =
+                        Textarea.update msg model.withValidation
+                in
+                ( { model | withValidation = updatedModel }, cmd )
+            )
       )
     , ( "Textarea withSize small"
       , statelessComponent "Small" (Textarea.withSize Textarea.small)
@@ -131,18 +137,24 @@ statelessComponent name configModifier { textarea } =
         |> configModifier
         |> Textarea.render identity () textarea.base
         |> Html.map
-            (ElmBook.Actions.mapUpdate
+            (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \state model -> { state | textarea = model }
                 , fromState = .textarea
-                , update = \msg model -> { model | base = Textarea.update msg model.base }
+                , update =
+                    \msg model ->
+                        let
+                            ( updatedModel, cmd ) =
+                                Textarea.update msg model.base
+                        in
+                        ( { model | base = updatedModel }, cmd )
                 }
             )
 
 
 statefulComponent :
     String
-    -> (Model -> Textarea.Model ())
-    -> (Textarea.Msg -> Model -> Model)
+    -> (Model -> Textarea.Model () Textarea.Msg)
+    -> (Textarea.Msg -> Model -> ( Model, Cmd Textarea.Msg ))
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
 statefulComponent name modelPicker update sharedState =
@@ -150,7 +162,7 @@ statefulComponent name modelPicker update sharedState =
         |> Textarea.withLabel (Label.config name)
         |> Textarea.render identity () (sharedState.textarea |> modelPicker)
         |> Html.map
-            (ElmBook.Actions.mapUpdate
+            (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \state model -> { state | textarea = model }
                 , fromState = .textarea
                 , update = update

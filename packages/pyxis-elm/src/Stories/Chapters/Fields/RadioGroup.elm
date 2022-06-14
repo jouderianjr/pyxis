@@ -28,22 +28,19 @@ type Msg
     = OnRadioFieldMsg (RadioGroup.Msg Option)
 
 
-validation : formData -> Maybe Option -> Result String Option
+validation : () -> Maybe Option -> Result String Option
 validation _ value =
-    case value of
-        Nothing ->
-            Err "Invalid selection"
-
-        Just option ->
-            Ok option
+    value
+        |> Maybe.map (Ok)
+        |> Maybe.withDefault (Err "Invalid selection")
 
 
-radioGroupModel : RadioGroup.Model formData Option Option
+radioGroupModel : RadioGroup.Model (RadioGroup.Msg Option) () Option Option
 radioGroupModel =
     RadioGroup.init (Just Home) validation
 
 
-radioGroupView : formData -> Html Msg
+radioGroupView : () -> Html Msg
 radioGroupView formData =
     RadioGroup.config "radio-name"
         |> RadioGroup.withName "insurance-type"
@@ -86,25 +83,19 @@ RadioGroup.config name
 
 
 type alias SharedState x =
-    { x
-        | radio : RadioFieldModels
-    }
+    { x | radio : Model }
 
 
-type Option
+type Product
     = Home
     | Motor
 
 
-type alias RadioFieldModels =
-    { base : RadioGroup.Model () Option Option
-    , vertical : RadioGroup.Model () Option Option
-    , disabled : RadioGroup.Model () Option Option
-    }
-
-
 type alias Model =
-    RadioFieldModels
+    { base : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
+    , vertical : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
+    , disabled : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
+    }
 
 
 init : Model
@@ -125,7 +116,13 @@ componentsList =
             { name = "radio-group"
             , configModifier = RadioGroup.withLabel (Label.config "Choose the insurance type")
             , modelPicker = .base
-            , update = \msg models -> { models | base = RadioGroup.update msg models.base }
+            , update =
+                \msg model ->
+                    let
+                        ( updatedModel, cmd ) =
+                            RadioGroup.update msg model.base
+                    in
+                    ( { model | base = updatedModel }, cmd )
             }
       )
     , ( "RadioGroup vertical"
@@ -133,7 +130,13 @@ componentsList =
             { name = "radio-group-vertical"
             , configModifier = RadioGroup.withLayout RadioGroup.vertical
             , modelPicker = .vertical
-            , update = \msg models -> { models | vertical = RadioGroup.update msg models.vertical }
+            , update =
+                \msg model ->
+                    let
+                        ( updatedModel, cmd ) =
+                            RadioGroup.update msg model.vertical
+                    in
+                    ( { model | base = updatedModel }, cmd )
             }
       )
     , ( "RadioGroup disabled"
@@ -141,13 +144,13 @@ componentsList =
             { name = "radio-group-disabled"
             , configModifier = RadioGroup.withDisabled True
             , modelPicker = .disabled
-            , update = always identity
+            , update = \_ model -> ( model, Cmd.none )
             }
       )
     ]
 
 
-options : List (RadioGroup.Option Option)
+options : List (RadioGroup.Option Product)
 options =
     [ RadioGroup.option { value = Home, label = "Home" }
     , RadioGroup.option { value = Motor, label = "Motor" }
@@ -156,9 +159,9 @@ options =
 
 type alias StatefulConfig =
     { name : String
-    , configModifier : RadioGroup.Config Option -> RadioGroup.Config Option
-    , modelPicker : Model -> RadioGroup.Model () Option Option
-    , update : RadioGroup.Msg Option -> RadioFieldModels -> RadioFieldModels
+    , configModifier : RadioGroup.Config Product -> RadioGroup.Config Product
+    , modelPicker : Model -> RadioGroup.Model () Product Product (RadioGroup.Msg Product)
+    , update : RadioGroup.Msg Product -> Model -> ( Model, Cmd (RadioGroup.Msg Product) )
     }
 
 
@@ -169,8 +172,8 @@ statefulComponent { name, configModifier, modelPicker, update } sharedState =
         |> configModifier
         |> RadioGroup.render identity () (sharedState.radio |> modelPicker)
         |> Html.map
-            (ElmBook.Actions.mapUpdate
-                { toState = \sharedState_ models -> { sharedState_ | radio = models }
+            (ElmBook.Actions.mapUpdateWithCmd
+                { toState = \sharedState_ model -> { sharedState_ | radio = model }
                 , fromState = .radio
                 , update = update
                 }

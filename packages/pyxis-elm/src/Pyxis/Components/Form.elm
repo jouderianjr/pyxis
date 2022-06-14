@@ -2,6 +2,7 @@ module Pyxis.Components.Form exposing
     ( Config
     , config
     , withFieldSets
+    , withDynamicFieldSets
     , withOnSubmit
     , render
     )
@@ -19,6 +20,7 @@ module Pyxis.Components.Form exposing
 ## General
 
 @docs withFieldSets
+@docs withDynamicFieldSets
 @docs withOnSubmit
 
 
@@ -31,6 +33,7 @@ module Pyxis.Components.Form exposing
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import PrimaFunction
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Components.Form.FieldSet as FieldSet
 
@@ -44,7 +47,7 @@ type Config msg
 {-| Internal.
 -}
 type alias ConfigData msg =
-    { fieldSets : List (FieldSet.Config msg)
+    { fieldSets : List ( FieldSet.Config msg, Bool )
     , onSubmit : Maybe msg
     }
 
@@ -63,6 +66,13 @@ config =
 -}
 withFieldSets : List (FieldSet.Config msg) -> Config msg -> Config msg
 withFieldSets fieldSets (Config configuration) =
+    Config { configuration | fieldSets = List.map (PrimaFunction.flip Tuple.pair True) fieldSets }
+
+
+{-| Adds a FieldSet list to the Form. Allows you to show or hide them.
+-}
+withDynamicFieldSets : List ( FieldSet.Config msg, Bool ) -> Config msg -> Config msg
+withDynamicFieldSets fieldSets (Config configuration) =
     Config { configuration | fieldSets = fieldSets }
 
 
@@ -81,4 +91,7 @@ render (Config { onSubmit, fieldSets }) =
         [ Html.Attributes.class "form"
         , CommonsAttributes.maybe Html.Events.onSubmit onSubmit
         ]
-        (List.map FieldSet.render fieldSets)
+        (fieldSets
+            |> List.filter Tuple.second
+            |> List.map (Tuple.first >> FieldSet.render)
+        )

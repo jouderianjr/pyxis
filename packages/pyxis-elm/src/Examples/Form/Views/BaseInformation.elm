@@ -1,11 +1,10 @@
 module Examples.Form.Views.BaseInformation exposing (view)
 
 import Examples.Form.Api.Province as Province
-import Examples.Form.Data as Data exposing (Data(..))
-import Examples.Form.Model as Model
-import Html
+import Examples.Form.Data exposing (Data(..))
+import Examples.Form.Msg as Msg exposing (Msg)
+import Html exposing (Html)
 import Html.Attributes
-import Pyxis.Components.Button as Button
 import Pyxis.Components.Field.Autocomplete as Autocomplete
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Error.Strategy as Strategy
@@ -19,12 +18,12 @@ import Pyxis.Components.Form.Legend as Legend
 import Pyxis.Components.IconSet as IconSet
 
 
-view : Data -> FieldSet.Config Model.Msg
+view : Data -> FieldSet.Config Msg
 view ((Data config) as data) =
     FieldSet.config
         |> FieldSet.withHeader
             [ Grid.simpleOneColRow
-                [ Legend.config "Inserisci alcune informazioni di base"
+                [ Legend.config "Vehicle & owner"
                     |> Legend.render
                 ]
             ]
@@ -35,13 +34,14 @@ view ((Data config) as data) =
                     [ "plate"
                         |> Input.text
                         |> Input.withPlaceholder "AA123BC"
+                        |> Input.withStrategy Strategy.onSubmit
+                        |> Input.withIsSubmitted config.isFormSubmitted
                         |> Input.withLabel
-                            ("Targa del veicolo assicurato con Prima"
+                            ("Vehicle plate"
                                 |> Label.config
-                                |> Label.withSubText "(Veicolo A)"
+                                |> Label.withSubText "(Vehicle A)"
                             )
-                        |> Input.withAdditionalContent (Html.button [] [])
-                        |> Input.render (Model.TextFieldChanged Data.Plate) data config.plate
+                        |> Input.render Msg.PlateChanged data config.plate
                     ]
                 ]
             , Grid.row
@@ -49,8 +49,10 @@ view ((Data config) as data) =
                 [ Grid.simpleCol
                     [ "birth_date"
                         |> Input.date
-                        |> Input.withLabel (Label.config "Data di nascita del proprietario")
-                        |> Input.render (Model.DateFieldChanged Data.Birth) data config.birth
+                        |> Input.withStrategy Strategy.onSubmit
+                        |> Input.withIsSubmitted config.isFormSubmitted
+                        |> Input.withLabel (Label.config "Owner birth date")
+                        |> Input.render Msg.BirthDateChanged data config.birth
                     ]
                 ]
             , Grid.row
@@ -59,16 +61,17 @@ view ((Data config) as data) =
                     [ "residential_city"
                         |> Autocomplete.config
                         |> Autocomplete.withStrategy Strategy.onSubmit
-                        |> Autocomplete.withNoResultsFoundMessage "Nessun risultato trovato."
-                        |> Autocomplete.withLabel (Label.config "Città di residenza")
-                        |> Autocomplete.withHint "Min. 3 caratteri"
+                        |> Autocomplete.withIsSubmitted config.isFormSubmitted
+                        |> Autocomplete.withNoResultsFoundMessage "No results were found."
+                        |> Autocomplete.withLabel (Label.config "Residential city")
+                        |> Autocomplete.withHint "Type at least 3 chars to start searching."
                         |> Autocomplete.withPlaceholder "Milano"
                         |> Autocomplete.withAddonSuggestion
                             { icon = IconSet.InfoCircle
                             , title = "Lorem ipsum"
                             , subtitle = Just "Lorem ipsum dolor sit amet."
                             }
-                        |> Autocomplete.render (Model.AutocompleteFieldChanged Data.ResidentialCity) data config.residentialCity
+                        |> Autocomplete.render Msg.ResidentialCityChanged data config.residentialCity
                     ]
                 ]
             , Grid.row
@@ -76,9 +79,11 @@ view ((Data config) as data) =
                 [ Grid.simpleCol
                     [ "residential_province"
                         |> Select.config False
+                        |> Select.withStrategy Strategy.onSubmit
+                        |> Select.withIsSubmitted config.isFormSubmitted
                         |> Select.withOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
-                        |> Select.withLabel (Label.config "Provincia di residenza")
-                        |> Select.render (Model.SelectFieldChanged Data.ResidentialProvince) data config.residentialProvince
+                        |> Select.withLabel (Label.config "Residential province")
+                        |> Select.render Msg.ResidentialProvinceChanged data config.residentialProvince
                     ]
                 ]
             , Grid.row
@@ -86,33 +91,37 @@ view ((Data config) as data) =
                 [ Grid.simpleCol
                     [ "claim_date"
                         |> Input.date
-                        |> Input.withLabel (Label.config "Data del sinistro")
-                        |> Input.render (Model.DateFieldChanged Data.ClaimDate) data config.claimDate
+                        |> Input.withStrategy Strategy.onSubmit
+                        |> Input.withIsSubmitted config.isFormSubmitted
+                        |> Input.withLabel (Label.config "Claim date")
+                        |> Input.render Msg.ClaimDateChanged data config.claimDate
                     ]
                 ]
             , Grid.row
                 [ Row.smallSize ]
                 [ Grid.simpleCol
                     [ "checkbox-id"
-                        |> CheckboxGroup.single
-                            (Html.div
-                                []
-                                [ Html.text
-                                    "Dichiaro di aver letto l’"
-                                , Html.a [ Html.Attributes.href "https://www.prima.it/app/privacy-policy" ]
-                                    [ Html.text "Informativa Privacy" ]
-                                , Button.ghost
-                                    |> Button.withText "Informativa Privacy"
-                                    |> Button.withType Button.button
-                                    |> Button.withOnClick (Model.ShowModal True)
-                                    |> Button.render
-                                , Html.text
-                                    ", disposta ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679. "
-                                ]
-                            )
+                        |> CheckboxGroup.single viewPrivacy
                         |> CheckboxGroup.withStrategy Strategy.onSubmit
+                        |> CheckboxGroup.withIsSubmitted config.isFormSubmitted
                         |> CheckboxGroup.withId "checkbox-group-single"
-                        |> CheckboxGroup.render Model.PrivacyChanged data config.privacyCheck
+                        |> CheckboxGroup.render Msg.PrivacyChanged data config.privacyCheck
                     ]
                 ]
             ]
+
+
+viewPrivacy : Html msg
+viewPrivacy =
+    Html.div
+        []
+        [ Html.text
+            "I agree with the "
+        , Html.a
+            [ Html.Attributes.class "link"
+            , Html.Attributes.href "https://www.prima.it/app/privacy-policy"
+            , Html.Attributes.target "_blank"
+            ]
+            [ Html.text "Privacy policy"
+            ]
+        ]
