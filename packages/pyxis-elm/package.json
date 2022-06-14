@@ -11,7 +11,7 @@
     "build": "yarn example:build && yarn docs:build",
     "docs:build": "elm make --output=/dev/null --docs=docs.json",
     "example:build": "elm make src/Examples/Form/Main.elm",
-    "example:serve": "elm reactor --port 8001",
+    "example:serve": "open http://localhost:8001/src/Examples/Form/Main.elm && elm reactor --port 8001",
     "preexample:serve": "yarn reset-dist",
     "elmbook:build": "elm make src/Stories/Book.elm --output=dist/index.html",
     "elmbook:serve": "elm-book src/Stories/Book.elm --dir=./dist -- --output=dist/index.html --debug",

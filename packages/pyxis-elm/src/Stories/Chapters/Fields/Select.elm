@@ -32,7 +32,7 @@ type Msg
     = OnSelectMsg (Select.Msg)
 
 
-validation : () -> Maybe String -> Result String Job
+validation : formData -> Maybe String -> Result String Job
 validation _ maybeValue =
     maybeValue
         |> Maybe.andThen toJob
@@ -45,13 +45,12 @@ toJob rawValue =
         "DEVELOPER" ->
             Just Developer
         [...]
-        _ ->
-            Nothing
 
 
 selectModel : Select.Model formData Job
 selectModel =
-    Select.init Nothing validation
+    Select.init "select-name" Nothing validation
+        |> Select.setOptions options
 
 
 options : List Select.Option
@@ -67,11 +66,10 @@ isMobile : Bool
 isMobile = False
 
 
-select : formData -> Html Select.Msg
+select : formData -> Html Msg
 select formData =
-    Select.config isMobile "desktop-select"
+    Select.config isMobile
         |> Select.withPlaceholder "Select your role..."
-        |> Select.withOptions options
         |> Select.render OnSelectMsg formData selectModel
 ```
 
@@ -79,7 +77,7 @@ And the native `<select>` on mobile:
 
 <component with-label="Select (mobile)" />
 ```
-Select.config True "radio-name"
+Select.config True
     |> Select.render OnSelectMsg formData selectModel
 ```
 
@@ -87,7 +85,7 @@ Select.config True "radio-name"
 
 <component with-label="Select with disabled=True" />
 ```
-Select.config False "radio-name"
+Select.config False
     |> Select.withDisabled True
     |> Select.render OnSelectMsg formData selectModel
 ```
@@ -97,7 +95,7 @@ Select can have two size: default or small.
 
 <component with-label="Select with size=Small" />
 ```
-Select.config False "radio-name"
+Select.config False
     |> Select.withSize Select.small
     |> Select.render OnSelectMsg formData selectModel
 ```
