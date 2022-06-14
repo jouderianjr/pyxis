@@ -486,16 +486,22 @@ update : (Msg -> msg) -> Msg -> Model ctx value msg -> ( Model ctx value msg, Cm
 update tagger msg ((Model modelData) as model) =
     case msg of
         OnSelect value ->
-            Model { modelData | selectedValue = Just value, isOpen = False }
+            model
+                |> updateSelectedValue value
+                |> updateIsOpen False
                 |> mapFieldStatus FieldStatus.onInput
                 |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
         OnClick Label ->
-            Model { modelData | isOpen = True }
+            model
+                |> updateIsOpen True
+                |> mapFieldStatus FieldStatus.onFocus
                 |> PrimaUpdate.withoutCmds
 
         OnClick (DropdownOption (Option { value })) ->
-            Model { modelData | selectedValue = Just value, isOpen = False }
+            model
+                |> updateSelectedValue value
+                |> updateIsOpen False
                 |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
         OnClick _ ->
@@ -503,15 +509,8 @@ update tagger msg ((Model modelData) as model) =
                 |> PrimaUpdate.withoutCmds
 
         OnKeyDown Select event ->
-            Model
-                { modelData
-                    | isOpen =
-                        if KeyDown.isArrowDown event || KeyDown.isSpace event then
-                            True
-
-                        else
-                            modelData.isOpen
-                }
+            model
+                |> updateIsOpen (KeyDown.isArrowDown event || KeyDown.isSpace event || modelData.isOpen)
                 |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
         OnKeyDown (DropdownOption option_) event ->
@@ -577,6 +576,15 @@ updateSelectedValue value (Model modelData) =
     Model { modelData | selectedValue = Just value }
 
 
+{-| Internal.
+-}
+updateIsOpen : Bool -> Model ctx value msg -> Model ctx value msg
+updateIsOpen isOpen (Model modelData) =
+    Model { modelData | isOpen = isOpen }
+
+
+{-| Internal.
+-}
 updateActiveOption : Int -> Maybe Option -> Model ctx value msg -> Model ctx value msg
 updateActiveOption moveByPositions currentOption (Model modelData) =
     let
