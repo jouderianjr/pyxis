@@ -109,8 +109,8 @@ type alias SharedState x =
 
 
 type alias Model =
-    { base : Select.Model () (Maybe String)
-    , withValidation : Select.Model () Job
+    { base : Select.Model () (Maybe String) Select.Msg
+    , withValidation : Select.Model () Job Select.Msg
     }
 
 
@@ -212,7 +212,7 @@ statelessComponent statelessConfig =
 
 statefulComponent :
     StatelessConfig
-    -> (Model -> Select.Model () parsed)
+    -> (Model -> Select.Model () parsed Select.Msg)
     -> (Select.Msg -> Model -> ( Model, Cmd Select.Msg ))
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
@@ -234,7 +234,7 @@ updateBase : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
 updateBase msg model =
     let
         ( newModel, newCmd ) =
-            Select.update msg model.base
+            Select.update identity msg model.base
     in
     ( { model | base = newModel }
     , newCmd
@@ -245,7 +245,7 @@ updateWithValidation : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
 updateWithValidation msg model =
     let
         ( newModel, newCmd ) =
-            Select.update msg model.withValidation
+            Select.update identity msg model.withValidation
     in
     ( { model | withValidation = newModel }
     , newCmd

@@ -161,7 +161,7 @@ validateJob job =
             Err "Inserire opzione valida"
 
 
-simulationDesktop : Simulation (Select.Model () Job) Select.Msg
+simulationDesktop : Simulation (Select.Model () Job Select.Msg) Select.Msg
 simulationDesktop =
     Simulation.fromElement
         { init =
@@ -175,7 +175,7 @@ simulationDesktop =
                     ]
             , Cmd.none
             )
-        , update = Select.update
+        , update = Select.update identity
         , view =
             \model ->
                 Select.config False
