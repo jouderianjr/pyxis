@@ -80,7 +80,7 @@ view ((Data config) as data) =
                         |> Select.withStrategy Strategy.onSubmit
                         |> Select.withIsSubmitted config.isFormSubmitted
                         |> Select.withLabel (Label.config "Provincia di residenza")
-                        |> Select.render (Model.SelectFieldChanged Data.ResidentialProvince) data config.residentialProvince
+                        |> Select.render Msg.ResidentialProvinceChanged data config.residentialProvince
                     ]
                 ]
             , Grid.row
