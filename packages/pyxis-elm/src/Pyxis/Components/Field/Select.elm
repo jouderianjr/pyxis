@@ -4,6 +4,11 @@ module Pyxis.Components.Field.Select exposing
     , getValue
     , setDropdownClosed
     , setId
+    , setOnBlur
+    , setOnFocus
+    , setOnReset
+    , setOnInput
+    , setOnSelect
     , setValue
     , validate
     , Config
@@ -38,6 +43,11 @@ module Pyxis.Components.Field.Select exposing
 @docs getValue
 @docs setDropdownClosed
 @docs setId
+@docs setOnBlur
+@docs setOnFocus
+@docs setOnReset
+@docs setOnInput
+@docs setOnSelect
 @docs setValue
 @docs validate
 
@@ -95,6 +105,7 @@ import Html.Events
 import PrimaFunction
 import PrimaUpdate
 import Pyxis.Commons.Attributes as CommonsAttributes
+import Pyxis.Commons.Commands as Commands
 import Pyxis.Commons.Events as CommonsEvents
 import Pyxis.Commons.Events.KeyDown as KeyDown
 import Pyxis.Commons.Render as CommonsRender
@@ -130,22 +141,27 @@ type Target
 
 {-| A type representing the select field internal state
 -}
-type Model context parsedValue
+type Model ctx value msg
     = Model
         { activeOption : Maybe Option
         , fieldStatus : FieldStatus.Status
         , id : String
         , isOpen : Bool
         , name : String
+        , onBlur : Maybe msg
+        , onFocus : Maybe msg
+        , onReset : Maybe msg
+        , onInput : Maybe msg
+        , onSelect : Maybe msg
         , options : List Option
         , selectedValue : Maybe String
-        , validation : context -> Maybe String -> Result String parsedValue
+        , validation : ctx -> Maybe String -> Result String value
         }
 
 
 {-| Initialize the select internal state. This belongs to your app's `Model`.
 -}
-init : String -> Maybe String -> (context -> Maybe String -> Result String parsedValue) -> Model context parsedValue
+init : String -> Maybe String -> (ctx -> Maybe String -> Result String value) -> Model ctx value msg
 init name initialValue validation =
     Model
         { activeOption = Nothing
@@ -154,6 +170,11 @@ init name initialValue validation =
         , isOpen = False
         , name = name
         , options = []
+        , onBlur = Nothing
+        , onFocus = Nothing
+        , onInput = Nothing
+        , onReset = Nothing
+        , onSelect = Nothing
         , selectedValue = initialValue
         , validation = validation
         }
@@ -317,7 +338,7 @@ withStrategy strategy (Config configuration) =
 
 {-| Internal.
 -}
-renderOptions : Model context parsedValue -> List (Html Msg)
+renderOptions : Model ctx value msg -> List (Html Msg)
 renderOptions (Model { selectedValue, activeOption, options }) =
     let
         isActive : String -> Bool
@@ -345,7 +366,7 @@ renderOptions (Model { selectedValue, activeOption, options }) =
             )
 
 
-renderNativeOptions : Config -> Model context parsedValue -> List (Html msg)
+renderNativeOptions : Config -> Model ctx value msg -> List (Html Msg)
 renderNativeOptions (Config { placeholder }) (Model { selectedValue, options }) =
     options
         |> List.map
@@ -380,14 +401,14 @@ renderAddon =
 
 {-| Render the html
 -}
-render : (Msg -> msg) -> context -> Model context parsedValue -> Config -> Html.Html msg
-render tagger context ((Model modelData) as model) ((Config configData) as configuration) =
+render : (Msg -> msg) -> ctx -> Model ctx value msg -> Config -> Html.Html msg
+render tagger ctx ((Model modelData) as model) ((Config configData) as configuration) =
     let
         validationResult : Result String ()
         validationResult =
             StrategyInternal.getValidationResult
                 modelData.fieldStatus
-                (modelData.validation context modelData.selectedValue)
+                (modelData.validation ctx modelData.selectedValue)
                 configData.isSubmitted
                 configData.strategy
     in
@@ -461,13 +482,13 @@ mapLabelSize size =
 
 {-| Update the internal state of the Select component
 -}
-update : Msg -> Model ctx parsedValue -> ( Model ctx parsedValue, Cmd Msg )
-update msg ((Model modelData) as model) =
+update : (Msg -> msg) -> Msg -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+update tagger msg ((Model modelData) as model) =
     case msg of
         OnSelect value ->
             Model { modelData | selectedValue = Just value, isOpen = False }
                 |> mapFieldStatus FieldStatus.onInput
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
         OnClick Label ->
             Model { modelData | isOpen = True }
@@ -475,7 +496,7 @@ update msg ((Model modelData) as model) =
 
         OnClick (DropdownOption (Option { value })) ->
             Model { modelData | selectedValue = Just value, isOpen = False }
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
         OnClick _ ->
             model
@@ -491,12 +512,12 @@ update msg ((Model modelData) as model) =
                         else
                             modelData.isOpen
                 }
-                |> updateOnSelectKeyEvent event
+                |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
         OnKeyDown (DropdownOption option_) event ->
             model
                 |> updateOnOptionKeyEvent option_ event
-                |> focusOnActiveOption
+                |> focusOnActiveOption tagger
 
         OnKeyDown _ _ ->
             model
@@ -505,52 +526,30 @@ update msg ((Model modelData) as model) =
         OnBlur ->
             model
                 |> mapFieldStatus FieldStatus.onBlur
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onBlur ]
 
         OnFocus ->
             model
                 |> mapFieldStatus FieldStatus.onFocus
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onFocus ]
 
         NoOp ->
             model
                 |> PrimaUpdate.withoutCmds
 
 
-focusOnActiveOption : Model context parsedValue -> PrimaUpdate.PrimaUpdate (Model context parsedValue) Msg
-focusOnActiveOption ((Model modelData) as model) =
+focusOnActiveOption : (Msg -> msg) -> Model ctx value msg -> PrimaUpdate.PrimaUpdate (Model ctx value msg) msg
+focusOnActiveOption tagger ((Model modelData) as model) =
     model
         |> PrimaUpdate.withCmds
             [ modelData.activeOption
                 |> Maybe.map (pickOptionData >> .id >> Dom.focus >> Task.attempt (always NoOp))
                 |> Maybe.withDefault (Dom.focus modelData.id |> Task.attempt (always NoOp))
+                |> Cmd.map tagger
             ]
 
 
-updateOnSelectKeyEvent : KeyDown.Event -> Model ctx value -> ( Model ctx value, Cmd Msg )
-updateOnSelectKeyEvent event model =
-    if KeyDown.isArrowDown event || KeyDown.isSpace event then
-        model
-            |> updateActiveOption 1 Nothing
-            |> PrimaUpdate.withCmdsMap
-                [ \(Model { options }) ->
-                    options
-                        |> List.head
-                        |> Maybe.map (pickOptionData >> .id >> Dom.focus >> Task.attempt (always NoOp))
-                        |> Maybe.withDefault Cmd.none
-                ]
-
-    else if KeyDown.isEsc event then
-        model
-            |> setDropdownClosed
-            |> PrimaUpdate.withoutCmds
-
-    else
-        model
-            |> PrimaUpdate.withoutCmds
-
-
-updateOnOptionKeyEvent : Option -> KeyDown.Event -> Model ctx value -> Model ctx value
+updateOnOptionKeyEvent : Option -> KeyDown.Event -> Model ctx value msg -> Model ctx value msg
 updateOnOptionKeyEvent option_ event ((Model modelData) as model) =
     if KeyDown.isArrowDown event then
         updateActiveOption 1 (Just option_) model
@@ -573,12 +572,12 @@ updateOnOptionKeyEvent option_ event ((Model modelData) as model) =
 
 {-| Internal.
 -}
-updateSelectedValue : String -> Model ctx value -> Model ctx value
+updateSelectedValue : String -> Model ctx value msg -> Model ctx value msg
 updateSelectedValue value (Model modelData) =
     Model { modelData | selectedValue = Just value }
 
 
-updateActiveOption : Int -> Maybe Option -> Model ctx value -> Model ctx value
+updateActiveOption : Int -> Maybe Option -> Model ctx value msg -> Model ctx value msg
 updateActiveOption moveByPositions currentOption (Model modelData) =
     let
         newActiveOptionIndex : Int
@@ -608,14 +607,14 @@ updateActiveOption moveByPositions currentOption (Model modelData) =
 
 {-| Update the Autocomplete Model closing the dropdown
 -}
-setDropdownClosed : Model ctx value -> Model ctx value
+setDropdownClosed : Model ctx value msg -> Model ctx value msg
 setDropdownClosed (Model modelData) =
     Model { modelData | isOpen = False, activeOption = Nothing }
 
 
 {-| Set the select options
 -}
-setOptions : List Option -> Model context parsedValue -> Model context parsedValue
+setOptions : List Option -> Model ctx value msg -> Model ctx value msg
 setOptions options (Model modelData) =
     Model
         { modelData
@@ -635,21 +634,56 @@ setOptions options (Model modelData) =
 
 {-| Set the id attribute
 -}
-setId : String -> Model context msg -> Model context msg
+setId : String -> Model ctx value msg -> Model ctx value msg
 setId id (Model modelData) =
     Model { modelData | id = id }
 
 
 {-| Internal.
 -}
-setValue : String -> Model ctx parsedValue -> Model ctx parsedValue
+setValue : String -> Model ctx value msg -> Model ctx value msg
 setValue selectedValue (Model model) =
     Model { model | selectedValue = Just selectedValue }
 
 
+{-| Sets an OnBlur side effect.
+-}
+setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
+setOnBlur msg (Model configuration) =
+    Model { configuration | onBlur = Just msg }
+
+
+{-| Sets an OnFocus side effect.
+-}
+setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
+setOnFocus msg (Model configuration) =
+    Model { configuration | onFocus = Just msg }
+
+
+{-| Sets an OnReset side effect.
+-}
+setOnReset : msg -> Model ctx value msg -> Model ctx value msg
+setOnReset msg (Model configuration) =
+    Model { configuration | onReset = Just msg }
+
+
+{-| Sets an OnInput side effect.
+-}
+setOnInput : msg -> Model ctx value msg -> Model ctx value msg
+setOnInput msg (Model configuration) =
+    Model { configuration | onInput = Just msg }
+
+
+{-| Sets an OnSelect side effect.
+-}
+setOnSelect : msg -> Model ctx value msg -> Model ctx value msg
+setOnSelect msg (Model configuration) =
+    Model { configuration | onSelect = Just msg }
+
+
 {-| Returns the current native value of the Select
 -}
-getValue : Model ctx parsedValue -> Maybe String
+getValue : Model ctx value msg -> Maybe String
 getValue (Model { selectedValue }) =
     selectedValue
 
@@ -667,7 +701,7 @@ handleKeydown target key =
 
 {-| Returns the validated value of the select
 -}
-validate : ctx -> Model ctx parsedValue -> Result String parsedValue
+validate : ctx -> Model ctx value msg -> Result String value
 validate ctx (Model { selectedValue, validation }) =
     validation ctx selectedValue
 
@@ -681,6 +715,6 @@ pickOptionData (Option optionData) =
 
 {-| Internal.
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx parsedValue -> Model ctx parsedValue
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
 mapFieldStatus f (Model model) =
     Model { model | fieldStatus = f model.fieldStatus }
