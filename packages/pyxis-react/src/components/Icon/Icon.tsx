@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import classNames from 'classnames';
 import { IconProps } from './types';
 
-const getClasses = (size: string, className: string, alt:boolean, boxedVariant?: string): string => classNames(
+const getClasses = (size: string, alt:boolean, className?: string, boxedVariant?: string): string => classNames(
   'icon',
   `icon--size-${size}`,
   className,
@@ -13,8 +13,9 @@ const getClasses = (size: string, className: string, alt:boolean, boxedVariant?:
 
 const Icon: FC<IconProps> = ({
   alt = false,
-  className = '',
+  className,
   description,
+  id,
   boxedVariant,
   size = 'm',
   children,
@@ -22,7 +23,9 @@ const Icon: FC<IconProps> = ({
   <div
     aria-hidden={!description}
     aria-label={description}
-    className={getClasses(size, className, alt, boxedVariant)}
+    className={getClasses(size, alt, className, boxedVariant)}
+    data-testid={id}
+    id={id}
     role={description && 'img'}
   >
     {children}

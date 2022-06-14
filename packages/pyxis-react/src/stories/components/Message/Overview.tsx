@@ -1,20 +1,13 @@
 import React, {FC} from "react";
 import Table, {TableRow} from "stories/utils/Table";
-import CopyableCode from "stories/utils/CopyableCode";
 import shortid from "shortid";
 import OverviewTemplate from "stories/utils/OverviewTemplate";
-import {Canvas, Story} from "@storybook/addon-docs";
+import {ArgsTable, Canvas, Story} from "@storybook/addon-docs";
 import OverviewIndex from "stories/utils/OverviewIndex";
-import Message from "./Message";
+import Message from "components/Message";
 
 const overviewDescription = (
   <>
-    <p>
-      <em>
-        Work in progress: React component will be developed soon. In this documentation there are only
-        examples developed in HTML + SCSS.
-      </em>
-    </p>
     <p>
       Message highlights feedback or information to the user about the process that he's following or the content
       that he's consuming.
@@ -22,71 +15,71 @@ const overviewDescription = (
   </>
 );
 
-const stateDescription = (
+const variantDescription = (
   <p>
     Message can have a state that convey a meaning. Supported states are brand, success, error and alert.
     The last (alert) can be used only with a coloured background.
   </p>
 );
 
-const generateStateBody = (): TableRow[] =>  [
+const generateVariantBody = (): TableRow[] =>  [
   [
-    <Message key={shortid.generate()} state={"brand"}/>,
+    <Message key={shortid.generate()} variant={"brand"}>Message text</Message>,
     'Brand',
     '-'
   ],
   [
-    <Message key={shortid.generate()} state={"success"}/>,
+    <Message key={shortid.generate()} variant={"success"}>Message text</Message>,
     'Success',
     '-'
   ],
   [
-    <Message key={shortid.generate()} state={"error"}/>,
+    <Message key={shortid.generate()} variant={"error"}>Message text</Message>,
     'Error',
     '-'
   ],
   [
-    <Message key={shortid.generate()} state={"alert"} withBackground />,
+    <Message key={shortid.generate()} variant={"alert"} hasColoredBackground>Message text</Message>,
     'Alert',
     'Available only with the coloured background.'
   ],
+  [
+    <Message key={shortid.generate()} variant={"ghost"}>Message text</Message>,
+    'Ghost',
+    'No colored background available'
+  ],
 ];
 
-const variantDescription = (
+const backgroundDescription = (
   <p>
     Messages that have a state can be displayed with a coloured background that enforce the meaning expressed
-    by the state itself. Also, messages are available in ghost mode for side information.
+    by the state itself.
   </p>
 );
 
-const generateVariantBody = (): TableRow[] =>  [
+const generateBackgroundBody = (): TableRow[] =>  [
   [
-    <Message key={shortid.generate()} state={"brand"} withBackground />,
+    <Message key={shortid.generate()} variant={"brand"} hasColoredBackground>Message text</Message>,
     'With coloured background',
     'Please use it only with states above.'
-  ],
-  [
-    <Message key={shortid.generate()} ghost/>,
-    'Ghost',
-    'Available only with the default state.'
   ],
 ];
 
 const optionDescription = (
   <p>
-    Messages can be displayed also with no title or with a closing icon. Please note that with `ghost` variant
+    Messages can be displayed also with a title or with a closing icon. Please note that with `ghost` variant
     the no-title option is mandatory.
   </p>
 );
 
 const generateOptionBody = (): TableRow[] => [
   [
-    <Message key={shortid.generate()} withTitle={false} />,
-    'With no title',
-    '-'
+    <Message key={shortid.generate()} title="Message title">Message text</Message>,
+    'With title',
+    'Not available on `ghost` variant'
   ],
   [
-    <Message key={shortid.generate()} withClose={true} />,
+    <Message key={shortid.generate()} onClose={() => {}}>Message text</Message>,
     'With closing icon',
     'Not available with `ghost` variant.'
   ],
@@ -94,102 +87,46 @@ const generateOptionBody = (): TableRow[] => [
 
 const accessibilityDescription = (
   <p>
-    Message should have a <code>role</code> attribute set to <code>alert</code> when the state is "error",
-    and set to <code>status</code> in all other cases. Also, please remember to add a proper description to the icon
-    on the left when the state conveys a feedback (success, alert, error).
+    Message has a <code>role</code> attribute set to <code>alert</code> when the state is "error",
+    and set to <code>status</code> in all other cases. Please remember to pass the <code>onCloseAccessibleLabel</code> prop
+    when the closing icon is visible.
+  </p>
+);
+
+const apiDescription = (
+  <p>
+    Use props below to change message configuration and behaviour.
   </p>
 );
 
 const classDescription = (
   <p>
-    Message is based upon this list of CSS classes.
+    The list of Message CSS classes is
+    available <a href="https://prima.design/3794e337c/p/2339d4-message/b/539068" className="link" target="_blank">on zeroheight documentation</a>.
   </p>
 );
 
-const tableClassBody: TableRow[] = [
-  [
-    <CopyableCode text="message" key={shortid.generate()} />,
-    'Base Class',
-    '-',
-  ],
-  [
-    <CopyableCode text="message--brand" key={shortid.generate()} />,
-    'State Modifier',
-    '-',
-  ],
-  [
-    <CopyableCode text="message--success" key={shortid.generate()} />,
-    'State Modifier',
-    '-',
-  ],
-  [
-    <CopyableCode text="message--alert" key={shortid.generate()} />,
-    'State Modifier',
-    'Use it along with `message--with-background-color` class',
-  ],
-  [
-    <CopyableCode text="message--error" key={shortid.generate()} />,
-    'State Modifier',
-    '-',
-  ],
-  [
-    <CopyableCode text="message--ghost" key={shortid.generate()} />,
-    'Variant Modifier',
-    '-',
-  ],
-  [
-    <CopyableCode text="message--with-background-color" key={shortid.generate()} />,
-    'Variant Modifier',
-    '-',
-  ],
-  [
-    <CopyableCode text="message__icon" key={shortid.generate()} />,
-    'Icon element',
-    '-',
-  ],
-  [
-    <CopyableCode text="message__title" key={shortid.generate()} />,
-    'Title Element',
-    '-',
-  ],
-  [
-    <CopyableCode text="content-wrapper__title" key={shortid.generate()} />,
-    'Content Wrapper Element',
-    '-',
-  ],
-  [
-    <CopyableCode text="message__text" key={shortid.generate()} />,
-    'Text element',
-    '-',
-  ],
-  [
-    <CopyableCode text="message__close" key={shortid.generate()} />,
-    'Close icon element',
-    '-',
-  ]
-];
-
 const Overview: FC = () => (
   <>
-    <OverviewTemplate title="Message 🚧" description={overviewDescription} category="Component" isMain>
+    <OverviewTemplate title="Message" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-message-🚧-all-stories--default" />
+        <Story id="components-message-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">
-      <OverviewIndex titles={["State", "Variants", "Other Options", "Accessibility", "Overview of CSS classes"]} />
-    </OverviewTemplate>
-    <OverviewTemplate title="State" description={stateDescription}>
-      <Table
-        head={['Sample', 'Variant', 'Note']}
-        body={generateStateBody()}
-        gridTemplateColumns="300px"
-      />
+      <OverviewIndex titles={["Variants", "With colored background", "Other Options", "Accessibility", "Overview of CSS classes"]} />
     </OverviewTemplate>
     <OverviewTemplate title="Variants" description={variantDescription}>
       <Table
         head={['Sample', 'Variant', 'Note']}
         body={generateVariantBody()}
+        gridTemplateColumns="300px"
+      />
+    </OverviewTemplate>
+    <OverviewTemplate title="With colored background" description={backgroundDescription}>
+      <Table
+        head={['Sample', 'Variant', 'Note']}
+        body={generateBackgroundBody()}
         gridTemplateColumns="300px"
       />
     </OverviewTemplate>
@@ -201,13 +138,10 @@ const Overview: FC = () => (
       />
     </OverviewTemplate>
     <OverviewTemplate title="Accessibility" description={accessibilityDescription} />
-    <OverviewTemplate title="Overview of CSS classes" description={classDescription}>
-      <Table
-        head={['Class', 'Type', 'Note']}
-        body={tableClassBody}
-        gridTemplateColumns="300px 1fr 1fr"
-      />
+    <OverviewTemplate title="Component API" description={apiDescription}>
+      <ArgsTable of={Message} />
     </OverviewTemplate>
+    <OverviewTemplate title="Overview of CSS classes" description={classDescription}/>
   </>
 )
 

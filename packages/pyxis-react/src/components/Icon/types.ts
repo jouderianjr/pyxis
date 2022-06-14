@@ -6,6 +6,7 @@ export interface IconProps {
   boxedVariant?: IconBoxedVariant;
   className?: string;
   description?: string;
+  id?: string;
   size?: IconSize;
 }
 
