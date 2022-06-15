@@ -52,7 +52,7 @@ Now you want to instruct `npm` to download the packages from Prima's Artifactory
 1. Configure the _Artifactory registry_ for Pyxis by running the command below in your terminal.
 
    ```sh
-   $ npm config set @pyxis:registry https://prima.jfrog.io/artifactory/api/npm/pyxis-it/
+   $ npm config set @pyxis:registry https://prima.jfrog.io/artifactory/api/npm/pyxis-global/
    ```
 
 2. From [JFrog User Profile](https://prima.jfrog.io/ui/admin/artifactory/user_profile) generate an `ApiKey`. This will be used to authorize your profile when pushing/pulling from JFrog.
@@ -72,7 +72,7 @@ Now you want to instruct `npm` to download the packages from Prima's Artifactory
    ## File: .npmrc
 
    ## This line instruct npm to retrieve @pyxis packages from Artifactory.
-   @pyxis:registry=https://prima.jfrog.io/artifactory/api/npm/pyxis-it/
+   @pyxis:registry=https://prima.jfrog.io/artifactory/api/npm/pyxis-global/
 
    always-auth=true
    _auth="a-very=very_very-long_auth_token="

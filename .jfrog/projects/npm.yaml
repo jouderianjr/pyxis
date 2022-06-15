@@ -4,5 +4,5 @@ resolver:
   repo: pyxis
   serverId: Default-Server
 deployer:
-  repo: pyxis-it
+  repo: pyxis-global
   serverId: Default-Server
