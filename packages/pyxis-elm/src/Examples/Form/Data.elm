@@ -46,7 +46,7 @@ type Data
         , plate : Input.Model Data String Msg
         , privacyCheck : CheckboxGroup.Model Data () Bool Msg
         , residentialCity : Autocomplete.Model Data City Msg
-        , residentialProvince : Select.Model Data String
+        , residentialProvince : Select.Model Data String Msg
         }
 
 
@@ -79,7 +79,8 @@ initialData =
         , residentialProvince =
             Result.fromMaybe ""
                 |> always
-                |> Select.init (Just (Province.getName Province.capitalProvince))
+                |> Select.init "residential-province" (Just (Province.getName Province.capitalProvince))
+                |> Select.setOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
         }
 
 
@@ -141,9 +142,9 @@ updateResidentialProvince : Select.Msg -> Data -> ( Data, Cmd Msg )
 updateResidentialProvince msg (Data d) =
     let
         ( componentModel, componentCmd ) =
-            Select.update msg d.residentialProvince
+            Select.update Msg.ResidentialProvinceChanged msg d.residentialProvince
     in
-    ( Data { d | residentialProvince = componentModel }, Cmd.map Msg.ResidentialProvinceChanged componentCmd )
+    ( Data { d | residentialProvince = componentModel }, componentCmd )
 
 
 updateInsuranceType : RadioCardGroup.Msg Types.Insurance -> Data -> ( Data, Cmd Msg )

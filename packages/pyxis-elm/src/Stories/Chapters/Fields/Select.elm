@@ -32,7 +32,7 @@ type Msg
     = OnSelectMsg (Select.Msg)
 
 
-validation : () -> Maybe String -> Result String Job
+validation : formData -> Maybe String -> Result String Job
 validation _ maybeValue =
     maybeValue
         |> Maybe.andThen toJob
@@ -45,13 +45,12 @@ toJob rawValue =
         "DEVELOPER" ->
             Just Developer
         [...]
-        _ ->
-            Nothing
 
 
 selectModel : Select.Model formData Job
 selectModel =
-    Select.init Nothing validation
+    Select.init "select-name" Nothing validation
+        |> Select.setOptions options
 
 
 options : List Select.Option
@@ -67,11 +66,10 @@ isMobile : Bool
 isMobile = False
 
 
-select : formData -> Html Select.Msg
+select : formData -> Html Msg
 select formData =
-    Select.config isMobile "desktop-select"
+    Select.config isMobile
         |> Select.withPlaceholder "Select your role..."
-        |> Select.withOptions options
         |> Select.render OnSelectMsg formData selectModel
 ```
 
@@ -79,7 +77,7 @@ And the native `<select>` on mobile:
 
 <component with-label="Select (mobile)" />
 ```
-Select.config True "radio-name"
+Select.config True
     |> Select.render OnSelectMsg formData selectModel
 ```
 
@@ -87,7 +85,7 @@ Select.config True "radio-name"
 
 <component with-label="Select with disabled=True" />
 ```
-Select.config False "radio-name"
+Select.config False
     |> Select.withDisabled True
     |> Select.render OnSelectMsg formData selectModel
 ```
@@ -97,7 +95,7 @@ Select can have two size: default or small.
 
 <component with-label="Select with size=Small" />
 ```
-Select.config False "radio-name"
+Select.config False
     |> Select.withSize Select.small
     |> Select.render OnSelectMsg formData selectModel
 ```
@@ -111,8 +109,8 @@ type alias SharedState x =
 
 
 type alias Model =
-    { base : Select.Model () (Maybe String)
-    , withValidation : Select.Model () Job
+    { base : Select.Model () (Maybe String) Select.Msg
+    , withValidation : Select.Model () Job Select.Msg
     }
 
 
@@ -152,9 +150,18 @@ toJob rawValue =
 
 init : Model
 init =
-    { base = Select.init Nothing (always Ok)
-    , withValidation = Select.init Nothing requiredValidation
+    { base = Select.init "base" Nothing (always Ok) |> Select.setOptions options
+    , withValidation = Select.init "withValidation" Nothing requiredValidation |> Select.setOptions options
     }
+
+
+options : List Select.Option
+options =
+    [ Select.option { value = "DEVELOPER", label = "Developer" }
+    , Select.option { value = "DESIGNER", label = "Designer" }
+    , Select.option { value = "PRODUCT_MANAGER", label = "Product Manager" }
+    , Select.option { value = "CEO", label = "Chief Executive Officer" }
+    ]
 
 
 type Job
@@ -168,8 +175,7 @@ componentsList : List ( String, SharedState x -> Html (ElmBook.Msg (SharedState 
 componentsList =
     [ ( "Select (desktop)"
       , statefulComponent
-            { name = "desktop-select"
-            , isMobile = False
+            { isMobile = False
             , configModifier = Select.withLabel (Label.config "Label")
             }
             .withValidation
@@ -177,23 +183,22 @@ componentsList =
       )
     , ( "Select (mobile)"
       , statelessComponent
-            { name = "mobile-select", isMobile = True, configModifier = identity }
+            { isMobile = True, configModifier = identity }
       )
     , ( "Select with disabled=True"
       , statelessComponent
-            { name = "disabled-select", isMobile = False, configModifier = Select.withDisabled True }
+            { isMobile = False, configModifier = Select.withDisabled True }
       )
     , ( "Select with size=Small"
       , statelessComponent
-            { name = "small-select", isMobile = False, configModifier = Select.withSize Select.small }
+            { isMobile = False, configModifier = Select.withSize Select.small }
       )
     ]
 
 
 type alias StatelessConfig =
-    { name : String
-    , isMobile : Bool
-    , configModifier : Select.Config Select.Msg -> Select.Config Select.Msg
+    { isMobile : Bool
+    , configModifier : Select.Config -> Select.Config
     }
 
 
@@ -207,19 +212,13 @@ statelessComponent statelessConfig =
 
 statefulComponent :
     StatelessConfig
-    -> (Model -> Select.Model () parsed)
+    -> (Model -> Select.Model () parsed Select.Msg)
     -> (Select.Msg -> Model -> ( Model, Cmd Select.Msg ))
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
-statefulComponent { name, isMobile, configModifier } modelPicker internalUpdate sharedState =
-    Select.config isMobile name
+statefulComponent { isMobile, configModifier } modelPicker internalUpdate sharedState =
+    Select.config isMobile
         |> Select.withPlaceholder "Select your role..."
-        |> Select.withOptions
-            [ Select.option { value = "DEVELOPER", label = "Developer" }
-            , Select.option { value = "DESIGNER", label = "Designer" }
-            , Select.option { value = "PRODUCT_MANAGER", label = "Product Manager" }
-            , Select.option { value = "CEO", label = "Chief Executive Officer" }
-            ]
         |> configModifier
         |> Select.render identity () (sharedState.select |> modelPicker)
         |> Html.map
@@ -235,7 +234,7 @@ updateBase : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
 updateBase msg model =
     let
         ( newModel, newCmd ) =
-            Select.update msg model.base
+            Select.update identity msg model.base
     in
     ( { model | base = newModel }
     , newCmd
@@ -246,7 +245,7 @@ updateWithValidation : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
 updateWithValidation msg model =
     let
         ( newModel, newCmd ) =
-            Select.update msg model.withValidation
+            Select.update identity msg model.withValidation
     in
     ( { model | withValidation = newModel }
     , newCmd

@@ -14,6 +14,7 @@ module Pyxis.Commons.Attributes exposing
     , renderIf
     , maybe
     , none
+    , ariaSelected
     )
 
 {-|
@@ -144,6 +145,13 @@ ariaOwns =
 ariaActiveDescendant : String -> Html.Attribute msg
 ariaActiveDescendant =
     Html.Attributes.attribute "aria-activedescendant"
+
+
+{-| Creates an aria-selected attribute.
+-}
+ariaSelected : String -> Html.Attribute msg
+ariaSelected =
+    Html.Attributes.attribute "aria-selected"
 
 
 

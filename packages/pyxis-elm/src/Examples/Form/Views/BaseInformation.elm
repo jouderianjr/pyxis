@@ -1,6 +1,5 @@
 module Examples.Form.Views.BaseInformation exposing (view)
 
-import Examples.Form.Api.Province as Province
 import Examples.Form.Data exposing (Data(..))
 import Examples.Form.Msg as Msg exposing (Msg)
 import Html exposing (Html)
@@ -77,12 +76,10 @@ view ((Data config) as data) =
             , Grid.row
                 [ Row.smallSize ]
                 [ Grid.simpleCol
-                    [ "residential_province"
-                        |> Select.config False
+                    [ Select.config False
                         |> Select.withStrategy Strategy.onSubmit
                         |> Select.withIsSubmitted config.isFormSubmitted
-                        |> Select.withOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
-                        |> Select.withLabel (Label.config "Residential province")
+                        |> Select.withLabel (Label.config "Provincia di residenza")
                         |> Select.render Msg.ResidentialProvinceChanged data config.residentialProvince
                     ]
                 ]

@@ -371,7 +371,7 @@ render tagger ctx ((Model modelData) as model) ((Config configData) as configura
 
         shownValidation : Result String ()
         shownValidation =
-            StrategyInternal.getShownValidation
+            StrategyInternal.getValidationResult
                 modelData.fieldStatus
                 (modelData.validation ctx modelData.value)
                 configData.isSubmitted
