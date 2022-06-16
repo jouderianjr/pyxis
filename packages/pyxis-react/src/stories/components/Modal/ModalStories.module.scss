@@ -1,0 +1,6 @@
+@use "src/stories/pyxis.scss";
+
+.storyWrapper {
+  @include pyxis.containerWithFixedSize(medium);
+  padding-top: pyxis.spacing(m);
+}

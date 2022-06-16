@@ -22,9 +22,11 @@ const Footer: FC<FooterProps> = ({
   <footer className={getClasses(isSticky, alt)} id={id}>
     {children || (
       <>
+        {text && (
         <div className="modal__footer__text" data-testid={`${id}-text`}>
           {text}
         </div>
+        )}
         <div
           className={getButtonClasses(hasFullWidthButtons)}
           data-testid={`${id}-buttons`}

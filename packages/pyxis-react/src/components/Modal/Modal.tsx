@@ -68,6 +68,7 @@ export const Modal: FC<ModalProps> & ModalChildren = ({
             className="modal-close"
             data-testid={`${id}-backdrop-close-button`}
             onClick={onClose}
+            tabIndex={-1}
           />
         )}
         <div className={getModalClasses(size, isCentered)} data-testid={id}>

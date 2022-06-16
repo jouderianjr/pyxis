@@ -1,53 +1,127 @@
-import React from 'react';
-import {ComponentMeta} from '@storybook/react';
-import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
-import Modal from "./Modal";
-import styles from "../Tooltip/Tooltip.module.scss";
+import React, {useState} from 'react';
+import {ComponentMeta, ComponentStory} from '@storybook/react';
+import Modal, {ModalProps} from "components/Modal";
+import Button from "components/Button";
+import {HeaderDefault, StickyHeader} from "./Header/ModalHeader.stories";
+import {FooterDefault, StickyFooter} from "./Footer/ModalFooter.stories";
+
+const {Header, Footer, Content} = Modal;
 
 export default {
-  title: 'Components/Modal 🚧/All Stories',
+  title: 'Components/Modal/All Stories',
+  component: Modal,
+  subcomponents: {Header, Footer, Content},
+  argTypes: {
+    onClose: { action: 'Close clicked' }
+  }
 } as ComponentMeta<typeof Modal>;
 
-const mobileFirstViewport = { viewport: { defaultViewport: "xxsmall" } }
+const modalContent = <p className="text-m-book">
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget pharetra elit. Nam blandit efficitur fringilla.
+  Quisque sollicitudin diam augue, et finibus purus dapibus varius. Nam dignissim sit amet tortor ac iaculis.
+  Nunc tristique nisl massa, eget porta ligula porttitor sed. Praesent eleifend risus vel justo ullamcorper,
+  bibendum ornare purus efficitur. Suspendisse sed velit leo. Nullam fringilla ligula magna,
+  nec mollis metus imperdiet quis. Proin massa nisl, aliquam non rhoncus sit amet, lacinia posuere tortor.
+</p>
 
-export const Default = () => <Modal />
-Default.parameters = renderSourceAsHTML(Default());
+const Template:ComponentStory<typeof Modal> = (args:ModalProps) => (
+  <Modal {...args}>
+    <Modal.Header {...HeaderDefault.args}/>
+    <Modal.Content>{modalContent}</Modal.Content>
+    <Modal.Footer {...FooterDefault.args}/>
+  </Modal>
+)
 
-export const DefaultOnMobile = () => <Modal />
+const NonClosableTemplate:ComponentStory<typeof Modal> = (args:ModalProps) => (
+  <Modal {...args} onClose={undefined}>
+    <Modal.Header {...HeaderDefault.args}/>
+    <Modal.Content>{modalContent}</Modal.Content>
+    <Modal.Footer {...FooterDefault.args}/>
+  </Modal>
+)
+
+const DefaultTemplate:ComponentStory<typeof Modal> = (args:ModalProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return(
+    <>
+      <Button onClick={()=> setIsOpen(true)}>Open</Button>
+      <Modal {...args} isOpen={isOpen} onClose={()=>setIsOpen(false)}>
+        <Modal.Header {...HeaderDefault.args}/>
+        <Modal.Content>{modalContent}</Modal.Content>
+        <Modal.Footer {...FooterDefault.args}/>
+      </Modal>
+    </>
+)}
+
+const StickyTemplate:ComponentStory<typeof Modal> = (args:ModalProps) => (
+  <Modal {...args}>
+    <Modal.Header {...StickyHeader.args}/>
+    <Modal.Content>{modalContent}{modalContent}{modalContent}{modalContent}</Modal.Content>
+    <Modal.Footer {...StickyFooter.args}/>
+  </Modal>
+)
+
+export const Default = DefaultTemplate.bind({});
+Default.args = {
+  id: "modal-default",
+}
+
+export const DefaultOnMobile = Template.bind({});
+DefaultOnMobile.args = {
+  id: "modal-default-on-mobile",
+  isOpen: true,
+}
 DefaultOnMobile.parameters = {
-  ...mobileFirstViewport,
-  ...renderSourceAsHTML(DefaultOnMobile())
-};
+  viewport: { defaultViewport: "xxsmall" },
+  docs: { inlineStories: false }
+}
 
-export const WithSmallSize = () => <Modal size="small" shortContent />
-WithSmallSize.parameters = renderSourceAsHTML(WithSmallSize());
+export const SizeLarge = Template.bind({});
+SizeLarge.args = {
+  id: "modal-large",
+  isOpen: true,
+  size: "large",
+}
+SizeLarge.parameters = {
+  docs: { inlineStories: false }
+}
 
-export const WithCentered = () => <Modal size="small" isCentered shortContent />
-WithCentered.parameters = renderSourceAsHTML(WithCentered());
+export const SizeSmall = Template.bind({});
+SizeSmall.args = {
+  id: "modal-small",
+  isOpen: true,
+  size: "small",
+}
+SizeSmall.parameters = {
+  docs: { inlineStories: false }
+}
 
-export const HeaderWithBadge = () => <Modal size="small" withBadge shortContent />
-HeaderWithBadge.parameters = renderSourceAsHTML(HeaderWithBadge());
+export const CenteredModal = Template.bind({});
+CenteredModal.args = {
+  id: "modal-center",
+  isOpen: true,
+  isCentered: true,
+}
+CenteredModal.parameters = {
+  docs: { inlineStories: false }
+}
 
-export const HeaderWithIcon = () => <Modal size="small" withIcon shortContent />
-HeaderWithIcon.parameters = renderSourceAsHTML(HeaderWithIcon());
+export const NonClosableModal = NonClosableTemplate.bind({});
+NonClosableModal.args = {
+  id: "modal-non-closable",
+  isOpen: true,
+  onClose: undefined
+}
+NonClosableModal.parameters = {
+  docs: { inlineStories: false }
+}
 
-export const HeaderSticky = () => <Modal size="small" stickyHeader />
-HeaderSticky.parameters = renderSourceAsHTML(HeaderSticky());
-
-export const HeaderCustom = () => <Modal size="small" customHeader={<div>💈 Custom header</div>} shortContent />
-HeaderCustom.parameters = renderSourceAsHTML(HeaderCustom());
-
-export const FooterText = () => <Modal size="medium" footerText="Footer text" />
-FooterText.parameters = renderSourceAsHTML(FooterText());
-
-export const FooterAlt = () => <Modal size="medium" altFooter />
-FooterAlt.parameters = renderSourceAsHTML(FooterAlt());
-
-export const FooterSticky = () => <Modal size="small" stickyFooter />
-FooterSticky.parameters = renderSourceAsHTML(FooterSticky());
-
-export const FooterWithFullWidthButton = () => <Modal size="small" fullWidthButton />
-FooterWithFullWidthButton.parameters = renderSourceAsHTML(FooterWithFullWidthButton());
-
-export const FooterCustom = () => <Modal size="small" customFooter={<div>💈 Custom footer</div>} />
-FooterCustom.parameters = renderSourceAsHTML(FooterCustom());
+export const WithStickyHeaderAndFooter = StickyTemplate.bind({});
+WithStickyHeaderAndFooter.args = {
+  id: "modal-sticky",
+  isOpen: true,
+  size: "small",
+}
+WithStickyHeaderAndFooter.parameters = {
+  docs: { inlineStories: false }
+}

@@ -10,12 +10,7 @@ const stories =
 module.exports = {
   stories,
   addons: [
-    {
-        name: "@storybook/addon-essentials",
-        options: {
-            actions: false,
-        }
-    },
+    "@storybook/addon-essentials",
     '@whitespace/storybook-addon-html',
     "@storybook/addon-a11y",
     "@storybook/addon-links",

@@ -15,6 +15,7 @@ $_sizesOnBp: (
   @include mixins.backdrop;
   align-items: end;
   display: grid;
+  grid-template-rows: 0 [modal] auto;
   justify-items: center;
 
   @include foundations.mq(xsmall) {
@@ -27,7 +28,6 @@ $_sizesOnBp: (
 
   @include foundations.mq(xsmall) {
     height: 100vh;
-    margin-bottom: -100vh;
     position: sticky;
     width: 100vw;
   }
@@ -46,6 +46,7 @@ $_sizesOnBp: (
   @include foundations.mq(xsmall) {
     @include foundations.radius(xl);
     background-color: foundations.color(neutralLight);
+    grid-row-start: modal;
     height: min-content;
     margin: $offset 0;
     min-height: $minHeight;
@@ -117,7 +118,7 @@ $_sizesOnBp: (
 }
 
 .modal__header__title {
-  @include foundations.title(s, bold);
+  @include foundations.title(s, bold, neutralBase);
 }
 
 .modal__content {
