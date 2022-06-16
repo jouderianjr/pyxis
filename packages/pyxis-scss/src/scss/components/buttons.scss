@@ -1,4 +1,5 @@
 @use "../foundations";
+@use "animations";
 @use "mixins";
 @use "sass:math";
 
@@ -311,31 +312,7 @@ $_sizes: (
   position: relative;
 
   &:after {
-    animation: loading foundations.duration(slowest) infinite linear,
-      loadingEntry foundations.duration(fast) foundations.timing(base);
-    border-radius: 50%;
-    content: "";
-    left: 50%;
-    position: absolute;
-    top: 50%;
-  }
-
-  @keyframes loading {
-    0% {
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-      transform: translate(-50%, -50%) rotate(360deg);
-    }
-  }
-
-  @keyframes loadingEntry {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
+    @include mixins.loadingIcon;
   }
 }
 

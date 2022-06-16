@@ -34,10 +34,10 @@ type Icon
     | CheckCircle
     | CheckThick
     | CheckThin
-    | ChevronCricleDown
-    | ChevronCricleLeft
-    | ChevronCricleRight
-    | ChevronCricleUp
+    | ChevronCircleDown
+    | ChevronCircleLeft
+    | ChevronCircleRight
+    | ChevronCircleUp
     | ChevronDown
     | ChevronLeft
     | ChevronRight
@@ -242,17 +242,17 @@ toString icon =
         CheckThin ->
             checkThin
 
-        ChevronCricleDown ->
-            chevronCricleDown
+        ChevronCircleDown ->
+            chevronCircleDown
 
-        ChevronCricleLeft ->
-            chevronCricleLeft
+        ChevronCircleLeft ->
+            chevronCircleLeft
 
-        ChevronCricleRight ->
-            chevronCricleRight
+        ChevronCircleRight ->
+            chevronCircleRight
 
-        ChevronCricleUp ->
-            chevronCricleUp
+        ChevronCircleUp ->
+            chevronCircleUp
 
         ChevronDown ->
             chevronDown
@@ -707,17 +707,17 @@ toLabel icon =
         CheckThin ->
             "check-thin"
 
-        ChevronCricleDown ->
-            "chevron-cricle-down"
+        ChevronCircleDown ->
+            "chevron-circle-down"
 
-        ChevronCricleLeft ->
-            "chevron-cricle-left"
+        ChevronCircleLeft ->
+            "chevron-circle-left"
 
-        ChevronCricleRight ->
-            "chevron-cricle-right"
+        ChevronCircleRight ->
+            "chevron-circle-right"
 
-        ChevronCricleUp ->
-            "chevron-cricle-up"
+        ChevronCircleUp ->
+            "chevron-circle-up"
 
         ChevronDown ->
             "chevron-down"
@@ -1099,7 +1099,7 @@ toLabel icon =
 -}
 allIcons : List Icon
 allIcons =
-    [ AccessKey, Alarm, Alert, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Baloon, Bell, BookVocabulary, Book, CalendarClock, CalendarMail, Calendar, Camera, Car, CartScreen, Cart, ChartPie, Chat, CheckBox, CheckCircle, CheckThick, CheckThin, ChevronCricleDown, ChevronCricleLeft, ChevronCricleRight, ChevronCricleUp, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Chrome, Clock24, Clock, CloseCircle, Close, Computer, Devices, Diamond, DocumentAlert, DocumentEmpty, Document, Download, EllipsisCircle, ExclamationCircle, ExternalLink, EyeOff, EyeOn, FacebookFull, Facebook, FirefoxFull, Firefox, Folder, FootballField, FootballJersey, FootballShoe, Garage, Gear, Gift, Grid, HomeDamageEbike, HomeDamageFamily, HomeDamagePets, HomeDamageThirdPartiesProperty, HomeDamageThirdParties, HomeDomesticThefts, HomeEmergenciesRepairs, HomeFireExplosion, HomeFurnitureContent, HomeInjuriesFamily, HomeInjuriesFreetime, HomeInsuranceFamily, HomeInsuranceHome, HomeLegalProtection, HomeNaturalEvents, HomeRobberiesOutside, HomeTelephoneLegalAdvice, HomeTheftValuable, Home, Hourglass, IdCard, InfoCircleFull, InfoCircle, InsuranceFamily, InsuranceHome, InternetExplorer, Jobs, Key, ListCircle, List, Loader, Lock, LockerOpen, MagicWand, Mail, MapMarker, Medal, MinusCircle, Moped, Motorcycle, Odometer, OnlineHandshake, PaperPlane, Paperclip, PenEdit, PenFormUser, PenForm, Pen, Phone24, PhoneCall, Planimetry, Plate, PlusCircle, PlusSquare, Plus, PrimaLogo, Property, QuestionCircle, Reload, Riparaprima, SafeShield, Save, Search, SignedForm, Smartphone, SteeringWheel, Switch, Tablet, ThumbUp, TrashBin, TwitterFull, Twitter, UmbrellaFlash, Umbrella, UserCheck, UserClose, User, Van, VehicleCollisionKasko, VehicleDriverInjuries, VehicleFullKasko, VehicleGlasses, VehicleLegalProtection, VehicleNaturalEvents, VehicleRicourseWaiver, VehicleRoadsideAssistance, VehicleSecuredBonus, VehicleTheftFire, VehicleVandalism, Wallet, WhatsappFull, Whatsapp ]
+    [ AccessKey, Alarm, Alert, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Baloon, Bell, BookVocabulary, Book, CalendarClock, CalendarMail, Calendar, Camera, Car, CartScreen, Cart, ChartPie, Chat, CheckBox, CheckCircle, CheckThick, CheckThin, ChevronCircleDown, ChevronCircleLeft, ChevronCircleRight, ChevronCircleUp, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Chrome, Clock24, Clock, CloseCircle, Close, Computer, Devices, Diamond, DocumentAlert, DocumentEmpty, Document, Download, EllipsisCircle, ExclamationCircle, ExternalLink, EyeOff, EyeOn, FacebookFull, Facebook, FirefoxFull, Firefox, Folder, FootballField, FootballJersey, FootballShoe, Garage, Gear, Gift, Grid, HomeDamageEbike, HomeDamageFamily, HomeDamagePets, HomeDamageThirdPartiesProperty, HomeDamageThirdParties, HomeDomesticThefts, HomeEmergenciesRepairs, HomeFireExplosion, HomeFurnitureContent, HomeInjuriesFamily, HomeInjuriesFreetime, HomeInsuranceFamily, HomeInsuranceHome, HomeLegalProtection, HomeNaturalEvents, HomeRobberiesOutside, HomeTelephoneLegalAdvice, HomeTheftValuable, Home, Hourglass, IdCard, InfoCircleFull, InfoCircle, InsuranceFamily, InsuranceHome, InternetExplorer, Jobs, Key, ListCircle, List, Loader, Lock, LockerOpen, MagicWand, Mail, MapMarker, Medal, MinusCircle, Moped, Motorcycle, Odometer, OnlineHandshake, PaperPlane, Paperclip, PenEdit, PenFormUser, PenForm, Pen, Phone24, PhoneCall, Planimetry, Plate, PlusCircle, PlusSquare, Plus, PrimaLogo, Property, QuestionCircle, Reload, Riparaprima, SafeShield, Save, Search, SignedForm, Smartphone, SteeringWheel, Switch, Tablet, ThumbUp, TrashBin, TwitterFull, Twitter, UmbrellaFlash, Umbrella, UserCheck, UserClose, User, Van, VehicleCollisionKasko, VehicleDriverInjuries, VehicleFullKasko, VehicleGlasses, VehicleLegalProtection, VehicleNaturalEvents, VehicleRicourseWaiver, VehicleRoadsideAssistance, VehicleSecuredBonus, VehicleTheftFire, VehicleVandalism, Wallet, WhatsappFull, Whatsapp ]
 
 
 {-| The `access-key` icon
@@ -1270,31 +1270,31 @@ checkThin =
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path d=\"M6.358 20.077a.458.458 0 0 1-.052-.003.5.5 0 0 1-.352-.201L.296 12.16a.5.5 0 1 1 .807-.592l5.333 7.269L22.968 4.05a.5.5 0 1 1 .666.745L6.691 19.95a.499.499 0 0 1-.333.127z\"/></svg>"
 
 
-{-| The `chevron-cricle-down` icon
+{-| The `chevron-circle-down` icon
 -}
-chevronCricleDown : String
-chevronCricleDown =
+chevronCircleDown : String
+chevronCircleDown =
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path d=\"M12.046 16.256a.5.5 0 0 1-.358-.151l-5.357-5.512a.5.5 0 0 1 .717-.697l4.996 5.14L16.951 9.9a.5.5 0 1 1 .723.69l-5.266 5.512a.499.499 0 0 1-.359.155zM12 23.848A11.848 11.848 0 1 1 23.848 12 11.861 11.861 0 0 1 12 23.848zm0-22.695A10.848 10.848 0 1 0 22.848 12 10.86 10.86 0 0 0 12 1.152z\"/></svg>"
 
 
-{-| The `chevron-cricle-left` icon
+{-| The `chevron-circle-left` icon
 -}
-chevronCricleLeft : String
-chevronCricleLeft =
+chevronCircleLeft : String
+chevronCircleLeft =
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path d=\"M13.756 17.811a.497.497 0 0 1-.345-.139l-5.512-5.265a.5.5 0 0 1-.003-.72l5.512-5.357a.5.5 0 0 1 .697.717l-5.14 4.996 5.136 4.907a.5.5 0 0 1-.345.861zM12 23.848A11.848 11.848 0 1 1 23.848 12 11.861 11.861 0 0 1 12 23.848zm0-22.695A10.848 10.848 0 1 0 22.848 12 10.86 10.86 0 0 0 12 1.152z\"/></svg>"
 
 
-{-| The `chevron-cricle-right` icon
+{-| The `chevron-circle-right` icon
 -}
-chevronCricleRight : String
-chevronCricleRight =
+chevronCircleRight : String
+chevronCircleRight =
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path d=\"M10.244 17.811a.5.5 0 0 1-.349-.858l5.14-4.996L9.899 7.05a.5.5 0 1 1 .69-.723l5.512 5.265a.5.5 0 0 1 .003.72l-5.512 5.357a.498.498 0 0 1-.349.142zM12 23.848A11.848 11.848 0 1 1 23.848 12 11.861 11.861 0 0 1 12 23.848zm0-22.695A10.848 10.848 0 1 0 22.848 12 10.86 10.86 0 0 0 12 1.152z\"/></svg>"
 
 
-{-| The `chevron-cricle-up` icon
+{-| The `chevron-circle-up` icon
 -}
-chevronCricleUp : String
-chevronCricleUp =
+chevronCircleUp : String
+chevronCircleUp =
     "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path d=\"M17.263 14.256a.498.498 0 0 1-.358-.151l-4.996-5.14-4.907 5.136a.5.5 0 1 1-.723-.69l5.265-5.512a.409.409 0 0 1 .361-.155.5.5 0 0 1 .358.151l5.357 5.512a.5.5 0 0 1-.358.849zm-5.312 9.592A11.848 11.848 0 1 1 23.799 12a11.861 11.861 0 0 1-11.848 11.848zm0-22.695A10.848 10.848 0 1 0 22.799 12 10.86 10.86 0 0 0 11.951 1.152z\"/></svg>"
 
 

@@ -1,0 +1,120 @@
+@use "../foundations";
+@use "animations";
+@use "mixins";
+@use "sass:math";
+
+$_height: foundations.rem(70px);
+$_borderWidth: foundations.rem(2px);
+$_minWidth: foundations.rem(200px);
+
+// Set disable color
+@mixin _colorOnDisabled() {
+  .button-card:disabled &,
+  .button-card[disabled] & {
+    color: foundations.color(neutral50);
+  }
+
+  .button-card--alt:disabled,
+  .button-card--alt[disabled] & {
+    color: rgba(foundations.color(neutralLight), 0.75);
+  }
+}
+
+.button-card {
+  @include foundations.radius(s);
+  @include mixins.focus(actionBase, true, $radiusSize: m);
+  align-items: center;
+  background-color: foundations.color(neutralLight);
+  border: $_borderWidth solid foundations.color(neutral85);
+  cursor: pointer;
+  display: inline-flex;
+  height: $_height;
+  justify-content: flex-start;
+  min-width: $_minWidth;
+  transition-duration: foundations.duration(fast);
+  transition-property: border-color, outline, transform;
+  transition-timing-function: foundations.timing(base);
+  user-select: none;
+  will-change: border-color, outline, transform;
+
+  &:hover:not(:disabled, [disabled]) {
+    border-color: foundations.color(actionBase);
+  }
+
+  &:active:not(:disabled, [disabled]) {
+    transform: scale(0.97);
+  }
+
+  &:disabled,
+  &[disabled] {
+    background-color: foundations.color(neutral85);
+    color: foundations.color(neutral50);
+    cursor: not-allowed;
+  }
+}
+
+.button-card--alt {
+  @include mixins.focus(neutralLight, true, $radiusSize: m);
+  border-color: transparent;
+
+  &:hover:not(:disabled, [disabled]) {
+    border-color: foundations.color(neutralLight);
+  }
+
+  &:disabled,
+  &[disabled] {
+    background-color: rgba(foundations.color(neutralLight), 0.4);
+  }
+}
+
+.button-card--loading {
+  color: transparent;
+  pointer-events: none;
+  position: relative;
+}
+
+.button-card__icon {
+  @include _colorOnDisabled;
+  align-items: center;
+  color: foundations.color(actionBase);
+  display: flex;
+  grid-area: icon;
+  height: $_height - $_borderWidth * 2;
+  justify-content: center;
+  position: relative;
+  transition: opacity foundations.duration(fast) foundations.timing(base);
+  width: $_height - $_borderWidth;
+  will-change: opacity;
+
+  .button-card--loading & .icon {
+    opacity: 0;
+  }
+
+  .button-card--loading &:after {
+    @include mixins.loadingIcon;
+  }
+}
+
+.button-card__wrapper {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: foundations.spacing(l);
+}
+
+.button-card__title {
+  @include _colorOnDisabled;
+  @include foundations.text(l, bold, neutralBase);
+  transition: color foundations.duration(fast) foundations.timing(base);
+  will-change: color;
+
+  .button-card:hover:not(:disabled, [disabled]) & {
+    color: foundations.color(actionBase);
+  }
+}
+
+.button-card__subtitle {
+  @include _colorOnDisabled;
+  @include foundations.text(m, book, actionBase);
+}

@@ -1,10 +1,11 @@
 @use "../../foundations";
+@use "../animations";
 
 $_spinnerSize: foundations.rem(60px);
 $_spinnerSizeSmall: foundations.rem(20px);
 
 .loader__spinner {
-  animation: animateSpinner 1s infinite linear;
+  animation: spin 1s infinite linear;
   border: foundations.rem(6px) solid foundations.color(brandLight);
   border-radius: 50%;
   border-top-color: foundations.color(brandBase);
@@ -20,14 +21,5 @@ $_spinnerSizeSmall: foundations.rem(20px);
   .loader--alt & {
     border-color: rgba(foundations.color(neutralLight), 0.4);
     border-top-color: foundations.color(neutralLight);
-  }
-}
-
-@keyframes animateSpinner {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
   }
 }

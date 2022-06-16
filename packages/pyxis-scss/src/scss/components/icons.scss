@@ -1,4 +1,5 @@
 @use "../foundations";
+@use "animations";
 
 $_size: (
   s: 16px,
@@ -58,13 +59,4 @@ $_variants: (brand, alert, success, error);
 
 .icon--spinner {
   animation: spin 2s linear forwards;
-
-  @keyframes spin {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
 }

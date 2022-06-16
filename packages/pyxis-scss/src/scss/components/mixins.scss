@@ -1,4 +1,60 @@
 @use "../foundations";
+@use "animations";
+
+// Keep the alphabetical order
+
+// Add properties to create and animate a backdrop
+@mixin backdrop() {
+  @include foundations.fixed;
+  @include foundations.hideScrollbar;
+  background-color: rgba(foundations.color(neutralBase), 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition-duration: foundations.duration(fast);
+  transition-property: opacity, visibility;
+  transition-timing-function: foundations.timing(entrance);
+  visibility: hidden;
+  will-change: opacity, visibility;
+  z-index: foundations.zIndex(modal);
+
+  &--show {
+    opacity: 1;
+    pointer-events: all;
+    visibility: visible;
+  }
+}
+
+// Add a background image with a proper color.
+//
+// @param {String} $image - An svg with '%%COLOR%%' placeholder
+// @param {Color} $color - Color name
+@mixin backgroundImage($image, $color: neutralLight) {
+  $escapedColor: foundations.stringReplace("#{foundations.color($color)}", "#", "%23");
+  $svg: foundations.stringReplace($image, "%%COLOR%%", $escapedColor);
+
+  background-image: url("data:image/svg+xml,#{$svg}");
+}
+
+// Add properties to add and animate a bottomSheet
+//
+// @param {Value} $minHeight - Minimum bottomSheet height
+@mixin bottomSheet($minHeight) {
+  @include foundations.fixed($top: initial);
+  @include foundations.hideScrollbar;
+  @include foundations.radius(m, top);
+  background-color: foundations.color(neutralLight);
+  grid-auto-rows: min-content;
+  height: min-content;
+  max-height: calc(100% - #{foundations.spacing(2xl)});
+  max-height: calc(100dvh - #{foundations.spacing(2xl)});
+  min-height: $minHeight;
+  transform: translateY(100%);
+  transition-duration: foundations.duration(slow);
+  transition-property: opacity, transform;
+  transition-timing-function: foundations.timing(entrance);
+  width: 100%;
+  will-change: opacity, transform;
+}
 
 // Add CSS rules for focus status, used in buttons and links.
 //
@@ -8,7 +64,16 @@
 // @param {Value} $width - Width of focus
 // @param {Value} $opacity - Opacity oof outline
 // @param {String} $radiusSize - Radius of the item
-@mixin focus($colorName, $inset: false, $offset: foundations.rem(2px), $width: foundations.rem(3px), $opacity: 0.2, $radiusSize: null) {
+@mixin focus(
+  $colorName,
+  $inset: false,
+  $offset: foundations.rem(2px),
+  $width: foundations.rem(3px),
+  $opacity: 0.2,
+  $radiusSize: null
+) {
+  outline-color: rgba(foundations.color($colorName), $opacity);
+
   &:focus,
   &:focus-within {
     outline: rgba(foundations.color($colorName), $opacity) solid $width;
@@ -34,57 +99,28 @@
   }
 }
 
-// Add properties to create and animate a backdrop
-@mixin backdrop() {
-  @include foundations.fixed;
-  @include foundations.hideScrollbar;
-  background-color: rgba(foundations.color(neutralBase), 0.5);
-  opacity: 0;
-  pointer-events: none;
-  transition-duration: foundations.duration(fast);
-  transition-property: opacity, visibility;
-  transition-timing-function: foundations.timing(entrance);
-  visibility: hidden;
-  will-change: opacity, visibility;
-  z-index: foundations.zIndex(modal);
-
-  &--show {
-    opacity: 1;
-    pointer-events: all;
-    visibility: visible;
-  }
-}
-
-// Add properties to add and animate a bottomSheet
+// Add property to create a loading icon with pseudo element
 //
-// @param {Value} $minHeight - Minimum bottomSheet height
-@mixin bottomSheet($minHeight) {
-  @include foundations.fixed($top: initial);
-  @include foundations.hideScrollbar;
-  @include foundations.radius(m, top);
-  background-color: foundations.color(neutralLight);
-  grid-auto-rows: min-content;
-  height: min-content;
-  max-height: calc(100% - #{foundations.spacing(2xl)});
-  max-height: calc(100dvh - #{foundations.spacing(2xl)});
-  min-height: $minHeight;
-  transform: translateY(100%);
-  transition-duration: foundations.duration(slow);
-  transition-property: opacity, transform;
-  transition-timing-function: foundations.timing(entrance);
-  width: 100%;
-  will-change: opacity, transform;
-}
-
-
-// Add a background image with a proper color.
-//
-// @param {String} $image - An svg with '%%COLOR%%' placeholder
+// @param {String} $size - Size of loader icon
+// @param {String} $borderWidth - Size of border
 // @param {Color} $color - Color name
-@mixin backgroundImage($image, $color: neutralLight) {
-  $escapedColor: foundations.stringReplace("#{foundations.color($color)}", "#", "%23");
-  $svg: foundations.stringReplace($image, "%%COLOR%%", $escapedColor);
-
-  background-image: url("data:image/svg+xml,#{$svg}");
+// @param {Color} $accentColor - Accent color name
+@mixin loadingIcon(
+  $size: foundations.rem(26px),
+  $borderWidth: foundations.rem(3px),
+  $color: foundations.color(actionLight),
+  $accentColor: foundations.color(actionBase)
+) {
+  animation: loadingIcon foundations.duration(slowest) infinite linear,
+    show foundations.duration(fast) foundations.timing(base);
+  border: $borderWidth solid $color;
+  border-radius: 50%;
+  border-top-color: $accentColor;
+  content: "";
+  height: $size;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  width: $size;
 }
 
