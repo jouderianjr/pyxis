@@ -1,12 +1,12 @@
 import React, { AnchorHTMLAttributes, ButtonHTMLAttributes, FC } from 'react';
 import classNames from 'classnames';
-import { IconSize } from 'components/Icon';
+import { Size as IconSize } from 'components/Icon';
 import {
   ButtonContentProps,
-  ButtonFC, ButtonIconPlacement, ButtonSize, isAnchor,
+  ButtonFC, IconPlacement, Size, isAnchor,
 } from './types';
 
-const getIconSize = (buttonSize: ButtonSize): IconSize => {
+const getIconSize = (buttonSize: Size): IconSize => {
   switch (buttonSize) {
     case 'huge':
       return 'l';
@@ -24,10 +24,10 @@ const ButtonContent:FC<ButtonContentProps> = ({
 }) => (
   Icon ? (
     <>
-      { iconPlacement === 'prepend' && <Icon size={getIconSize(size as ButtonSize)} /> }
-      { iconPlacement === 'only' && <Icon description={children} size={getIconSize(size as ButtonSize)} /> }
+      { iconPlacement === 'prepend' && <Icon size={getIconSize(size as Size)} /> }
+      { iconPlacement === 'only' && <Icon description={children} size={getIconSize(size as Size)} /> }
       { iconPlacement !== 'only' && children}
-      { iconPlacement === 'append' && <Icon size={getIconSize(size as ButtonSize)} /> }
+      { iconPlacement === 'append' && <Icon size={getIconSize(size as Size)} /> }
     </>
   )
     : <>{children}</>
@@ -37,11 +37,11 @@ const Button:ButtonFC = (props) => {
   const {
     alt,
     children,
-    className = '',
+    className,
     contentWidth,
     icon,
     iconPlacement = 'prepend',
-    id = '',
+    id,
     loading,
     shadow,
     size = 'medium',
@@ -70,8 +70,8 @@ const Button:ButtonFC = (props) => {
   const Content = () => (
     <ButtonContent
       icon={icon}
-      iconPlacement={iconPlacement as ButtonIconPlacement}
-      size={size as ButtonSize}
+      iconPlacement={iconPlacement as IconPlacement}
+      size={size as Size}
     >
       {children}
     </ButtonContent>

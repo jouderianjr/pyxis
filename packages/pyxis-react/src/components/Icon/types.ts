@@ -1,15 +1,15 @@
-type IconSize = 's' | 'm' | 'l';
-type IconBoxedVariant = 'neutral' | 'brand' | 'success' | 'alert' | 'error';
+type Size = 's' | 'm' | 'l';
+type BoxedVariant = 'neutral' | 'brand' | 'success' | 'alert' | 'error';
 
 export interface IconProps {
   alt?: boolean;
-  boxedVariant?: IconBoxedVariant;
+  boxedVariant?: BoxedVariant;
   className?: string;
   description?: string;
   id?: string;
-  size?: IconSize;
+  size?: Size;
 }
 
 export default {};
 
-export type { IconSize };
+export type { Size };

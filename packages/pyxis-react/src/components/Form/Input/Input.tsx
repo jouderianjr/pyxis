@@ -1,13 +1,13 @@
 import React, { FC, InputHTMLAttributes } from 'react';
 import classNames from 'classnames';
-import Addon, { AddonStringType, AddonType, getAddonStringType } from './Addon';
+import Addon, { StringType, Type as AddonType, getAddonStringType } from './Addon';
 
 const getClasses = (
   disabled: boolean,
   error: boolean,
-  className: string,
+  className?: string,
   addonPlacement?: AddonPlacement,
-  addonType?: AddonStringType,
+  addonType?: StringType,
 ): string => classNames(
   'form-field',
   {
@@ -20,14 +20,14 @@ const getClasses = (
 
 const getAriaDescribedBy = (addonId?: string, hintId?: string) => [addonId, hintId].join(' ');
 
-const getInputClasses = (size: InputSize):string => classNames(
+const getInputClasses = (size: Size):string => classNames(
   'form-field__text',
   { 'form-field__text--small': size === 'small' },
 );
 const Input: FC<InputProps> = ({
   addon,
   addonPlacement = 'prepend',
-  className = '',
+  className,
   disabled = false,
   errorId,
   hasError = false,
@@ -63,9 +63,9 @@ const Input: FC<InputProps> = ({
 
 export default Input;
 
-type InputSize = 'medium' | 'small';
+type Size = 'medium' | 'small';
 type AddonPlacement = 'append' | 'prepend';
-type InputType = 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url';
+type Type = 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url';
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'>{
   addon?: AddonType;
@@ -73,6 +73,6 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   errorId?: string;
   hasError?: boolean;
   hintId?: string;
-  size?: InputSize;
-  type?: InputType;
+  size?: Size;
+  type?: Type;
 }

@@ -1,10 +1,10 @@
-import {ButtonIconPlacement, ButtonSize, ButtonVariant} from "components/Button/types";
+import {IconPlacement, Size, Variant} from "components/Button/types";
 
-export const buttonVariant:ButtonVariant[] = ['primary', 'secondary', 'tertiary', 'brand', 'ghost'];
-export const buttonSizes:ButtonSize[] = ['huge', 'large', 'medium', 'small'];
-export const buttonIconPlacements:ButtonIconPlacement[] = ['prepend', 'append', 'only'];
+export const buttonVariant:Variant[] = ['primary', 'secondary', 'tertiary', 'brand', 'ghost'];
+export const buttonSizes:Size[] = ['huge', 'large', 'medium', 'small'];
+export const buttonIconPlacements:IconPlacement[] = ['prepend', 'append', 'only'];
 
-export const variantUsage = (variant: ButtonVariant):string => {
+export const variantUsage = (variant: Variant):string => {
   switch (variant) {
     case 'primary':
       return 'Default value.';
@@ -13,7 +13,7 @@ export const variantUsage = (variant: ButtonVariant):string => {
   }
 }
 
-export const sizeUsage = (size: ButtonSize):string => {
+export const sizeUsage = (size: Size):string => {
   switch (size) {
     case 'huge':
       return 'Is only allowed with `primary` variant.';
@@ -24,7 +24,7 @@ export const sizeUsage = (size: ButtonSize):string => {
   }
 }
 
-export const iconPlacementUsage = (placement: ButtonIconPlacement):string => {
+export const iconPlacementUsage = (placement: IconPlacement):string => {
   switch (placement) {
     case 'only':
       return 'Is not allowed with `small` size.';

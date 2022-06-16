@@ -3,7 +3,7 @@ import Label, { LabelProps } from './Label';
 import Item, { ItemProps } from './Item';
 import Input, { InputProps } from './Input';
 
-const Form: FC<FormProps> & FormChildren = ({ className = '', children }) => (
+const Form: FC<FormProps> & FormChildren = ({ className, children }) => (
   <form className={className}>
     {children}
   </form>

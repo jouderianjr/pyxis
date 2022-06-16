@@ -3,20 +3,20 @@ import {
 } from 'react';
 import { IconProps } from 'components/Icon';
 
-type ButtonSize
+type Size
   = 'huge'
   | 'large'
   | 'medium'
   | 'small'
 
-type ButtonVariant
+type Variant
   = 'primary'
   | 'secondary'
   | 'tertiary'
   | 'brand'
   | 'ghost'
 
-type ButtonIconPlacement
+type IconPlacement
   = 'prepend'
   | 'append'
   | 'only'
@@ -54,7 +54,7 @@ type IconPlacementCheck<I, S> =
     ? 'iconPlacement `only` cannot be used with small size'
     : I
 
-interface BaseProps<S extends ButtonSize, V extends ButtonVariant, I extends ButtonIconPlacement> {
+interface BaseProps<S extends Size, V extends Variant, I extends IconPlacement> {
   alt?: boolean;
   children: string;
   contentWidth?: ContentWidthCheck<V, I>
@@ -66,26 +66,26 @@ interface BaseProps<S extends ButtonSize, V extends ButtonVariant, I extends But
   variant?: V;
 }
 
-type CommonButtonProps<S extends ButtonSize, V extends ButtonVariant, I extends ButtonIconPlacement> =
+type CommonButtonProps<S extends Size, V extends Variant, I extends IconPlacement> =
   BaseProps<S, V, I> & ButtonHTMLAttributes<HTMLButtonElement>
 
-type CommonAnchorProps<S extends ButtonSize, V extends ButtonVariant, I extends ButtonIconPlacement> =
+type CommonAnchorProps<S extends Size, V extends Variant, I extends IconPlacement> =
   BaseProps<S, V, I> & AnchorHTMLAttributes<HTMLAnchorElement>
 
-type ButtonProps<S extends ButtonSize, V extends ButtonVariant, I extends ButtonIconPlacement> =
+type ButtonProps<S extends Size, V extends Variant, I extends IconPlacement> =
   CommonButtonProps<S, V, I> | CommonAnchorProps<S, V, I>;
 
-type ButtonFC = <S extends ButtonSize, V extends ButtonVariant, I extends ButtonIconPlacement>(props: ButtonProps<S, V, I>) =>
+type ButtonFC = <S extends Size, V extends Variant, I extends IconPlacement>(props: ButtonProps<S, V, I>) =>
   ReactElement<ButtonProps<S, V, I>>;
 
 interface ButtonContentProps {
   icon?: FC<IconProps>,
   children: string,
-  iconPlacement: ButtonIconPlacement,
-  size: ButtonSize,
+  iconPlacement: IconPlacement,
+  size: Size,
 }
 
-const isAnchor = <S extends ButtonSize, V extends ButtonVariant, I extends ButtonIconPlacement>(
+const isAnchor = <S extends Size, V extends Variant, I extends IconPlacement>(
   props:CommonButtonProps<S, V, I> | CommonAnchorProps<S, V, I>,
 ): props is CommonAnchorProps<S, V, I> => (props as CommonAnchorProps<S, V, I>).href !== undefined;
 
@@ -93,9 +93,9 @@ export { isAnchor };
 
 export type {
   ButtonFC,
-  ButtonIconPlacement,
+  IconPlacement,
   ButtonProps,
-  ButtonSize,
-  ButtonVariant,
+  Size,
+  Variant,
   ButtonContentProps,
 };

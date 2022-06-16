@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { IconProps } from 'components/Icon';
 
-export const getAddonStringType = (addon:AddonType):AddonStringType => {
+export const getAddonStringType = (addon:Type):StringType => {
   if (addon && typeof addon === 'string') return 'text';
   return 'icon';
 };
@@ -18,10 +18,10 @@ const Addon: FC<AddonProps> = ({ addon, id }) => (
 
 export default Addon;
 
-export type AddonType = FC<IconProps> | string;
-export type AddonStringType = 'icon' | 'text';
+export type Type = FC<IconProps> | string;
+export type StringType = 'icon' | 'text';
 
 interface AddonProps {
-  addon: AddonType;
+  addon: Type;
   id: string;
 }
