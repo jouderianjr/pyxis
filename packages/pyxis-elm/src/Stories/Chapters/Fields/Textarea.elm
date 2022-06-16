@@ -73,6 +73,13 @@ Textarea.config name
     |> Textarea.render OnTextareaMsg formData textareaModel
 ```
 
+<component with-label="Textarea withAdditionalContent" />
+```
+Textarea.config name
+    |> Textarea.withAdditionalContent (Html.text "Additional Content")
+    |> Textarea.render OnTextareaMsg formData textareaModel
+```
+
 ---
 ## Accessibility
 Whenever possible, please use the label element to associate text with form elements explicitly, with the
@@ -127,6 +134,9 @@ componentsList =
       )
     , ( "Textarea withPlaceholder"
       , statelessComponent "Placeholder" (Textarea.withPlaceholder "Custom placeholder")
+      )
+    , ( "Textarea withAdditionalContent"
+      , statelessComponent "AdditionalContent" (Textarea.withAdditionalContent (Html.text "Additional Content"))
       )
     ]
 

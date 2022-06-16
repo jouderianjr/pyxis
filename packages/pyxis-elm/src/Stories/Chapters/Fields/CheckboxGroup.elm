@@ -112,6 +112,17 @@ CheckboxGroup.single
         formData
         checkboxGroupModel
 ```
+
+# With Additional Content
+
+<component with-label="CheckboxGroup with additional content" />
+```
+CheckboxGroup.config "checkbox-name"
+    |> CheckboxGroup.withAdditionalContent (Html.text "Additional Content")
+    |> CheckboxGroup.render
+        OnCheckboxGroupMsg
+        formData
+        checkboxGroupModel
 """
 
 
@@ -131,6 +142,7 @@ type alias Model =
     , noValidation : CheckboxGroup.Model () Language (List Language) (CheckboxGroup.Msg Language)
     , disabled : CheckboxGroup.Model () Language (List Language) (CheckboxGroup.Msg Language)
     , single : CheckboxGroup.Model () () Bool (CheckboxGroup.Msg ())
+    , additionalContent : CheckboxGroup.Model () Language (List Language) (CheckboxGroup.Msg Language)
     }
 
 
@@ -140,6 +152,7 @@ init =
     , noValidation = CheckboxGroup.init [] (always Ok)
     , disabled = CheckboxGroup.init [] (always Ok)
     , single = CheckboxGroup.init [] singleOptionValidation
+    , additionalContent = CheckboxGroup.init [] (always Ok)
     }
 
 
@@ -245,12 +258,18 @@ componentsList =
     , ( "CheckboxGroup with a single option"
       , \sharedState ->
             CheckboxGroup.single
-                (Html.a
-                    [ Html.Attributes.href "https://www.prima.it/app/privacy-policy"
-                    , Html.Attributes.target "blank"
-                    , Html.Attributes.class "link"
+                (Html.div []
+                    [ Html.text
+                        "Dichiaro di aver letto l’"
+                    , Html.a
+                        [ Html.Attributes.href "https://www.prima.it/app/privacy-policy"
+                        , Html.Attributes.target "blank"
+                        , Html.Attributes.class "link"
+                        ]
+                        [ Html.text "Informativa Privacy" ]
+                    , Html.text
+                        ", disposta ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679. "
                     ]
-                    [ Html.text "Privacy policy" ]
                 )
                 "checkbox-name"
                 |> CheckboxGroup.render identity () sharedState.checkbox.single
@@ -263,5 +282,17 @@ componentsList =
                                 { models | single = Tuple.first (CheckboxGroup.update msg models.single) }
                         }
                     )
+      )
+    , ( "CheckboxGroup with additional content"
+      , statefulComponent
+            { name = "checkbox-group-with-additional-content"
+            , configModifier = CheckboxGroup.withAdditionalContent (Html.text "Additional Content")
+            , modelPicker = .additionalContent
+            , update =
+                \msg models ->
+                    ( { models | additionalContent = Tuple.first (CheckboxGroup.update msg models.additionalContent) }
+                    , Tuple.second (CheckboxGroup.update msg models.additionalContent)
+                    )
+            }
       )
     ]

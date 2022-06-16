@@ -99,6 +99,15 @@ Select.config False
     |> Select.withSize Select.small
     |> Select.render OnSelectMsg formData selectModel
 ```
+
+### With Additional Content
+
+<component with-label="Select with additional content" />
+```
+Select.config False
+    |> Select.withAdditionalContent (Html.text "Additional Content")
+    |> Select.render OnSelectMsg formData selectModel
+```
 """
 
 
@@ -192,6 +201,10 @@ componentsList =
     , ( "Select with size=Small"
       , statelessComponent
             { isMobile = False, configModifier = Select.withSize Select.small }
+      )
+    , ( "Select with additional content"
+      , statelessComponent
+            { isMobile = False, configModifier = Select.withAdditionalContent (Html.text "Additional Content") }
       )
     ]
 

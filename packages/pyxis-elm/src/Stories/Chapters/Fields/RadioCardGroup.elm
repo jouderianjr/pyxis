@@ -150,6 +150,16 @@ RadioCardGroup.config name
         formData
         (radioCardModel )
 ```
+## Additional Content
+<component with-label="RadioCardGroup with additional content" />
+```
+RadioCardGroup.config name
+    |> RadioCardGroup.withAdditionalContent (Html.text "Additional content")
+    |> RadioCardGroup.render
+        OnRadioCardFieldMsg
+        formData
+        (radioCardModel )
+```
 """
 
 
@@ -169,6 +179,7 @@ type alias Model =
     , large : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
     , icon : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
     , text : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
+    , additionalContent : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
     }
 
 
@@ -185,6 +196,8 @@ init =
     , icon =
         RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
     , text =
+        RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+    , additionalContent =
         RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
     }
 
@@ -364,6 +377,20 @@ componentsList =
                             RadioCardGroup.update msg models.text
                     in
                     ( { models | text = updatedModel }, cmd )
+            }
+      )
+    , ( "RadioCardGroup with additional content"
+      , statefulComponent
+            { name = "radio-group-additional-content"
+            , configModifier = RadioCardGroup.withAdditionalContent (Html.text "Additional content")
+            , modelPicker = .additionalContent
+            , update =
+                \msg models ->
+                    let
+                        ( updatedModel, cmd ) =
+                            RadioCardGroup.update msg models.additionalContent
+                    in
+                    ( { models | additionalContent = updatedModel }, cmd )
             }
       )
     ]

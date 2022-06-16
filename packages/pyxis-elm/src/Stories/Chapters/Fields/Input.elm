@@ -161,6 +161,14 @@ Input.text "text-name"
     |> Input.render OnInputFieldMsg formData textFieldModel
 ```
 
+
+<component with-label="Input withAdditionalContent" />
+```
+Input.text "text-name"
+    |> Input.withAdditionalContent (Html.text "Additional Content")
+    |> Input.render OnInputFieldMsg formData textFieldModel
+```
+
 <component with-label="Input date withStep, withMin and withMax" />
 ```
 Input.date "date-id"
@@ -188,6 +196,7 @@ type alias Model =
     , password : Input.Model () String Input.Msg
     , text : Input.Model () String Input.Msg
     , withValidation : Input.Model () String Input.Msg
+    , additionalContent : Input.Model () String Input.Msg
     }
 
 
@@ -199,6 +208,7 @@ init =
     , number = Input.init "" (always (String.toFloat >> Result.fromMaybe "Invalid number"))
     , password = Input.init "" (always Ok)
     , text = Input.init "" (always Ok)
+    , additionalContent = Input.init "" (always Ok)
     , withValidation = Input.init "" validation
     }
 
@@ -300,6 +310,13 @@ componentsList =
       , \sharedState ->
             Input.text "placeholder"
                 |> Input.withPlaceholder "Custom placeholder"
+                |> Input.render identity () sharedState.input.base
+                |> statelessComponent
+      )
+    , ( "Input withAdditionalContent"
+      , \sharedState ->
+            Input.text "additional-content"
+                |> Input.withAdditionalContent (Html.text "Additional Content")
                 |> Input.render identity () sharedState.input.base
                 |> statelessComponent
       )

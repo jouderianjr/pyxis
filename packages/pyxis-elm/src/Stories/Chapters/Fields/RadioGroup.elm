@@ -79,6 +79,17 @@ RadioGroup.config name
         formData
         (radioGroupModel |> RadioGroup.setValue Home)
 ```
+
+# Additional Content
+<component with-label="RadioGroup with additional content" />
+```
+RadioGroup.config name
+    |> RadioGroup.withAdditionalContent (Html.text "Additional Content")
+    |> RadioGroup.render
+        OnRadioFieldMsg
+        formData
+        (radioGroupModel |> RadioGroup.setValue Home)
+```
 """
 
 
@@ -95,6 +106,7 @@ type alias Model =
     { base : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
     , vertical : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
     , disabled : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
+    , additionalContent : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
     }
 
 
@@ -105,6 +117,8 @@ init =
     , vertical =
         RadioGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
     , disabled =
+        RadioGroup.init (Just Home) (always (Result.fromMaybe "Invalid selection"))
+    , additionalContent =
         RadioGroup.init (Just Home) (always (Result.fromMaybe "Invalid selection"))
     }
 
@@ -136,7 +150,7 @@ componentsList =
                         ( updatedModel, cmd ) =
                             RadioGroup.update msg model.vertical
                     in
-                    ( { model | base = updatedModel }, cmd )
+                    ( { model | vertical = updatedModel }, cmd )
             }
       )
     , ( "RadioGroup disabled"
@@ -145,6 +159,20 @@ componentsList =
             , configModifier = RadioGroup.withDisabled True
             , modelPicker = .disabled
             , update = \_ model -> ( model, Cmd.none )
+            }
+      )
+    , ( "RadioGroup with additional content"
+      , statefulComponent
+            { name = "radio-group-additional-content"
+            , configModifier = RadioGroup.withAdditionalContent (Html.text "Additional content")
+            , modelPicker = .additionalContent
+            , update =
+                \msg model ->
+                    let
+                        ( updatedModel, cmd ) =
+                            RadioGroup.update msg model.additionalContent
+                    in
+                    ( { model | additionalContent = updatedModel }, cmd )
             }
       )
     ]

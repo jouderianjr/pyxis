@@ -139,6 +139,13 @@ CheckboxGroup.config "checkboxgroup-name"
     |> CheckboxCardGroup.withOptions optionsWithTextAddon
     |> CheckboxCardGroup.render OnCheckboxFieldMsg formData checkboxCardModel
 ```
+## With Additional Content
+<component with-label="CheckboxCardGroup with additional content" />
+```
+CheckboxGroup.config "checkboxgroup-name"
+    |> CheckboxCardGroup.withAdditionalContent (Html.text "Additional Content")
+    |> CheckboxCardGroup.render OnCheckboxFieldMsg formData checkboxCardModel
+```
 """
 
 
@@ -162,6 +169,7 @@ type alias Model =
     , large : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
     , icon : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
     , text : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
+    , additionalContent : CheckboxCardGroup.Model () Product (List Product) (CheckboxCardGroup.Msg Product)
     }
 
 
@@ -178,6 +186,8 @@ init =
     , icon =
         CheckboxCardGroup.init [] (always Ok)
     , text =
+        CheckboxCardGroup.init [] (always Ok)
+    , additionalContent =
         CheckboxCardGroup.init [] (always Ok)
     }
 
@@ -342,6 +352,18 @@ componentsList =
                 \msg models ->
                     ( { models | text = Tuple.first (CheckboxCardGroup.update msg models.text) }
                     , Tuple.second (CheckboxCardGroup.update msg models.text)
+                    )
+            }
+      )
+    , ( "CheckboxCardGroup with additional content"
+      , statefulComponent
+            { name = "with-additional-content"
+            , configModifier = CheckboxCardGroup.withAdditionalContent (Html.text "Additional Content")
+            , modelPicker = .additionalContent
+            , update =
+                \msg models ->
+                    ( { models | additionalContent = Tuple.first (CheckboxCardGroup.update msg models.additionalContent) }
+                    , Tuple.second (CheckboxCardGroup.update msg models.additionalContent)
                     )
             }
       )
