@@ -4,11 +4,12 @@
 
 .form-control {
   @include foundations.text(m, book, neutral25);
-  align-items: center;
+  align-items: start;
   column-gap: foundations.spacing(xs);
   cursor: pointer;
   display: grid;
   grid-template-columns: variables.$controlSize auto;
+  justify-items: start;
   position: relative;
   user-select: none;
 }
@@ -31,4 +32,8 @@
 .form-control-group--column {
   grid-auto-flow: row;
   row-gap: foundations.spacing(xs);
+}
+
+.form-control__text {
+  display: inline-block;
 }

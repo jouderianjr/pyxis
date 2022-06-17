@@ -19,7 +19,7 @@ const Checkbox: FC<CheckboxProps> = ({checked = false, disabled = false, error =
       disabled={disabled}
       defaultChecked={checked}
       ref={(input) => input ? input.indeterminate = indeterminate : null }/>
-    Option
+    <span className="form-control__text">Option</span>
   </label>
 
 const setGroupClasses = (layout: LayoutOptions):string => classNames(

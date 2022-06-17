@@ -377,7 +377,9 @@ renderRadio validationResult (Model { selectedValue }) (Config { id, name, isDis
             , Html.Events.onBlur OnBlur
             ]
             []
-        , Html.text label
+        , Html.span
+            [ Html.Attributes.class "form-control__text" ]
+            [ Html.text label ]
         ]
 
 

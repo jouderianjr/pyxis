@@ -87,9 +87,12 @@
 
 // Add CSS rules for default control field.
 @mixin controlDefault {
+  $opticalOffset: foundations.rem(1px);
+
   border: variables.$borderWidth solid foundations.color(neutral85);
   cursor: pointer;
   height: variables.$controlSize;
+  margin-top: $opticalOffset;
   outline-offset: 0;
   transition-duration: foundations.duration(fast);
   transition-property: background-color, border-color, box-shadow, outline-color;

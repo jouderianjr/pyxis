@@ -28,7 +28,7 @@ const Radio: FC<RadioProps> = (
       checked={checked}
       onChange={onChange}
     />
-    Option
+    <span className="form-control__text">Option</span>
   </label>
 
 const getGroupClasses = (layout: LayoutOptions):string => classNames(

@@ -24,6 +24,11 @@
       @include mixins.shadow(rgba(foundations.color(actionDark), 0.2));
     }
   }
+
+  .form-control__checkbox,
+  .form-control__radio {
+    margin-top: 0;
+  }
 }
 
 .form-card--checked:not(:focus-within, :active, .form-card--error, .form-card--disabled) {

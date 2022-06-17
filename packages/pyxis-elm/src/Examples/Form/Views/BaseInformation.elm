@@ -110,7 +110,7 @@ view ((Data config) as data) =
 
 viewPrivacy : Html msg
 viewPrivacy =
-    Html.div
+    Html.span
         []
         [ Html.text
             "I agree with the "
@@ -121,4 +121,5 @@ viewPrivacy =
             ]
             [ Html.text "Privacy policy"
             ]
+        , Html.text " lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum volutpat et neque vel aliquam. Ut nec felis lectus."
         ]

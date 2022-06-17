@@ -454,8 +454,7 @@ getValue (Model modelData) =
 renderCheckbox : (Msg value -> msg) -> { hasError : Bool, checkedValues : List value } -> { r | name : String } -> Option value msg -> Html msg
 renderCheckbox tagger { hasError, checkedValues } configData (Option optionData) =
     Html.label
-        [ Html.Attributes.class "form-control"
-        , Html.Attributes.classList
+        [ Html.Attributes.classList
             [ ( "form-control", True )
             , ( "form-control--error", hasError )
             ]
@@ -474,7 +473,9 @@ renderCheckbox tagger { hasError, checkedValues } configData (Option optionData)
             , Html.Events.onBlur (tagger OnBlur)
             ]
             []
-        , optionData.label
+        , Html.span
+            [ Html.Attributes.class "form-control__text" ]
+            [ optionData.label ]
         ]
 
 
