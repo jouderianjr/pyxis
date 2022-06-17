@@ -122,6 +122,7 @@ type alias Model =
     , mobile : Select.Model () Job Select.Msg
     , disabled : Select.Model () Job Select.Msg
     , small : Select.Model () Job Select.Msg
+    , additionalContent : Select.Model () Job Select.Msg
     }
 
 
@@ -165,6 +166,7 @@ init =
     , mobile = Select.init "mobile" Nothing requiredValidation |> Select.setOptions options
     , disabled = Select.init "disabled" Nothing requiredValidation |> Select.setOptions options
     , small = Select.init "small" Nothing requiredValidation |> Select.setOptions options
+    , additionalContent = Select.init "additional-content" Nothing requiredValidation |> Select.setOptions options
     }
 
 
@@ -211,8 +213,10 @@ componentsList =
             updateSmall
       )
     , ( "Select with additional content"
-      , statelessComponent
+      , statefulComponent
             { isMobile = False, configModifier = Select.withAdditionalContent (Html.text "Additional Content") }
+            .small
+            updateAdditionalContent
       )
     ]
 
@@ -272,5 +276,16 @@ updateSmall msg model =
             Select.update identity msg model.small
     in
     ( { model | small = newModel }
+    , newCmd
+    )
+
+
+updateAdditionalContent : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
+updateAdditionalContent msg model =
+    let
+        ( newModel, newCmd ) =
+            Select.update identity msg model.additionalContent
+    in
+    ( { model | additionalContent = newModel }
     , newCmd
     )
