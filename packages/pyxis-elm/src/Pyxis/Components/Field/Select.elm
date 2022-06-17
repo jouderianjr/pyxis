@@ -4,7 +4,6 @@ module Pyxis.Components.Field.Select exposing
     , getValue
     , setDropdownClosed
     , setId
-    , setOnBlur
     , setOnFocus
     , setOnReset
     , setOnInput
@@ -43,7 +42,6 @@ module Pyxis.Components.Field.Select exposing
 @docs getValue
 @docs setDropdownClosed
 @docs setId
-@docs setOnBlur
 @docs setOnFocus
 @docs setOnReset
 @docs setOnInput
@@ -102,6 +100,8 @@ import Browser.Dom as Dom
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import List.Extra
+import Maybe.Extra
 import PrimaFunction
 import PrimaUpdate
 import Pyxis.Commons.Attributes as CommonsAttributes
@@ -126,7 +126,6 @@ import Task
 -}
 type Msg
     = NoOp
-    | OnBlur
     | OnClick Target
     | OnFocus
     | OnKeyDown Target KeyDown.Event
@@ -134,8 +133,7 @@ type Msg
 
 
 type Target
-    = Label
-    | Select
+    = Select
     | DropdownOption Option
 
 
@@ -338,8 +336,8 @@ withStrategy strategy (Config configuration) =
 
 {-| Internal.
 -}
-renderOptions : Model ctx value msg -> List (Html Msg)
-renderOptions (Model { selectedValue, activeOption, options }) =
+renderOptions : Model ctx value msg -> Config -> List (Html Msg)
+renderOptions (Model { selectedValue, activeOption, options }) (Config { isDisabled }) =
     let
         isActive : String -> Bool
         isActive value =
@@ -354,13 +352,16 @@ renderOptions (Model { selectedValue, activeOption, options }) =
                     [ Html.Attributes.classList
                         [ ( "form-dropdown__item", True )
                         , ( "form-dropdown__item--hover", isActive value )
+                        , ( "form-dropdown__item--active", selectedValue == Just value )
                         ]
                     , Html.Attributes.id id
                     , CommonsAttributes.role "option"
                     , CommonsAttributes.ariaSelected (CommonsString.fromBool (Just value == selectedValue))
                     , CommonsEvents.alwaysStopPropagationOn "click" (OnClick (DropdownOption option_))
                     , Html.Attributes.tabindex 0
-                    , KeyDown.onKeyDownPreventDefaultOn (handleKeydown (DropdownOption option_))
+                    , CommonsAttributes.renderIf
+                        (not isDisabled)
+                        (KeyDown.onKeyDownPreventDefaultOn (handleKeydown (DropdownOption option_)))
                     ]
                     [ Html.text label ]
             )
@@ -423,7 +424,6 @@ render tagger ctx ((Model modelData) as model) ((Config configData) as configura
         ]
         [ Html.label
             [ Html.Attributes.class "form-field__wrapper"
-            , Html.Events.onClick (OnClick Label)
             ]
             [ Html.select
                 [ Html.Attributes.classList
@@ -436,23 +436,28 @@ render tagger ctx ((Model modelData) as model) ((Config configData) as configura
                 , Html.Attributes.id modelData.id
                 , CommonsAttributes.testId modelData.id
                 , Html.Attributes.disabled configData.isDisabled
-                , Html.Events.onInput OnSelect
-                , Html.Events.onFocus OnFocus
-                , Html.Events.onBlur OnBlur
-                , CommonsAttributes.renderIf (not configData.isMobile) (KeyDown.onKeyDownPreventDefaultOn (handleKeydown Select))
+                , CommonsAttributes.renderIf (not configData.isDisabled) (Html.Events.onInput OnSelect)
+                , CommonsAttributes.renderIf (not configData.isDisabled) (Html.Events.onFocus OnFocus)
+                , CommonsAttributes.renderIf (not configData.isDisabled) (CommonsEvents.alwaysStopPropagationOn "click" (OnClick Select))
+                , CommonsAttributes.renderIf
+                    (not configData.isMobile && not configData.isDisabled)
+                    (KeyDown.onKeyDownPreventDefaultOn (handleKeydown Select))
                 ]
                 (renderNativeOptions configuration model)
             , renderAddon
             ]
         , Html.div
-            [ Html.Attributes.class "form-dropdown-wrapper"
+            [ Html.Attributes.classList
+                [ ( "form-dropdown-wrapper", True )
+                , ( "form-dropdown-wrapper--small", configData.size == Small )
+                ]
             ]
             [ Html.div
                 [ Html.Attributes.class "form-dropdown"
                 , Html.Attributes.id "form-dropdown"
                 , CommonsAttributes.role "listbox"
                 ]
-                (renderOptions model)
+                (renderOptions model configuration)
             ]
         ]
         |> FormItem.config
@@ -460,14 +465,16 @@ render tagger ctx ((Model modelData) as model) ((Config configData) as configura
             , hint = Maybe.map (Hint.withFieldId modelData.id) configData.hint
             }
         |> FormItem.withAdditionalContent configData.additionalContent
-        |> FormItem.withLabel (getLabelConfig configuration)
+        |> FormItem.withLabel (getLabelConfig configuration model)
         |> FormItem.render validationResult
         |> Html.map tagger
 
 
-getLabelConfig : Config -> Maybe Label.Config
-getLabelConfig (Config configData) =
-    Maybe.map (configData.size |> mapLabelSize |> Label.withSize) configData.label
+getLabelConfig : Config -> Model ctx value msg -> Maybe Label.Config
+getLabelConfig (Config configData) (Model { id }) =
+    configData.label
+        |> Maybe.map (configData.size |> mapLabelSize |> Label.withSize)
+        |> Maybe.map (Label.withFor id)
 
 
 mapLabelSize : Size -> Label.Size
@@ -489,43 +496,40 @@ update tagger msg ((Model modelData) as model) =
             model
                 |> updateSelectedValue value
                 |> updateIsOpen False
+                |> resetActiveOption
                 |> mapFieldStatus FieldStatus.onInput
                 |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
-
-        OnClick Label ->
-            model
-                |> updateIsOpen True
-                |> mapFieldStatus FieldStatus.onFocus
-                |> PrimaUpdate.withoutCmds
 
         OnClick (DropdownOption (Option { value })) ->
             model
                 |> updateSelectedValue value
                 |> updateIsOpen False
+                |> resetActiveOption
                 |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
-        OnClick _ ->
+        OnClick Select ->
             model
-                |> PrimaUpdate.withoutCmds
+                |> updateIsOpen (not modelData.isOpen)
+                |> resetActiveOption
+                |> mapFieldStatus FieldStatus.onFocus
+                |> PrimaUpdate.withCmdsMap
+                    [ \((Model { isOpen }) as model_) ->
+                        if isOpen then
+                            focusOnActiveOption tagger model_
+
+                        else
+                            Cmd.none
+                    ]
 
         OnKeyDown Select event ->
             model
                 |> updateIsOpen (KeyDown.isArrowDown event || KeyDown.isSpace event || modelData.isOpen)
-                |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
+                |> updateOnSelectKeyEvent tagger event
 
-        OnKeyDown (DropdownOption option_) event ->
+        OnKeyDown (DropdownOption _) event ->
             model
-                |> updateOnOptionKeyEvent option_ event
-                |> focusOnActiveOption tagger
-
-        OnKeyDown _ _ ->
-            model
-                |> PrimaUpdate.withoutCmds
-
-        OnBlur ->
-            model
-                |> mapFieldStatus FieldStatus.onBlur
-                |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onBlur ]
+                |> updateOnOptionKeyEvent event
+                |> PrimaUpdate.withCmdsMap [ focusOnActiveOption tagger ]
 
         OnFocus ->
             model
@@ -537,24 +541,51 @@ update tagger msg ((Model modelData) as model) =
                 |> PrimaUpdate.withoutCmds
 
 
-focusOnActiveOption : (Msg -> msg) -> Model ctx value msg -> PrimaUpdate.PrimaUpdate (Model ctx value msg) msg
+focusOnActiveOption : (Msg -> msg) -> Model ctx value msg -> Cmd msg
 focusOnActiveOption tagger ((Model modelData) as model) =
     model
-        |> PrimaUpdate.withCmds
-            [ modelData.activeOption
-                |> Maybe.map (pickOptionData >> .id >> Dom.focus >> Task.attempt (always NoOp))
-                |> Maybe.withDefault (Dom.focus modelData.id |> Task.attempt (always NoOp))
-                |> Cmd.map tagger
-            ]
+        |> getSelectedOption
+        |> Maybe.Extra.or modelData.activeOption
+        |> Maybe.map (pickOptionData >> .id >> Dom.focus >> Task.attempt (always NoOp))
+        |> Maybe.withDefault (Dom.focus modelData.id |> Task.attempt (always NoOp))
+        |> Cmd.map tagger
 
 
-updateOnOptionKeyEvent : Option -> KeyDown.Event -> Model ctx value msg -> Model ctx value msg
-updateOnOptionKeyEvent option_ event ((Model modelData) as model) =
+{-| Internal.
+-}
+updateOnSelectKeyEvent : (Msg -> msg) -> KeyDown.Event -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+updateOnSelectKeyEvent tagger event ((Model { onSelect, isOpen }) as model) =
+    if KeyDown.isArrowDown event || (KeyDown.isSpace event && not isOpen) then
+        model
+            |> updateActiveOption 1
+            |> PrimaUpdate.withCmdsMap [ focusOnActiveOption tagger ]
+
+    else if KeyDown.isArrowUp event && isOpen then
+        model
+            |> updateActiveOption -1
+            |> PrimaUpdate.withCmdsMap [ focusOnActiveOption tagger ]
+
+    else if KeyDown.isEsc event then
+        model
+            |> setDropdownClosed
+            |> PrimaUpdate.withoutCmds
+
+    else if KeyDown.isSpace event || KeyDown.isEnter event then
+        model
+            |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe onSelect ]
+
+    else
+        model
+            |> PrimaUpdate.withoutCmds
+
+
+updateOnOptionKeyEvent : KeyDown.Event -> Model ctx value msg -> Model ctx value msg
+updateOnOptionKeyEvent event ((Model modelData) as model) =
     if KeyDown.isArrowDown event then
-        updateActiveOption 1 (Just option_) model
+        updateActiveOption 1 model
 
-    else if KeyDown.isArrowUp event then
-        updateActiveOption -1 (Just option_) model
+    else if KeyDown.isArrowUp event && Maybe.Extra.isJust (getActiveOption model) then
+        updateActiveOption -1 model
 
     else if KeyDown.isEsc event then
         setDropdownClosed model
@@ -585,39 +616,54 @@ updateIsOpen isOpen (Model modelData) =
 
 {-| Internal.
 -}
-updateActiveOption : Int -> Maybe Option -> Model ctx value msg -> Model ctx value msg
-updateActiveOption moveByPositions currentOption (Model modelData) =
+resetActiveOption : Model ctx value msg -> Model ctx value msg
+resetActiveOption ((Model modelData) as model) =
+    Model { modelData | activeOption = getSelectedOption model }
+
+
+getActiveOption : Model ctx value msg -> Maybe Option
+getActiveOption ((Model { activeOption }) as model) =
+    Maybe.Extra.or activeOption (getSelectedOption model)
+
+
+getNewActiveOption : Int -> Model ctx value msg -> Maybe Option
+getNewActiveOption moveByPositions (Model { options, activeOption }) =
     let
-        newActiveOptionIndex : Int
-        newActiveOptionIndex =
-            currentOption
+        newOptionIndex : Int
+        newOptionIndex =
+            activeOption
                 |> Maybe.map (\(Option { index }) -> index)
                 |> Maybe.withDefault -1
                 |> (+) moveByPositions
     in
-    Model
-        { modelData
-            | activeOption =
-                if newActiveOptionIndex < 0 then
-                    Nothing
+    if newOptionIndex < 0 then
+        List.head options
 
-                else if newActiveOptionIndex >= List.length modelData.options then
-                    modelData.options
-                        |> Array.fromList
-                        |> Array.get 0
+    else if newOptionIndex >= List.length options then
+        options
+            |> List.reverse
+            |> List.head
 
-                else
-                    modelData.options
-                        |> Array.fromList
-                        |> Array.get newActiveOptionIndex
-        }
+    else
+        options
+            |> Array.fromList
+            |> Array.get newOptionIndex
+
+
+{-| Internal.
+-}
+updateActiveOption : Int -> Model ctx value msg -> Model ctx value msg
+updateActiveOption moveByPositions ((Model modelData) as model) =
+    Model { modelData | activeOption = getNewActiveOption moveByPositions model }
 
 
 {-| Update the Autocomplete Model closing the dropdown
 -}
 setDropdownClosed : Model ctx value msg -> Model ctx value msg
 setDropdownClosed (Model modelData) =
-    Model { modelData | isOpen = False, activeOption = Nothing }
+    Model { modelData | isOpen = False }
+        |> resetActiveOption
+        |> mapFieldStatus FieldStatus.onInput
 
 
 {-| Set the select options
@@ -633,7 +679,7 @@ setOptions options (Model modelData) =
                             { value = value
                             , label = label
                             , index = index
-                            , id = id
+                            , id = id ++ "-" ++ modelData.name
                             }
                     )
                     options
@@ -652,13 +698,6 @@ setId id (Model modelData) =
 setValue : String -> Model ctx value msg -> Model ctx value msg
 setValue selectedValue (Model model) =
     Model { model | selectedValue = Just selectedValue }
-
-
-{-| Sets an OnBlur side effect.
--}
-setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
-setOnBlur msg (Model configuration) =
-    Model { configuration | onBlur = Just msg }
 
 
 {-| Sets an OnFocus side effect.
@@ -694,6 +733,11 @@ setOnSelect msg (Model configuration) =
 getValue : Model ctx value msg -> Maybe String
 getValue (Model { selectedValue }) =
     selectedValue
+
+
+getSelectedOption : Model ctx value msg -> Maybe Option
+getSelectedOption (Model { selectedValue, options }) =
+    List.Extra.find (\(Option { value }) -> Just value == selectedValue) options
 
 
 {-| Internal

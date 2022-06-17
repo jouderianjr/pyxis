@@ -103,14 +103,14 @@ $_wrapperAnimationOffset: foundations.rem(10px);
   }
 }
 
-.form-dropdown__item:hover,
-.form-dropdown__item--hover {
-  background-color: foundations.color(neutral95);
-}
-
 .form-dropdown__item--active {
   background-color: foundations.color(actionLight);
   color: foundations.color(actionBase);
+}
+
+.form-dropdown__item:hover,
+.form-dropdown__item--hover {
+  background-color: foundations.color(neutral95);
 }
 
 .form-dropdown__no-results {

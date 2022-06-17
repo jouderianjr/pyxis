@@ -119,7 +119,9 @@ type alias SharedState x =
 
 type alias Model =
     { base : Select.Model () (Maybe String) Select.Msg
-    , withValidation : Select.Model () Job Select.Msg
+    , mobile : Select.Model () Job Select.Msg
+    , disabled : Select.Model () Job Select.Msg
+    , small : Select.Model () Job Select.Msg
     }
 
 
@@ -160,7 +162,9 @@ toJob rawValue =
 init : Model
 init =
     { base = Select.init "base" Nothing (always Ok) |> Select.setOptions options
-    , withValidation = Select.init "withValidation" Nothing requiredValidation |> Select.setOptions options
+    , mobile = Select.init "mobile" Nothing requiredValidation |> Select.setOptions options
+    , disabled = Select.init "disabled" Nothing requiredValidation |> Select.setOptions options
+    , small = Select.init "small" Nothing requiredValidation |> Select.setOptions options
     }
 
 
@@ -184,23 +188,27 @@ componentsList : List ( String, SharedState x -> Html (ElmBook.Msg (SharedState 
 componentsList =
     [ ( "Select (desktop)"
       , statefulComponent
-            { isMobile = False
-            , configModifier = Select.withLabel (Label.config "Label")
-            }
-            .withValidation
-            updateWithValidation
+            { isMobile = False, configModifier = Select.withLabel (Label.config "Label") }
+            .base
+            updateBase
       )
     , ( "Select (mobile)"
-      , statelessComponent
+      , statefulComponent
             { isMobile = True, configModifier = identity }
+            .mobile
+            updateMobile
       )
     , ( "Select with disabled=True"
-      , statelessComponent
+      , statefulComponent
             { isMobile = False, configModifier = Select.withDisabled True }
+            .disabled
+            (always (\model -> ( model, Cmd.none )))
       )
     , ( "Select with size=Small"
-      , statelessComponent
+      , statefulComponent
             { isMobile = False, configModifier = Select.withSize Select.small }
+            .small
+            updateSmall
       )
     , ( "Select with additional content"
       , statelessComponent
@@ -213,14 +221,6 @@ type alias StatelessConfig =
     { isMobile : Bool
     , configModifier : Select.Config -> Select.Config
     }
-
-
-statelessComponent :
-    StatelessConfig
-    -> SharedState x
-    -> Html (ElmBook.Msg (SharedState x))
-statelessComponent statelessConfig =
-    statefulComponent statelessConfig .base updateBase
 
 
 statefulComponent :
@@ -254,12 +254,23 @@ updateBase msg model =
     )
 
 
-updateWithValidation : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
-updateWithValidation msg model =
+updateMobile : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
+updateMobile msg model =
     let
         ( newModel, newCmd ) =
-            Select.update identity msg model.withValidation
+            Select.update identity msg model.mobile
     in
-    ( { model | withValidation = newModel }
+    ( { model | mobile = newModel }
+    , newCmd
+    )
+
+
+updateSmall : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
+updateSmall msg model =
+    let
+        ( newModel, newCmd ) =
+            Select.update identity msg model.small
+    in
+    ( { model | small = newModel }
     , newCmd
     )
