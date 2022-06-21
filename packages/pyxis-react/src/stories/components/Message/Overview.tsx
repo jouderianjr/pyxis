@@ -110,7 +110,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Message" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-message-all-stories--default" />
+        <Story id="components-display-message-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

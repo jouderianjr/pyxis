@@ -1,6 +1,5 @@
 import React, {FC} from "react";
 import Table, {TableRow} from "stories/utils/Table";
-import CopyableCode from "stories/utils/CopyableCode";
 import shortid from "shortid";
 import OverviewTemplate from "stories/utils/OverviewTemplate";
 import {ArgsTable, Canvas, Story} from "@storybook/addon-docs";
@@ -103,7 +102,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Badge" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-badge-all-stories--default" />
+        <Story id="components-display-badge-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

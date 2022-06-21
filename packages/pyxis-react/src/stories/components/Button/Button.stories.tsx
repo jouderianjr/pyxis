@@ -12,7 +12,7 @@ const table = (defaultValue: string | boolean) => ({
 })
 
 export default {
-  title: 'Components/Button/All Stories',
+  title: 'Components - Action/Button/All Stories',
   argTypes: {
     variant: {
       options: ['primary', 'secondary', 'tertiary', 'brand', 'ghost'],

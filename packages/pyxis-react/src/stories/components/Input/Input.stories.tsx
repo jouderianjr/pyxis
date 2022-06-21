@@ -5,7 +5,7 @@ import Form from 'components/Form';
 import {IconCar} from "components/Icon/Icons";
 
 export default {
-  title: 'Components/Input/All Stories',
+  title: 'Components - Form/Input/All Stories',
   component: Form.Input,
   argTypes: {
     addon: {

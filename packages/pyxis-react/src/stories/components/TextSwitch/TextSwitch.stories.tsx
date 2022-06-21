@@ -4,7 +4,7 @@ import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 import TextSwitch from "./TextSwitch";
 
 export default {
-  title: 'Components/TextSwitch 🚧/All Stories',
+  title: 'Components - Control/TextSwitch 🚧/All Stories',
 } as ComponentMeta<typeof TextSwitch>;
 
 export const Default = () => <TextSwitch name="default" />

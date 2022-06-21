@@ -120,13 +120,13 @@ const groupDescription = (
     </p>
     <ul className="list">
       <li className="list__item">
-        <span className="link" onClick={linkTo('components-radiocard-🚧-all-stories--default')}>Default Layout</span>
+        <span className="link" onClick={linkTo('components-control-radiocard-🚧-all-stories--default')}>Default Layout</span>
       </li>
       <li className="list__item">
-        <span className="link" onClick={linkTo('components-radiocard-🚧-all-stories--horizontal-layout')}>Horizontal Layout</span>
+        <span className="link" onClick={linkTo('components-control-radiocard-🚧-all-stories--horizontal-layout')}>Horizontal Layout</span>
       </li>
       <li className="list__item">
-        <span className="link" onClick={linkTo('components-radiocard-🚧-all-stories--vertical-layout')}>Vertical Layout</span>
+        <span className="link" onClick={linkTo('components-control-radiocard-🚧-all-stories--vertical-layout')}>Vertical Layout</span>
       </li>
     </ul>
   </>
@@ -245,7 +245,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Radio Card 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-radiocard-🚧-all-stories--default" />
+        <Story id="components-control-radiocard-🚧-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

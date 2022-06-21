@@ -8,7 +8,7 @@ import {FooterDefault, StickyFooter} from "./Footer/ModalFooter.stories";
 const {Header, Footer, Content} = Modal;
 
 export default {
-  title: 'Components/Modal/All Stories',
+  title: 'Components - Display/Modal/All Stories',
   component: Modal,
   subcomponents: {Header, Footer, Content},
   argTypes: {

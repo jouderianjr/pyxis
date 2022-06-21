@@ -5,7 +5,7 @@ import Button from "components/Button";
 import styles from "../ModalStories.module.scss";
 
 export default {
-  title: 'Components/Modal/Modal.Footer Stories',
+  title: 'Components - Display/Modal/Modal.Footer Stories',
   component: Footer,
   argTypes: {
     id: {

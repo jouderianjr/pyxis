@@ -157,7 +157,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Icons" description={iconsDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-icon-all-stories--default" />
+        <Story id="components-display-icon-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

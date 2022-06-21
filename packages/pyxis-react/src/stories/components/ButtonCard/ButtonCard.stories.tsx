@@ -4,7 +4,7 @@ import ButtonCard, {ButtonCardProps} from "components/ButtonCard";
 import {IconDownload} from "components/Icon/Icons";
 
 export default {
-  title: 'Components/ButtonCard/All Stories',
+  title: 'Components - Action/ButtonCard/All Stories',
   component: ButtonCard,
 } as ComponentMeta<typeof ButtonCard>;
 

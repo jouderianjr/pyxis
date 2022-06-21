@@ -5,7 +5,7 @@ import {MessageProps} from "components/Message/Message";
 import {IconCalendar} from "components/Icon/Icons";
 
 export default {
-  title: 'Components/Message/All Stories',
+  title: 'Components - Display/Message/All Stories',
   component: Message,
   argTypes: {
     hasColoredBackground: {

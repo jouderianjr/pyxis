@@ -4,7 +4,7 @@ import {RadioGroup} from "./Radio";
 import renderSourceAsHTML from "../../utils/renderSourceAsHTML";
 
 export default {
-  title: 'Components/Radio 🚧/All Stories',
+  title: 'Components - Control/Radio 🚧/All Stories',
 } as ComponentMeta<typeof RadioGroup>;
 
 export const Default = () => <RadioGroup name="default"/>

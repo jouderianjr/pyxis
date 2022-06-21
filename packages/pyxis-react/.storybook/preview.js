@@ -65,8 +65,8 @@ module.exports = {
     options: {
       storySort: sortStories(
         [
-          ['Introduction', 'Foundations', 'Components'], // 1. level
-          ['Color', 'Typography', 'Spacing', 'Radius', 'Elevation', '...'], // 2. level
+          ['Introduction', 'Foundations', 'Components - Action', 'Components - Form', 'Components - Control', 'Components - Display'], // 1. level
+          ['Color', 'Typography', 'Spacing', 'Radius', 'Elevation', 'Overview', '...', 'All Stories'], // 2. level
           ['Overview', '...', 'All Stories'] // 3. level
         ]
       ),

@@ -4,7 +4,7 @@ import Form from 'components/Form';
 import {ItemProps} from "components/Form/Item";
 
 export default {
-  title: 'Components/Form 🚧/Item Stories',
+  title: 'Components - Form/Item/All Stories',
   component: Form.Item,
   argTypes: {
     children: {

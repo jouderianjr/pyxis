@@ -50,7 +50,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Form Item" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-form-🚧-item-stories--default" />
+        <Story id="components-form-item-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">
@@ -62,7 +62,7 @@ const Overview: FC = () => (
         <>
           <strong>{variant}</strong>
           <Canvas className="full-width">
-            <Story id={`components-form-🚧-item-stories--${pascalToKebab(variant)}`} />
+            <Story id={`components-form-item-all-stories--${pascalToKebab(variant)}`} />
           </Canvas>
         </>
       ))}

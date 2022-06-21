@@ -32,7 +32,7 @@ const behaviourDescription = (
   <p>
     Tooltips are designed to behave like a bottomsheet on small screens. Bottomsheets have the same content
     as the tooltip, but also could have an additional title. &nbsp;
-    <span className="link" onClick={linkTo('components-tooltip-🚧-all-stories--default-on-mobile')}>
+    <span className="link" onClick={linkTo('components-display-tooltip-🚧-all-stories--default-on-mobile')}>
       See the related story
     </span>.
   </p>
@@ -114,7 +114,7 @@ const generateOptionBody = (): TableRow[] =>  [
     </Tooltip>,
     'Without a bottomsheet title on mobile',
     <span>Not recommended -&nbsp;
-      <span className="link" onClick={linkTo('components-tooltip-🚧-all-stories--no-bottomsheet-title')} key={shortid.generate()}>
+      <span className="link" onClick={linkTo('components-display-tooltip-🚧-all-stories--no-bottomsheet-title')} key={shortid.generate()}>
         See the related story
       </span>
     </span>
@@ -268,7 +268,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Tooltip 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-tooltip-🚧-all-stories--default" />
+        <Story id="components-control-toggle-🚧-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

@@ -36,7 +36,7 @@ const generateSizeBody = (): TableRow[] => [
   [
     <CopyableCode text="small" key={shortid.generate()} />,
     <code>500px</code>,
-    <span onClick={linkTo('components-modal-all-stories--size-small')} className="link">
+    <span onClick={linkTo('components-display-modal-all-stories--size-small')} className="link">
       See the related story
     </span>
   ],
@@ -48,7 +48,7 @@ const generateSizeBody = (): TableRow[] => [
   [
     <CopyableCode text="large" key={shortid.generate()} />,
     <code>1000px</code>,
-    <span onClick={linkTo('components-modal-all-stories--size-large')} className="link">
+    <span onClick={linkTo('components-display-modal-all-stories--size-large')} className="link">
       See the related story
     </span>
   ],
@@ -57,7 +57,7 @@ const generateSizeBody = (): TableRow[] => [
 const behaviourOnMobileDescription = (
   <p>
     Modal are designed to behave like a bottomsheet on small screens. &nbsp;
-    <span className="link" onClick={linkTo('components-modal-all-stories--default-on-mobile')}>
+    <span className="link" onClick={linkTo('components-display-modal-all-stories--default-on-mobile')}>
       See the related story
     </span>.
   </p>
@@ -66,7 +66,7 @@ const behaviourOnMobileDescription = (
 const centeredDescription = (
   <p>
     By default modal is always positioned in the top of the screen, but it is also possible to center it vertically.
-    This use is recommended only if the modal is not high. <span className="link" onClick={linkTo('components-modal-all-stories--centered-modal')}>
+    This use is recommended only if the modal is not high. <span className="link" onClick={linkTo('components-display-modal-all-stories--centered-modal')}>
       See the related story
     </span>.
   </p>
@@ -75,8 +75,8 @@ const centeredDescription = (
 const modalChildrenDescription = (
   <>
     <p>
-      The Modal component accepts three children, both exported from the main Modal component: <span className={"link"} onClick={linkTo('components-modal-modal-header--page')}>Modal.Header </span>,
-      Modal.Content and <a className={"link"} onClick={linkTo('components-modal-modal-footer--page')}>Modal.Footer</a>. While Modal.Header and Modal.Footer are full-blown components,
+      The Modal component accepts three children, both exported from the main Modal component: <span className={"link"} onClick={linkTo('components-display-modal-modal-header--page')}>Modal.Header </span>,
+      Modal.Content and <a className={"link"} onClick={linkTo('components-display-modal-modal-footer--page')}>Modal.Footer</a>. While Modal.Header and Modal.Footer are full-blown components,
       Modal.Content acts as just a wrapper for the real content of the modal, and doesn't have specifics props.
     </p>
     <p>
@@ -119,7 +119,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Modal" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-modal-all-stories--default" />
+        <Story id="components-display-modal-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">
@@ -135,7 +135,7 @@ const Overview: FC = () => (
     <OverviewTemplate title="Centered" description={centeredDescription}/>
     <OverviewTemplate title="Non-closable Modal" description={nonClosableModalDescription}>
       <Canvas>
-        <Story id="components-modal-all-stories--non-closable-modal" height={"500px"}/>
+        <Story id="components-display-modal-all-stories--non-closable-modal" height={"500px"}/>
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Modal children" description={modalChildrenDescription} />

@@ -1,10 +1,10 @@
 import React from 'react';
 import {ComponentMeta} from '@storybook/react';
 import Select from './Select';
-import renderSourceAsHTML from "../../utils/renderSourceAsHTML";
+import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 
 export default {
-  title: 'Components/Select 🚧/All Stories',
+  title: 'Components - Form/Select 🚧/All Stories',
 } as ComponentMeta<typeof Select>;
 
 export const Default = () => <div style={{marginBottom: 155}}><Select /></div>

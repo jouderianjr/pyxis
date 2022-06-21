@@ -3,7 +3,7 @@ import {ComponentMeta, ComponentStory} from '@storybook/react';
 import Badge, {BadgeProps} from "components/Badge";
 
 export default {
-  title: 'Components/Badge/All Stories',
+  title: 'Components - Display/Badge/All Stories',
   component: Badge,
   argTypes: {
     variant: {

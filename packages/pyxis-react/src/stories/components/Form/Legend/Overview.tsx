@@ -1,11 +1,11 @@
-import Table, {TableRow} from "../../../utils/Table";
-import CopyableCode from "../../../utils/CopyableCode";
+import Table, {TableRow} from "stories/utils/Table";
+import CopyableCode from "stories/utils/CopyableCode";
 import shortid from "shortid";
 import React, {FC} from "react";
-import OverviewTemplate from "../../../utils/OverviewTemplate";
+import OverviewTemplate from "stories/utils/OverviewTemplate";
 import {Canvas, Story} from "@storybook/addon-docs";
-import OverviewIndex from "../../../utils/OverviewIndex";
-import {pascalToKebab} from "../../../../commons/utils/string";
+import OverviewIndex from "stories/utils/OverviewIndex";
+import {pascalToKebab} from "commons/utils/string";
 
 const overviewDescription = (
   <>
@@ -77,7 +77,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Legend 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--legend-with-image" />
+        <Story id="components-form-legend-🚧-all-stories--with-image" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">
@@ -88,7 +88,7 @@ const Overview: FC = () => (
         <>
           <strong>{variant}</strong>
           <Canvas className="full-width">
-            <Story id={`components-form-🚧-all-stories--legend-${pascalToKebab(variant)}`} />
+            <Story id={`components-form-legend-🚧-all-stories--${pascalToKebab(variant)}`} />
           </Canvas>
         </>
       ))}

@@ -4,7 +4,7 @@ import { IconPrimaLogo } from 'components/Icon/Icons';
 import { IconProps } from 'components/Icon';
 
 export default {
-  title: 'Components/Icon/All Stories',
+  title: 'Components - Display/Icon/All Stories',
   component: IconPrimaLogo,
   argTypes: {
     size: {

@@ -4,7 +4,7 @@ import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 import Loader from "./Loader";
 
 export default {
-  title: 'Components/Loader 🚧/All Stories',
+  title: 'Components - Display/Loader 🚧/All Stories',
 } as ComponentMeta<typeof Loader>;
 
 export const SpinnerLoader = () => <Loader type="spinner" />

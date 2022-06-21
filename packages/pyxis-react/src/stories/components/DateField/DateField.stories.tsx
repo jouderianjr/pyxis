@@ -1,10 +1,10 @@
 import React from 'react';
 import {ComponentMeta} from '@storybook/react';
 import DateField from './DateField';
-import renderSourceAsHTML from "../../utils/renderSourceAsHTML";
+import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 
 export default {
-  title: 'Components/Date Field 🚧/All Stories',
+  title: 'Components - Form/Date Field 🚧/All Stories',
 } as ComponentMeta<typeof DateField>;
 
 export const Default = () => <DateField />

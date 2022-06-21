@@ -4,7 +4,7 @@ import Form from 'components/Form';
 import Label, {LabelProps} from "components/Form/Label";
 
 export default {
-  title: 'Components/Label/All Stories',
+  title: 'Components - Form/Label/All Stories',
   component: Form.Label,
 } as ComponentMeta<typeof Label>;
 

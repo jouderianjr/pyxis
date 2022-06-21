@@ -4,7 +4,7 @@ import Autocomplete from './Autocomplete';
 import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 
 export default {
-  title: 'Components/Autocomplete 🚧/All Stories',
+  title: 'Components - Form/Autocomplete 🚧/All Stories',
 } as ComponentMeta<typeof Autocomplete>;
 
 export const Default = () => <div style={{marginBottom: 155}}><Autocomplete /></div>

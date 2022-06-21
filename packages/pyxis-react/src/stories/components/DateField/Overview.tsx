@@ -86,7 +86,7 @@ const accessibilityDescription = (
       by adding a proper id to the message and the <code>aria-describedby</code> attribute to the group.
     </p>
     <Canvas>
-      <Story id="components-date-field-🚧-all-stories--with-accessible-label" />
+      <Story id="components-form-date-field-🚧-all-stories--with-accessible-label" />
     </Canvas>
   </>
 );
@@ -164,7 +164,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Date Field 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-date-field-🚧-all-stories--default" />
+        <Story id="components-form-date-field-🚧-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

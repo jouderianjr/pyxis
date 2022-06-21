@@ -13,7 +13,7 @@ const overviewDescription = (
     </p>
     <p>
       Label component just renders the label and possibly a sub-label. In a form, to link a label with its input
-      both logically and visually, please wrap it in a <span className="link" onClick={linkTo('components-form-🚧-item--page')}>
+      both logically and visually, please wrap it in a <span className="link" onClick={linkTo('components-form-item-overview--page')}>
       Form.Item</span>.
     </p>
   </>
@@ -74,7 +74,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Label" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-label-all-stories--inside-form-item" />
+        <Story id="components-form-label-all-stories--inside-form-item" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

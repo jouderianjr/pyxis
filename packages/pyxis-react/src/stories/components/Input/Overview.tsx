@@ -14,7 +14,7 @@ const overviewDescription = (
     </p>
     <p>
       Input component just renders the input field with its addon. To display a label, hint or error message,
-      please wrap the Input component inside a <span className="link" onClick={linkTo('components-form-🚧-item--page')}>
+      please wrap the Input component inside a <span className="link" onClick={linkTo('components-form-item-overview--page')}>
       Form.Item</span>.
     </p>
   </>
@@ -147,7 +147,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Input" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-input-all-stories--inside-form-item" />
+        <Story id="components-form-input-all-stories--inside-form-item" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

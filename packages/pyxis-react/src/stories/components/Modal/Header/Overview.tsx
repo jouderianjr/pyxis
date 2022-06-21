@@ -39,7 +39,7 @@ const generateAddonBody = (): TableRow[] => [
 
 const stickyDescription = (
     <p>
-      Modal.Header can be sticky. <span className="link" onClick={linkTo('components-modal-all-stories--with-sticky-header-and-footer')}>
+      Modal.Header can be sticky. <span className="link" onClick={linkTo('components-display-modal-all-stories--with-sticky-header-and-footer')}>
       See the related story
     </span>.
     </p>
@@ -63,7 +63,7 @@ const Overview: FC = () => (
     <OverviewTemplate title="Modal.Header" description={overviewDescription} category="Component" isMain>
       <Canvas>
         <div className="bg-neutral-95 padding-m">
-          <Story id="components-modal-modal-header-stories--header-default" />
+          <Story id="components-display-modal-modal-header-stories--header-default" />
         </div>
       </Canvas>
     </OverviewTemplate>
@@ -81,7 +81,7 @@ const Overview: FC = () => (
     <OverviewTemplate title="Custom Header" description={customDescription}>
       <Canvas>
         <div className="bg-neutral-95 padding-m">
-          <Story id="components-modal-modal-header-stories--custom-header"/>
+          <Story id="components-display-modal-modal-header-stories--custom-header"/>
         </div>
       </Canvas>
     </OverviewTemplate>

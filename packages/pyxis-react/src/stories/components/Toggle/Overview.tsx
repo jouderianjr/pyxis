@@ -96,7 +96,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Toggle 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-toggle-🚧-all-stories--default" />
+        <Story id="components-control-toggle-🚧-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">
@@ -111,7 +111,7 @@ const Overview: FC = () => (
     </OverviewTemplate>
     <OverviewTemplate title="Label" description={labelDescription}>
       <Canvas>
-        <Story id="components-toggle-🚧-all-stories--with-label" />
+        <Story id="components-control-toggle-🚧-all-stories--with-label" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Accessibility" description={accessibilityDescription} />

@@ -4,7 +4,7 @@ import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 import Accordion from "./Accordion";
 
 export default {
-  title: 'Components/Accordion 🚧/All Stories',
+  title: 'Components - Display/Accordion 🚧/All Stories',
 } as ComponentMeta<typeof Accordion>;
 
 export const Default = () => <Accordion id="default" />

@@ -4,7 +4,7 @@ import {RadioCardGroup} from "./RadioCard";
 import renderSourceAsHTML from "../../utils/renderSourceAsHTML";
 
 export default {
-  title: 'Components/RadioCard 🚧/All Stories'
+  title: 'Components - Control/RadioCard 🚧/All Stories'
 } as ComponentMeta<typeof RadioCardGroup>;
 
 export const Default = () => <RadioCardGroup name="default"/>

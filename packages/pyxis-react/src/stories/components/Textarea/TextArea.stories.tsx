@@ -4,7 +4,7 @@ import TextArea from './TextArea';
 import renderSourceAsHTML from "../../utils/renderSourceAsHTML";
 
 export default {
-  title: 'Components/Text Area 🚧/All Stories',
+  title: 'Components - Form/Text Area 🚧/All Stories',
 } as ComponentMeta<typeof TextArea>;
 
 export const Default = () => <TextArea />

@@ -7,7 +7,7 @@ import {IconQuestionCircle} from "components/Icon/Icons";
 import styles from './Tooltip.module.scss'
 
 export default {
-  title: 'Components/Tooltip 🚧/All Stories'
+  title: 'Components - Display/Tooltip 🚧/All Stories'
 } as ComponentMeta<typeof Tooltip>;
 
 const mobileFirstViewport = { viewport: { defaultViewport: "xxsmall" } }

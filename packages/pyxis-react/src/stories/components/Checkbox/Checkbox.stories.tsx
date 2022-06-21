@@ -4,7 +4,7 @@ import Checkbox, {CheckboxGroup} from "./Checkbox";
 import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 
 export default {
-  title: 'Components/Checkbox 🚧/All Stories',
+  title: 'Components - Control/Checkbox 🚧/All Stories',
 } as ComponentMeta<typeof CheckboxGroup>;
 
 export const Default = () => <CheckboxGroup />

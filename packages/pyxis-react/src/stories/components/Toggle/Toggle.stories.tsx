@@ -4,7 +4,7 @@ import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 import Toggle from "./Toggle";
 
 export default {
-  title: 'Components/Toggle 🚧/All Stories',
+  title: 'Components - Control/Toggle 🚧/All Stories',
 } as ComponentMeta<typeof Toggle>;
 
 export const Default = () => <Toggle id="toggle-id"/>

@@ -83,14 +83,14 @@ const columnDescription = (
 const itemDescription = (
   <p>
     Form Item is used to group labels, fields, errors, hints and any other custom Html you provide.
-    Check out the <span className="link" onClick={linkTo('components-form-🚧-item--page')}>documentation.</span>.
+    Check out the <span className="link" onClick={linkTo('components-form-item-overview--page')}>documentation.</span>.
   </p>
 );
 
 const accessibilityDescription = (
   <p>
     A <code>legend</code> should always be used inside a <code>fieldset</code>.
-    Check out the <span className="link" onClick={linkTo('components-form-🚧-all-stories--real-world-example')}>real world example</span>.
+    Check out the <span className="link" onClick={linkTo('components-form-all-stories--real-world-example')}>real world example</span>.
   </p>
 );
 
@@ -171,7 +171,7 @@ const Overview: FC = () => (
     </OverviewTemplate>
     <OverviewTemplate title="Form Anatomy" description={anatomyDescription}>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--form-anatomy" />
+        <Story id="components-form-all-stories--form-anatomy" />
       </Canvas>
       <Table
         head={['Element', 'Note']}
@@ -184,13 +184,13 @@ const Overview: FC = () => (
         <strong>Default gap</strong> is generally used on simple form items like text, textarea, select.
       </p>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--grid-default-gap" />
+        <Story id="components-form-all-stories--grid-default-gap" />
       </Canvas>
       <p>
         <strong>Large gap</strong> is generally used on visual elements like legend, radio card, message.
       </p>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--grid-with-large-gap" />
+        <Story id="components-form-all-stories--grid-with-large-gap" />
       </Canvas>
       <p>
         <strong>Sub Grid</strong><br />
@@ -198,7 +198,7 @@ const Overview: FC = () => (
         Doing so allows you to control how items span inside columns.
       </p>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--sub-grid" />
+        <Story id="components-form-all-stories--sub-grid" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Row" description={rowDescription}>
@@ -207,26 +207,26 @@ const Overview: FC = () => (
         It is recommended to use this setting for horizontal forms on single or multiple rows.
       </p>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--row-default" />
+        <Story id="components-form-all-stories--row-default" />
       </Canvas>
       <p>
         <strong>Medium</strong> dimensions are recommended to use this setting for vertical development forms
         with the possibility of placing components not belonging to the same group side by side.
       </p>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--row-medium" />
+        <Story id="components-form-all-stories--row-medium" />
       </Canvas>
       <p>
         <strong>Small</strong> dimensions are recommended to use this setting for vertical development forms
         with the possibility of tiling only components of the same group.
       </p>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--row-small" />
+        <Story id="components-form-all-stories--row-small" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Column" description={columnDescription}>
       <Canvas>
-        <Story id="components-form-🚧-all-stories--columns" />
+        <Story id="components-form-all-stories--columns" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Item" description={itemDescription} />

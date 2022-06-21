@@ -61,7 +61,7 @@ const generateOptionsBody = (): TableRow[] => [
       />
     </div>,
     'Sticky',
-    <span onClick={linkTo('components-modal-all-stories--with-sticky-header-and-footer')} className="link">
+    <span onClick={linkTo('components-display-modal-all-stories--with-sticky-header-and-footer')} className="link">
       See the related story
     </span>
   ],
@@ -87,7 +87,7 @@ const generateOptionsBody = (): TableRow[] => [
       />
     </div>,
     'Full width buttons on bottomsheet',
-    <span onClick={linkTo('components-modal-modal-footer-stories--with-full-width-buttons')} className="link">
+    <span onClick={linkTo('components-display-modal-modal-footer-stories--with-full-width-buttons')} className="link">
       See the related story
     </span>
   ],
@@ -111,7 +111,7 @@ const Overview: FC = () => (
     <OverviewTemplate title="Modal.Footer" description={overviewDescription} category="Component" isMain>
       <Canvas>
         <div className="bg-neutral-95 padding-m">
-          <Story id="components-modal-modal-footer-stories--footer-default" />
+          <Story id="components-display-modal-modal-footer-stories--footer-default" />
         </div>
       </Canvas>
     </OverviewTemplate>
@@ -135,7 +135,7 @@ const Overview: FC = () => (
     <OverviewTemplate title="Custom Footer" description={customDescription}>
       <Canvas>
         <div className="bg-neutral-95 padding-m">
-          <Story id="components-modal-modal-footer-stories--custom-footer"/>
+          <Story id="components-display-modal-modal-footer-stories--custom-footer"/>
         </div>
       </Canvas>
     </OverviewTemplate>

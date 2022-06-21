@@ -59,10 +59,10 @@ const groupDescription = (
     </p>
     <ul className="list">
       <li className="list__item">
-        <span className="link" onClick={linkTo('components-radio-🚧-all-stories--default')}>Horizontal Layout</span>
+        <span className="link" onClick={linkTo('components-control-radio-🚧-all-stories--default')}>Horizontal Layout</span>
       </li>
       <li className="list__item">
-        <span className="link" onClick={linkTo('components-radio-🚧-all-stories--vertical-layout')}>Vertical Layout</span>
+        <span className="link" onClick={linkTo('components-control-radio-🚧-all-stories--vertical-layout')}>Vertical Layout</span>
       </li>
     </ul>
   </>
@@ -135,7 +135,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Radio Button 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-radio-🚧-all-stories--default" />
+        <Story id="components-control-radio-🚧-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

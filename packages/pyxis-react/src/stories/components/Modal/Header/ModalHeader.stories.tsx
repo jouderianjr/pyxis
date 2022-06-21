@@ -6,7 +6,7 @@ import {IconBook} from "components/Icon/Icons";
 import styles from "../ModalStories.module.scss";
 
 export default {
-  title: 'Components/Modal/Modal.Header Stories',
+  title: 'Components - Display/Modal/Modal.Header Stories',
   component: Header,
   argTypes: {
     onClose: {

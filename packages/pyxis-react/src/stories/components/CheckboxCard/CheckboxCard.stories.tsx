@@ -1,10 +1,10 @@
 import React from 'react';
 import {ComponentMeta} from '@storybook/react';
 import {CheckboxCardGroup} from "./CheckboxCard";
-import renderSourceAsHTML from "../../utils/renderSourceAsHTML";
+import renderSourceAsHTML from "stories/utils/renderSourceAsHTML";
 
 export default {
-  title: 'Components/CheckboxCard 🚧/All Stories'
+  title: 'Components - Control/CheckboxCard 🚧/All Stories'
 } as ComponentMeta<typeof CheckboxCardGroup>;
 
 export const Default = () => <CheckboxCardGroup />

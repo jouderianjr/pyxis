@@ -4,7 +4,6 @@ import OverviewTemplate from "stories/utils/OverviewTemplate";
 import OverviewIndex from "stories/utils/OverviewIndex";
 import Table, {TableRow} from "stories/utils/Table";
 import Autocomplete from "./Autocomplete";
-import {IconPlate} from "components/Icon/Icons";
 import CopyableCode from "stories/utils/CopyableCode";
 import shortid from "shortid";
 
@@ -283,7 +282,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Autocomplete 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-autocomplete-🚧-all-stories--default" />
+        <Story id="components-form-autocomplete-🚧-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

@@ -121,13 +121,13 @@ const groupDescription = (
     </p>
     <ul className="list">
       <li className="list__item">
-        <span className="link" onClick={linkTo('components-checkboxcard-🚧-all-stories--default')}>Default Layout</span>
+        <span className="link" onClick={linkTo('components-control-checkboxcard-🚧-all-stories--default')}>Default Layout</span>
       </li>
       <li className="list__item">
-        <span className="link" onClick={linkTo('components-checkboxcard-🚧-all-stories--horizontal-layout')}>Horizontal Layout</span>
+        <span className="link" onClick={linkTo('components-control-checkboxcard-🚧-all-stories--horizontal-layout')}>Horizontal Layout</span>
       </li>
       <li className="list__item">
-        <span className="link" onClick={linkTo('components-checkboxcard-🚧-all-stories--vertical-layout')}>Vertical Layout</span>
+        <span className="link" onClick={linkTo('components-control-checkboxcard-🚧-all-stories--vertical-layout')}>Vertical Layout</span>
       </li>
     </ul>
   </>
@@ -246,7 +246,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Checkbox Card 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-checkboxcard-🚧-all-stories--default" />
+        <Story id="components-control-checkboxcard-🚧-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

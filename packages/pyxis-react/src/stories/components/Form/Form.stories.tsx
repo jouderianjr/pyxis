@@ -5,7 +5,7 @@ import Form from "./Form";
 import Legend from "./Legend/Legend";
 
 export default {
-  title: 'Components/Form 🚧/All Stories',
+  title: 'Components - Form/All Stories',
 } as ComponentMeta<typeof Form>;
 
 export const FormAnatomy = () => (
@@ -140,120 +140,6 @@ const ColumnsInner = () => (
   </div>
 )
 Columns.parameters = renderSourceAsHTML(ColumnsInner());
-
-export const ItemWithLabel = () => (
-  <div className="form-item">
-    <label className="form-label" htmlFor="form-item-name">
-      Name
-    </label>
-    <div className="form-item__wrapper">
-      <div className="form-field">
-        <label className="form-field__wrapper">
-          <input
-            type="text"
-            className="form-field__text"
-            id="form-item-name"
-            placeholder="John"
-          />
-        </label>
-      </div>
-    </div>
-  </div>
-)
-ItemWithLabel.parameters = renderSourceAsHTML(ItemWithLabel());
-
-export const ItemWithHint = () => (
-  <div className="form-item">
-    <label className="form-label" htmlFor="form-item-name">
-      Name
-    </label>
-    <div className="form-item__wrapper">
-      <div className="form-field">
-        <label className="form-field__wrapper">
-          <input
-            type="text"
-            aria-describedby="form-item-name-hint"
-            className="form-field__text"
-            id="form-item-name"
-            placeholder="John"
-          />
-        </label>
-      </div>
-      <div className="form-item__hint" id="form-item-name-hint">Hint message</div>
-    </div>
-  </div>
-)
-ItemWithHint.parameters = renderSourceAsHTML(ItemWithHint());
-
-export const ItemWithError = () => (
-  <div className="form-item">
-    <label className="form-label" htmlFor="form-item-name">
-      Name
-    </label>
-    <div className="form-item__wrapper">
-      <div className="form-field form-field--error">
-        <label className="form-field__wrapper">
-          <input
-            type="text"
-            aria-describedby="form-item-name-error"
-            className="form-field__text"
-            id="form-item-name"
-            placeholder="John"
-          />
-        </label>
-      </div>
-      <div className="form-item__error-message" id="form-item-name-error">Error message</div>
-    </div>
-  </div>
-)
-ItemWithError.parameters = renderSourceAsHTML(ItemWithError());
-
-export const ItemWithHTML = () => (
-  <div className="form-item">
-    <label className="form-label" htmlFor="form-item-name">
-      Name
-    </label>
-    <div className="form-item__wrapper">
-      <div className="form-field">
-        <label className="form-field__wrapper">
-          <input
-            type="text"
-            className="form-field__text"
-            id="form-item-name"
-            placeholder="John"
-          />
-        </label>
-      </div>
-      <div className="c-neutral-25 text-s-book">Custom HTML Message - Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
-    </div>
-  </div>
-)
-ItemWithHTML.parameters = renderSourceAsHTML(ItemWithHTML());
-
-export const LegendDefault = () => (
-  <Legend />
-)
-LegendDefault.parameters = renderSourceAsHTML(LegendDefault());
-
-export const LegendWithDescription = () => (
-  <Legend withDescription />
-)
-LegendWithDescription.parameters = renderSourceAsHTML(LegendWithDescription());
-
-export const LegendWithIcon = () => (
-  <Legend withDescription withIcon />
-)
-LegendWithIcon.parameters = renderSourceAsHTML(LegendWithIcon());
-
-export const LegendWithImage = () => (
-  <Legend withDescription withImage />
-)
-LegendWithImage.parameters = renderSourceAsHTML(LegendWithImage());
-
-export const LegendAlignLeft = () => (
-  <Legend withDescription withImage alignLeft />
-)
-LegendAlignLeft.parameters = renderSourceAsHTML(LegendAlignLeft());
 
 export const RealWorldExample = () => (
   <Form />

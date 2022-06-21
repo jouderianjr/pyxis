@@ -241,7 +241,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Button" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-button-all-stories--primary" />
+        <Story id="components-action-button-all-stories--primary" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

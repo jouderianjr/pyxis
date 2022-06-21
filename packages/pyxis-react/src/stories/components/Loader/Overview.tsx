@@ -144,7 +144,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Loader 🚧" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-loader-🚧-all-stories--spinner-loader" />
+        <Story id="components-display-loader-🚧-all-stories--spinner-loader" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">

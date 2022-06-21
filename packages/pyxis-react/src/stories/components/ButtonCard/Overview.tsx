@@ -53,7 +53,7 @@ const generateOptionsBody = (): TableRow[] => [
 
 const linkDescription = (
   <p>
-    Like the <span className="link" onClick={linkTo('components-button-overview--page')}>Button</span> component, the ButtonCard can also be an anchor, so we can use the anchor attributes (such as href and download) on it.
+    Like the <span className="link" onClick={linkTo('components-action-button-overview--page')}>Button</span> component, the ButtonCard can also be an anchor, so we can use the anchor attributes (such as href and download) on it.
   </p>
 );
 
@@ -68,7 +68,7 @@ const Overview: FC = () => (
   <>
     <OverviewTemplate title="Button Card" description={overviewDescription} category="Component" isMain>
       <Canvas>
-        <Story id="components-buttoncard-all-stories--default" />
+        <Story id="components-action-buttoncard-all-stories--default" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Table of contents">
@@ -83,7 +83,7 @@ const Overview: FC = () => (
     </OverviewTemplate>
     <OverviewTemplate title="Link" description={linkDescription}>
       <Canvas>
-        <Story id="components-buttoncard-all-stories--with-href" />
+        <Story id="components-action-buttoncard-all-stories--with-href" />
       </Canvas>
     </OverviewTemplate>
     <OverviewTemplate title="Component API" description={apiDescription}>
