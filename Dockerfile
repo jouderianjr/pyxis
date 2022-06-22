@@ -7,9 +7,9 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     apt-get update && \
     apt-get install -qqy yarn && \
     apt-get clean && \
-    curl -fL https://getcli.jfrog.io | sh && \
     chown -R node:node /code
 
+RUN curl -fL https://getcli.jfrog.io | sh && mv jfrog /usr/local/bin && chmod +x /usr/local/bin/jfrog 
 # Serve per avere l'owner dei file scritti dal container uguale all'utente Linux sull'host
 USER node
 
