@@ -301,10 +301,10 @@ volumes:
     path: /etc/profile.d/ecs-credentials-endpoint
 
 trigger:
-  branch:
-  - DO-985/task/pyxis-creazione-pipeline-per-pubblicazione-packages
   event:
-  - push
+  - tag
+  ref:
+  - refs/tags/*.*.*
 
 ---
 kind: pipeline
@@ -525,6 +525,6 @@ depends_on:
 
 ---
 kind: signature
-hmac: a566af76457b57b9ecfcbbd32c03e62bc7d1cc7bfeadf3309a63bea7bcefe62a
+hmac: 031fe9159b8717e5777a89b8299999c2ccd354034cdb9c9d3a193282f5cd1c11
 
 ...
