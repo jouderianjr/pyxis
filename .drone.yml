@@ -282,6 +282,10 @@ steps:
   commands:
   - . /etc/profile.d/ecs-credentials-endpoint
   - ./deploy/build production
+  environment:
+    ARTIFACTORY_APIKEY:
+      from_secret: ARTIFACTORY_APIKEY
+    ARTIFACTORY_USER: drone
   volumes:
   - name: ecs
     path: /etc/profile.d/ecs-credentials-endpoint
@@ -521,6 +525,6 @@ depends_on:
 
 ---
 kind: signature
-hmac: 75ecaaf4007b5cbf4a6895fdfce206e4a3c305b40eba1366791c0009a15e89c2
+hmac: 031fe9159b8717e5777a89b8299999c2ccd354034cdb9c9d3a193282f5cd1c11
 
 ...
