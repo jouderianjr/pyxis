@@ -63,7 +63,7 @@ if [ "$ENV" = "production" ]; then
   cp -R packages/pyxis-elm/dist/* build/elm
   tar czf "${VERSION}"-"${ENV}".tar.gz build
 
-  jfrog config add --interactive=false --url=https://prima.jfrog.io/api/npm/pyxis-global --user="${ARTIFACTORY_USER}" --password="${ARTIFACTORY_APIKEY}"
+  jfrog config add --interactive=false --url=https://prima.jfrog.io --user="${ARTIFACTORY_USER}" --password="${ARTIFACTORY_APIKEY}"
   ## Set Artifactory as the default registry for @pyxis
   jfrog npm config set @pyxis:registry http://prima.jfrog.io:8081/artifactory/api/npm/pyxis-global/
   jfrog npm config set registry https://registry.npmjs.org/
