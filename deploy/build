@@ -30,6 +30,14 @@ if aws s3 ls s3://prima-artifacts-encrypted/microservices/pyxis/"${VERSION}-${EN
   exit 0
 fi
 
+export PYXIS_BUILD_NAME="pyxis@${VERSION}"
+
+function deploy_on_artifactory() {
+  jfrog npmc --repo-deploy=pyxis-global --repo-resolve=pyxis --server-id-deploy=Default-Server --server-id-deploy=Default-Server
+  jfrog npm publish --build-name="${PYXIS_BUILD_NAME}" --build-number="${VERSION}" --registry=http://prima.jfrog.io:8081/artifactory/api/npm/pyxis/
+  jfrog rt bp "${PYXIS_BUILD_NAME}" "${VERSION}"
+}
+
 if [ "$ENV" = "staging" ]; then
   yarn install
   yarn build
@@ -54,6 +62,19 @@ if [ "$ENV" = "production" ]; then
   cp -R packages/pyxis-react/storybook-static/* build/react
   cp -R packages/pyxis-elm/dist/* build/elm
   tar czf "${VERSION}"-"${ENV}".tar.gz build
+
+  jfrog config add --interactive=false --url=https://prima.jfrog.io --user="${ARTIFACTORY_USER}" --password="${ARTIFACTORY_APIKEY}"
+  ## Set Artifactory as the default registry for @pyxis
+  jfrog npmc --repo-deploy=pyxis-global --repo-resolve=npm-public --server-id-deploy=Default-Server -server-id-resolve=Default-Server
+
+  ## Create build and gather informations
+  jfrog npm install --build-name="${PYXIS_BUILD_NAME}" --build-number="${VERSION}"
+  jfrog rt bag "${PYXIS_BUILD_NAME}" "${VERSION}"
+
+  ## Elm and Tokens packages will not be deployed on Artifactory.
+  (cd packages/pyxis-scss && deploy_on_artifactory)
+  (cd packages/pyxis-react && deploy_on_artifactory)
+  (cd packages/pyxis-icons && deploy_on_artifactory)
 fi
 
 aws --region="eu-west-1" s3 cp "${VERSION}"-"${ENV}".tar.gz s3://prima-artifacts-encrypted/microservices/pyxis/"${VERSION}"-"${ENV}".tar.gz
