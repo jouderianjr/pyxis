@@ -309,6 +309,7 @@ renderClose : DismissData msg -> Html msg
 renderClose { onDismiss, ariaLabel } =
     Html.button
         [ Html.Attributes.class "message__close"
+        , Html.Attributes.type_ "button"
         , Html.Events.onClick onDismiss
         , CommonsAttributes.ariaLabel ariaLabel
         ]
