@@ -2,7 +2,7 @@ import { cloneElement, FC, ReactElement } from 'react';
 import classNames from 'classnames';
 import Header, { HeaderProps } from './Header';
 import Footer, { FooterProps } from './Footer';
-import Content from './Content';
+import Content, { ContentProps } from './Content';
 
 const getBackdropClasses = (isOpen: boolean, className?: string): string => classNames(
   'modal-backdrop',
@@ -15,10 +15,6 @@ const getModalClasses = (size: Size, isCentered: boolean): string => classNames(
   `modal--${size}`,
   { 'modal--center': isCentered },
 );
-
-type MapChildren = (
-  children: ReactElement<HeaderProps | FooterProps | typeof Content>[]
-) => [string, ReactElement][];
 
 const mapChildren: MapChildren = (children) => children.map((child) => {
   switch (child.type) {
@@ -96,7 +92,7 @@ type Size = 'small' | 'medium' | 'large';
 
 export interface ModalProps {
   accessibilityDescription?: string;
-  children: ReactElement<HeaderProps | FooterProps | typeof Content>[];
+  children: ChildrenProps;
   className?: string;
   closeLabel?: string;
   id: string;
@@ -106,8 +102,12 @@ export interface ModalProps {
   size?: Size;
 }
 
+type ChildrenProps = ReactElement<HeaderProps | FooterProps | ContentProps>[];
+
+type MapChildren = (children: ChildrenProps) => [string, ReactElement][];
+
 interface ModalChildren {
   Header: FC<Omit<HeaderProps, 'id' | 'onClose'>>;
-  Content: FC;
+  Content: FC<ContentProps>;
   Footer: FC<Omit<FooterProps, 'id'>>;
 }

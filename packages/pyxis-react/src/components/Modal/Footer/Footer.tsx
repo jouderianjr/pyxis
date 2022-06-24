@@ -43,6 +43,7 @@ export default Footer;
 export interface FooterProps {
   alt?: boolean;
   buttons?: ReactNode;
+  children?: ReactNode;
   hasFullWidthButtons?: boolean;
   id: string;
   isSticky?: boolean;

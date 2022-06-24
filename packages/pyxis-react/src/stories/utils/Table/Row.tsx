@@ -1,4 +1,4 @@
-import React, { FC, ReactChild } from 'react';
+import React, {FC, ReactNode} from 'react';
 import shortid from 'shortid';
 import styles from './Table.module.scss';
 
@@ -20,4 +20,4 @@ interface RowProps {
 }
 
 export type TableRow = TableCell[];
-type TableCell = ReactChild;
+type TableCell = ReactNode;

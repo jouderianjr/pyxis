@@ -8,7 +8,7 @@ describe('Modal component', () => {
     render(
       <Modal id="testModal" isOpen>
         <Modal.Header />
-        <Modal.Content />
+        <Modal.Content>Some Content</Modal.Content>
         <Modal.Footer />
       </Modal>,
     );
@@ -19,7 +19,7 @@ describe('Modal component', () => {
     render(
       <Modal id="testModal" isOpen={false}>
         <Modal.Header />
-        <Modal.Content />
+        <Modal.Content>Some Content</Modal.Content>
         <Modal.Footer />
       </Modal>,
     );
@@ -34,7 +34,7 @@ describe('Modal component', () => {
         isOpen
       >
         <Modal.Header />
-        <Modal.Content />
+        <Modal.Content>Some Content</Modal.Content>
         <Modal.Footer />
       </Modal>,
     );
@@ -45,7 +45,7 @@ describe('Modal component', () => {
     render(
       <Modal id="testModal" isCentered isOpen>
         <Modal.Header />
-        <Modal.Content />
+        <Modal.Content>Some Content</Modal.Content>
         <Modal.Footer />
       </Modal>,
     );
@@ -56,7 +56,7 @@ describe('Modal component', () => {
     render(
       <Modal className="custom-class" id="testModal" isOpen>
         <Modal.Header />
-        <Modal.Content />
+        <Modal.Content>Some Content</Modal.Content>
         <Modal.Footer />
       </Modal>,
     );
@@ -68,7 +68,7 @@ describe('Modal component', () => {
     render(
       <Modal id="testModal" isOpen onClose={onCloseCb}>
         <Modal.Header />
-        <Modal.Content />
+        <Modal.Content>Some Content</Modal.Content>
         <Modal.Footer />
       </Modal>,
     );
@@ -80,7 +80,7 @@ describe('Modal component', () => {
       render(
         <Modal id="testModal" isOpen size="large">
           <Modal.Header />
-          <Modal.Content />
+          <Modal.Content>Some Content</Modal.Content>
           <Modal.Footer />
         </Modal>,
       );
@@ -91,7 +91,7 @@ describe('Modal component', () => {
       render(
         <Modal id="testModal" isOpen size="medium">
           <Modal.Header />
-          <Modal.Content />
+          <Modal.Content>Some Content</Modal.Content>
           <Modal.Footer />
         </Modal>,
       );
@@ -102,7 +102,7 @@ describe('Modal component', () => {
       render(
         <Modal id="testModal" isOpen size="small">
           <Modal.Header />
-          <Modal.Content />
+          <Modal.Content>Some Content</Modal.Content>
           <Modal.Footer />
         </Modal>,
       );
@@ -113,7 +113,7 @@ describe('Modal component', () => {
       render(
         <Modal id="testModal" isOpen>
           <Modal.Header />
-          <Modal.Content />
+          <Modal.Content>Some Content</Modal.Content>
           <Modal.Footer />
         </Modal>,
       );
@@ -140,7 +140,7 @@ describe('Modal component', () => {
       render(
         <Modal id="testModal" isOpen>
           <Modal.Header title="Test Modal" />
-          <Modal.Content />
+          <Modal.Content>Some Content</Modal.Content>
           <Modal.Footer />
         </Modal>,
       );
@@ -153,7 +153,7 @@ describe('Modal component', () => {
       render(
         <Modal id="testModal" isOpen onClose={onCloseCb}>
           <Modal.Header title="Test Modal" />
-          <Modal.Content />
+          <Modal.Content>Some Content</Modal.Content>
           <Modal.Footer />
         </Modal>,
       );

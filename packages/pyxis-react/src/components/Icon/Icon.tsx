@@ -13,12 +13,12 @@ const getClasses = (size: string, alt:boolean, className?: string, boxedVariant?
 
 const Icon: FC<IconProps> = ({
   alt = false,
+  boxedVariant,
+  children,
   className,
   description,
   id,
-  boxedVariant,
   size = 'm',
-  children,
 }) => (
   <div
     aria-hidden={!description}

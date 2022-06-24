@@ -1,4 +1,4 @@
-import React, { FC, ReactChildren, ReactElement } from 'react';
+import React, { FC, ReactElement, ReactNode } from 'react';
 import classNames from 'classnames';
 import {
   IconAlert, IconCheckCircle, IconClose, IconExclamationCircle, IconInfoCircle, IconThumbUp,
@@ -75,7 +75,7 @@ export type Variant = 'brand' | 'alert' | 'success' | 'error' | 'ghost';
 
 export interface MessageProps {
   className?: string;
-  children: ReactChildren | string;
+  children: ReactNode;
   customIcon?: FC<IconProps>;
   id?: string;
   onClose?: () => void;

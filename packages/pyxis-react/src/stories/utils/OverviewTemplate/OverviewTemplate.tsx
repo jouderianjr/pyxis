@@ -28,8 +28,9 @@ const OverviewTemplate: FC<AllStoriesOverviewGeneratorProps> = (
 export default OverviewTemplate;
 
 interface AllStoriesOverviewGeneratorProps {
-  description?: ReactNode,
-  title: string,
-  category?: string,
-  isMain?: boolean,
+  children?: ReactNode;
+  description?: ReactNode;
+  title: string;
+  category?: string;
+  isMain?: boolean;
 }

@@ -1,4 +1,4 @@
-import { FC, ReactElement } from 'react';
+import { FC, ReactElement, ReactNode } from 'react';
 import Button from 'components/Button';
 import classNames from 'classnames';
 import { IconClose } from 'components/Icon/Icons';
@@ -51,6 +51,7 @@ export default Header;
 
 export interface HeaderProps {
   badge?: ReactElement<BadgeProps>;
+  children?: ReactNode;
   closeLabel?: string;
   icon?: ReactElement<IconProps>;
   id: string;

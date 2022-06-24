@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, ReactElement, ReactNode } from 'react';
 import Label, { LabelProps } from './Label';
 import Item, { ItemProps } from './Item';
 import Input, { InputProps } from './Input';
@@ -17,12 +17,17 @@ Form.Label = Label;
 export default Form;
 
 interface FormProps {
+  children: ReactElement<FormChildren> | ReactElement<FormChildren>[];
   className?: string;
 }
 
 interface FormChildren {
-  AdditionalContent: FC;
+  AdditionalContent: FC<AdditionalContentProps>;
   Input: FC<Omit<InputProps, 'id'>>;
   Item: FC<ItemProps>;
   Label: FC<Omit<LabelProps, 'id' | 'htmlFor'>>;
+}
+
+interface AdditionalContentProps {
+  children: ReactNode;
 }
