@@ -12,6 +12,7 @@ module Pyxis.Components.Modal exposing
     , withClassList
     , withCloseMsg
     , withAriaDescribedBy
+    , withIsCentered
     , render
     )
 
@@ -45,6 +46,7 @@ module Pyxis.Components.Modal exposing
 @docs withClassList
 @docs withCloseMsg
 @docs withAriaDescribedBy
+@docs withIsCentered
 
 
 ## Rendering
@@ -66,14 +68,15 @@ import Pyxis.Components.Modal.Header as Header
 {-| Internal. The internal Modal configuration.
 -}
 type alias ConfigData msg =
-    { classList : List ( String, Bool )
+    { ariaDescribedBy : Maybe String
+    , classList : List ( String, Bool )
     , content : List (Html msg)
-    , id : String
     , footer : Maybe (Footer.Config msg)
     , header : Maybe (Header.Config msg)
-    , size : Size
+    , id : String
+    , isCentered : Bool
     , onCloseMsg : Maybe (Header.OnCloseData msg)
-    , ariaDescribedBy : Maybe String
+    , size : Size
     }
 
 
@@ -121,14 +124,15 @@ type Config msg
 config : String -> Config msg
 config id =
     Config
-        { classList = []
+        { ariaDescribedBy = Nothing
+        , classList = []
         , content = []
         , footer = Nothing
-        , id = id
         , header = Nothing
-        , size = Medium
+        , id = id
+        , isCentered = False
         , onCloseMsg = Nothing
-        , ariaDescribedBy = Nothing
+        , size = Medium
         }
 
 
@@ -189,7 +193,7 @@ withFooter footer (Config configData) =
     Config { configData | footer = Just footer }
 
 
-{-| Adds a ClassList to Modal
+{-| Adds a ClassList to Modal.
 -}
 withClassList : List ( String, Bool ) -> Config msg -> Config msg
 withClassList classList (Config configData) =
@@ -210,10 +214,17 @@ withAriaDescribedBy ariaDescribedBy (Config configData) =
     Config { configData | ariaDescribedBy = Just ariaDescribedBy }
 
 
+{-| Sets the center position to Modal.
+-}
+withIsCentered : Bool -> Config msg -> Config msg
+withIsCentered isCentered (Config configData) =
+    Config { configData | isCentered = isCentered }
+
+
 {-| Renders the Modal.
 -}
 render : Bool -> Config msg -> Html.Html msg
-render isOpen (Config { classList, header, content, footer, size, onCloseMsg, ariaDescribedBy, id }) =
+render isOpen (Config { classList, header, content, footer, size, onCloseMsg, ariaDescribedBy, id, isCentered }) =
     Html.div
         [ Html.Attributes.classList
             [ ( "modal-backdrop", True )
@@ -240,6 +251,7 @@ render isOpen (Config { classList, header, content, footer, size, onCloseMsg, ar
                 , ( "modal--small", size == Small )
                 , ( "modal--medium", size == Medium )
                 , ( "modal--large", size == Large )
+                , ( "modal--center", isCentered )
                 ]
             , Html.Attributes.classList classList
             ]

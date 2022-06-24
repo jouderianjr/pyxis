@@ -84,6 +84,20 @@ modal initialState =
         |> Modal.render initialState
 ```
 
+### Centered
+By default modal is always positioned in the top of the screen, but it is also possible to center it vertically. This use is recommended only if the modal is not high.
+<component with-label="WithCentered" />
+```
+modal initialState =
+    Modal.config id
+        |> Modal.withIsCentered True
+        |> Modal.withCloseMsg OnCloseModal "Close"
+        |> Modal.withHeader modalHeader
+        |> Modal.withContent modalContent
+        |> Modal.withFooter modalFooter
+        |> Modal.render initialState
+```
+
 ### WithAriaDescribedBy
 <component with-label="WithAriaDescribedBy" />
 ```
@@ -217,6 +231,7 @@ type alias SharedState x =
 type alias Model =
     { base : Bool
     , size : Bool
+    , centered : Bool
     , ariaDescribed : Bool
     , badge : Bool
     , icon : Bool
@@ -234,6 +249,7 @@ init : Model
 init =
     { base = False
     , size = False
+    , centered = False
     , ariaDescribed = False
     , badge = False
     , icon = False
@@ -290,6 +306,9 @@ componentsList =
       )
     , ( "WithSize"
       , statefulComponent "withSize" (Modal.withSize Modal.small) identity identity .size setSize
+      )
+    , ( "WithCentered"
+      , statefulComponent "WithCentered" (Modal.withIsCentered True) identity identity .centered setCentered
       )
     , ( "WithAriaDescribedBy"
       , statefulComponent
@@ -423,6 +442,11 @@ setBase _ model =
 setSize : SharedState x -> Model -> Model
 setSize _ model =
     { model | size = not model.size }
+
+
+setCentered : SharedState x -> Model -> Model
+setCentered _ model =
+    { model | centered = not model.centered }
 
 
 setAriaDescribed : SharedState x -> Model -> Model

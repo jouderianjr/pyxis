@@ -72,6 +72,13 @@ suite =
                         |> Modal.withHeader ModalHeader.config
                         |> renderConfig
                         |> Query.has [ Selector.class "modal--small" ]
+            , Test.test "with centered position" <|
+                \() ->
+                    initialConfig
+                        |> Modal.withIsCentered True
+                        |> Modal.withHeader ModalHeader.config
+                        |> renderConfig
+                        |> Query.has [ Selector.class "modal--center" ]
             ]
         , Test.describe "render header"
             [ Test.test "with base markup " <|
