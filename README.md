@@ -60,10 +60,10 @@ Now you want to instruct `npm` to download the packages from Prima's Artifactory
 3. In your terminal run:
 
    ```sh
-   curl -u <JFROG_USER>:<JFROG_APIKEY> http://prima.jfrog.io/artifactory/api/npm/auth >> ~/.npmrc
+   curl -u <JFROG_USER>:<JFROG_APIKEY> https://prima.jfrog.io/artifactory/api/npm/auth >> ~/.npmrc
 
    ## Usage example with user="aturing" apikey="3n1gm4?3n1gm4!3n1gm4?"
-   ## curl -u aturing:3n1gm4?3n1gm4!3n1gm4? http://prima.jfrog.io/artifactory/api/npm/auth >> ~/.npmrc
+   ## curl -u aturing:3n1gm4?3n1gm4!3n1gm4? https://prima.jfrog.io/artifactory/api/npm/auth >> ~/.npmrc
    ```
 
 4. Your `.npmrc` should now look like this:
