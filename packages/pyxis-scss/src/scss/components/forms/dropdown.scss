@@ -57,7 +57,10 @@ $_wrapperAnimationOffset: foundations.rem(10px);
 }
 
 .form-dropdown {
+  $maxHeight: foundations.rem(155px);
+  $maxHeightSmall: foundations.rem(120px);
   $radius: 0 0 foundations.rem(6px) foundations.rem(6px);
+  $scrollSnapMarginOffset: foundations.rem(1px);
 
   @include foundations.hideScrollbar;
   background-color: foundations.color(neutralLight);
@@ -65,12 +68,18 @@ $_wrapperAnimationOffset: foundations.rem(10px);
   border-top: foundations.rem(1px) solid foundations.color(neutral85);
   cursor: default;
   display: grid;
+  max-height: $maxHeight;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: foundations.spacing(3xs 2xs);
   position: relative;
   row-gap: foundations.spacing(4xs);
+  scroll-margin-block: $scrollSnapMarginOffset;
+  scroll-padding-block: foundations.spacing(4xs);
+  scroll-snap-type: y proximity;
 
   .form-dropdown-wrapper--small & {
+    max-height: $maxHeightSmall;
     padding: foundations.spacing(3xs);
   }
 }
@@ -92,11 +101,7 @@ $_wrapperAnimationOffset: foundations.rem(10px);
   min-height: $minHeight;
   outline: none;
   padding: foundations.spacing(0 2xs);
-  transition-duration: foundations.duration(fast);
-  transition-property: background-color, color;
-  transition-timing-function: foundations.timing(base);
   user-select: none;
-  will-change: background-color, color;
 
   .form-dropdown-wrapper--small & {
     min-height: $minHeightSmall;
@@ -111,6 +116,10 @@ $_wrapperAnimationOffset: foundations.rem(10px);
 .form-dropdown__item:hover,
 .form-dropdown__item--hover {
   background-color: foundations.color(neutral95);
+}
+
+.form-dropdown__item--hover {
+  scroll-snap-align: start;
 }
 
 .form-dropdown__no-results {
