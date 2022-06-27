@@ -1,14 +1,13 @@
 {
   "name": "@pyxis/react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "license": "ISC",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@pyxis/icons": "^0.0.1",
-    "@pyxis/tokens": "^0.0.1",
+    "@pyxis/icons": "^0.0.2",
     "@rollup/plugin-alias": "^3.1.8",
     "@storybook/addon-docs": "^6.5.9",
     "@storybook/addon-storyshots": "^6.5.9",
@@ -89,6 +88,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.16.5",
+    "@pyxis/tokens": "^0.0.2",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-typescript": "^8.3.0",
@@ -124,7 +124,7 @@
     "sass": "^1.51.0"
   },
   "peerDependencies": {
-    "@pyxis/scss": "0.0.1",
+    "@pyxis/scss": "0.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }
