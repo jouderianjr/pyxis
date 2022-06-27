@@ -49,7 +49,7 @@ toJob rawValue =
 
 selectModel : Select.Model formData Job
 selectModel =
-    Select.init "select-name" Nothing validation
+    Select.init Nothing validation
         |> Select.setOptions options
 
 
@@ -63,12 +63,13 @@ options =
 
 
 isMobile : Bool
-isMobile = False
+isMobile =
+    False
 
 
 select : formData -> Html Msg
 select formData =
-    Select.config isMobile
+    Select.config "fuzz" isMobile
         |> Select.withPlaceholder "Select your role..."
         |> Select.render OnSelectMsg formData selectModel
 ```
@@ -77,7 +78,7 @@ And the native `<select>` on mobile:
 
 <component with-label="Select (mobile)" />
 ```
-Select.config True
+Select.config "fuzz" True
     |> Select.render OnSelectMsg formData selectModel
 ```
 
@@ -85,7 +86,7 @@ Select.config True
 
 <component with-label="Select with disabled=True" />
 ```
-Select.config False
+Select.config "fuzz" False
     |> Select.withDisabled True
     |> Select.render OnSelectMsg formData selectModel
 ```
@@ -95,7 +96,7 @@ Select can have two size: default or small.
 
 <component with-label="Select with size=Small" />
 ```
-Select.config False
+Select.config "fuzz" False
     |> Select.withSize Select.small
     |> Select.render OnSelectMsg formData selectModel
 ```
@@ -104,7 +105,7 @@ Select.config False
 
 <component with-label="Select with additional content" />
 ```
-Select.config False
+Select.config "fuzz" False
     |> Select.withAdditionalContent (Html.text "Additional Content")
     |> Select.render OnSelectMsg formData selectModel
 ```
@@ -162,11 +163,11 @@ toJob rawValue =
 
 init : Model
 init =
-    { base = Select.init "base" Nothing (always Ok) |> Select.setOptions options
-    , mobile = Select.init "mobile" Nothing requiredValidation |> Select.setOptions options
-    , disabled = Select.init "disabled" Nothing requiredValidation |> Select.setOptions options
-    , small = Select.init "small" Nothing requiredValidation |> Select.setOptions options
-    , additionalContent = Select.init "additional-content" Nothing requiredValidation |> Select.setOptions options
+    { base = Select.init Nothing (always Ok) |> Select.setOptions options
+    , mobile = Select.init Nothing requiredValidation |> Select.setOptions options
+    , disabled = Select.init Nothing requiredValidation |> Select.setOptions options
+    , small = Select.init Nothing requiredValidation |> Select.setOptions options
+    , additionalContent = Select.init Nothing requiredValidation |> Select.setOptions options
     }
 
 
@@ -234,7 +235,7 @@ statefulComponent :
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
 statefulComponent { isMobile, configModifier } modelPicker internalUpdate sharedState =
-    Select.config isMobile
+    Select.config "example" isMobile
         |> Select.withPlaceholder "Select your role..."
         |> configModifier
         |> Select.render identity () (sharedState.select |> modelPicker)
@@ -251,7 +252,7 @@ updateBase : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
 updateBase msg model =
     let
         ( newModel, newCmd ) =
-            Select.update identity msg model.base
+            Select.update msg model.base
     in
     ( { model | base = newModel }
     , newCmd
@@ -262,7 +263,7 @@ updateMobile : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
 updateMobile msg model =
     let
         ( newModel, newCmd ) =
-            Select.update identity msg model.mobile
+            Select.update msg model.mobile
     in
     ( { model | mobile = newModel }
     , newCmd
@@ -273,7 +274,7 @@ updateSmall : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
 updateSmall msg model =
     let
         ( newModel, newCmd ) =
-            Select.update identity msg model.small
+            Select.update msg model.small
     in
     ( { model | small = newModel }
     , newCmd
@@ -284,7 +285,7 @@ updateAdditionalContent : Select.Msg -> Model -> ( Model, Cmd Select.Msg )
 updateAdditionalContent msg model =
     let
         ( newModel, newCmd ) =
-            Select.update identity msg model.additionalContent
+            Select.update msg model.additionalContent
     in
     ( { model | additionalContent = newModel }
     , newCmd

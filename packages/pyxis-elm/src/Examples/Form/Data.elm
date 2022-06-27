@@ -79,7 +79,7 @@ initialData =
         , residentialProvince =
             Result.fromMaybe ""
                 |> always
-                |> Select.init "residential-province" (Just (Province.getName Province.capitalProvince))
+                |> Select.init (Just (Province.getName Province.capitalProvince))
                 |> Select.setOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
         }
 
@@ -142,7 +142,7 @@ updateResidentialProvince : Select.Msg -> Data -> ( Data, Cmd Msg )
 updateResidentialProvince msg (Data d) =
     let
         ( componentModel, componentCmd ) =
-            Select.update Msg.ResidentialProvinceChanged msg d.residentialProvince
+            Select.update msg d.residentialProvince
     in
     ( Data { d | residentialProvince = componentModel }, componentCmd )
 

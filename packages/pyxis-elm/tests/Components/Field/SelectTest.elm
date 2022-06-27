@@ -23,42 +23,42 @@ suite =
     Test.describe "The Select component"
         [ Test.describe "Default"
             [ Test.fuzz Fuzz.string "the input has an id and a data-test-id" <|
-                \id ->
-                    Select.config False
-                        |> renderSelect "select" id
+                \name ->
+                    Select.config name False
+                        |> renderSelect
                         |> Query.has
-                            [ Selector.attribute (Html.Attributes.id id)
-                            , Selector.attribute (Html.Attributes.attribute "data-test-id" id)
+                            [ Selector.attribute (Html.Attributes.id ("id-" ++ name))
+                            , Selector.attribute (Html.Attributes.attribute "data-test-id" ("id-" ++ name))
                             ]
             ]
         , Test.describe "Disabled attribute"
             [ Test.test "should be False by default" <|
                 \() ->
-                    Select.config False
-                        |> renderSelect "select" "select-id"
+                    Select.config "fuzz" False
+                        |> renderSelect
                         |> findSelect
                         |> Query.has [ Selector.disabled False ]
             , Test.fuzz Fuzz.bool "should be rendered correctly" <|
                 \b ->
-                    Select.config False
+                    Select.config "fuzz" False
                         |> Select.withDisabled b
-                        |> renderSelect "select" "select-id"
+                        |> renderSelect
                         |> findSelect
                         |> Query.has [ Selector.disabled b ]
             ]
         , Test.fuzz Fuzz.string "name attribute should be rendered correctly" <|
             \name ->
-                Select.config False
-                    |> renderSelect name "select-id"
+                Select.config name False
+                    |> renderSelect
                     |> findSelect
                     |> Query.has
                         [ Selector.attribute (Html.Attributes.name name)
                         ]
         , Test.fuzz Fuzz.string "placeholder attribute should be rendered correctly" <|
             \p ->
-                Select.config False
+                Select.config "fuzz" False
                     |> Select.withPlaceholder p
-                    |> renderSelect "select" "select-id"
+                    |> renderSelect
                     |> findSelect
                     |> Query.has
                         [ Selector.tag "option"
@@ -66,9 +66,9 @@ suite =
                         ]
         , Test.fuzz Fuzz.string "error message should be rendered correctly" <|
             \p ->
-                Select.config False
+                Select.config "fuzz" False
                     |> Select.withPlaceholder p
-                    |> renderSelect "select" "select-id"
+                    |> renderSelect
                     |> findSelect
                     |> Query.has
                         [ Selector.tag "option"
@@ -77,9 +77,9 @@ suite =
         , Test.describe "ClassList attribute"
             [ Test.fuzzDistinctClassNames3 "should render correctly the given classes" <|
                 \s1 s2 s3 ->
-                    Select.config False
+                    Select.config "fuzz" False
                         |> Select.withClassList [ ( s1, True ), ( s2, False ), ( s3, True ) ]
-                        |> renderSelect "select" "select-id"
+                        |> renderSelect
                         |> findSelect
                         |> Expect.all
                             [ Query.has
@@ -91,10 +91,10 @@ suite =
                             ]
             , Test.fuzzDistinctClassNames3 "should only render the last pipe value" <|
                 \s1 s2 s3 ->
-                    Select.config False
+                    Select.config "fuzz" False
                         |> Select.withClassList [ ( s1, True ), ( s2, True ) ]
                         |> Select.withClassList [ ( s3, True ) ]
-                        |> renderSelect "select" "select-id"
+                        |> renderSelect
                         |> findSelect
                         |> Expect.all
                             [ Query.hasNot
@@ -125,14 +125,9 @@ findSelect =
     Query.find [ Selector.tag "select" ]
 
 
-renderSelect : String -> String -> Select.Config -> Query.Single Select.Msg
-renderSelect name id =
-    Select.render identity
-        ()
-        (Select.init name Nothing (always Ok)
-            |> Select.setId id
-        )
-        >> Query.fromHtml
+renderSelect : Select.Config -> Query.Single Select.Msg
+renderSelect =
+    Select.render identity () (Select.init Nothing (always Ok)) >> Query.fromHtml
 
 
 requiredFieldValidation : Maybe a -> Result String a
@@ -165,8 +160,7 @@ simulationDesktop : Simulation (Select.Model () Job Select.Msg) Select.Msg
 simulationDesktop =
     Simulation.fromElement
         { init =
-            ( Select.init "select"
-                Nothing
+            ( Select.init Nothing
                 (always (requiredFieldValidation >> Result.andThen validateJob))
                 |> Select.setOptions
                     [ Select.option { value = "DEVELOPER", label = "Developer" }
@@ -175,9 +169,9 @@ simulationDesktop =
                     ]
             , Cmd.none
             )
-        , update = Select.update identity
+        , update = Select.update
         , view =
             \model ->
-                Select.config False
+                Select.config "select" False
                     |> Select.render identity () model
         }

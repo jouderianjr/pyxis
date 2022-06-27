@@ -15,6 +15,7 @@
     "build": "lerna run build --stream",
     "elmbook:build": "lerna run elmbook:build",
     "elmbook:serve": "lerna run elmbook:serve",
+    "example:serve": "lerna run example:serve",
     "generate:icons": "lerna run generate:icons --stream",
     "install": "lerna bootstrap",
     "lint": "lerna run lint --stream",

@@ -76,7 +76,7 @@ view ((Data config) as data) =
             , Grid.row
                 [ Row.smallSize ]
                 [ Grid.simpleCol
-                    [ Select.config False
+                    [ Select.config "residential_province" False
                         |> Select.withStrategy Strategy.onSubmit
                         |> Select.withIsSubmitted config.isFormSubmitted
                         |> Select.withLabel (Label.config "Provincia di residenza")
