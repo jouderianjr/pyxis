@@ -4,7 +4,6 @@ import ElmBook
 import ElmBook.Actions
 import ElmBook.Chapter
 import Html exposing (Html)
-import PrimaFunction
 import Pyxis.Components.Button as Button
 import Pyxis.Components.Field.Autocomplete as Autocomplete
 import Pyxis.Components.Field.Label as Label
@@ -184,6 +183,16 @@ type alias SharedState x =
     { x | autocomplete : Models }
 
 
+type Msg
+    = OnSelect StoryType
+    | AutocompleteMsg StoryType (Autocomplete.Msg Job)
+
+
+type StoryType
+    = Base
+    | NoResult
+
+
 type Job
     = Developer
     | Designer
@@ -191,7 +200,7 @@ type Job
 
 
 type alias Model =
-    Autocomplete.Model () Job (Autocomplete.Msg Job)
+    Autocomplete.Model () Job Msg
 
 
 type alias Models =
@@ -200,19 +209,20 @@ type alias Models =
     }
 
 
-initAutocomplete : Model
-initAutocomplete =
+initAutocomplete : StoryType -> Model
+initAutocomplete type_ =
     Autocomplete.init
         Nothing
         jobToLabel
         optionsFilter
         (always (Result.fromMaybe "Required field"))
+        |> Autocomplete.setOnSelect (OnSelect type_)
 
 
 init : Models
 init =
-    { base = initAutocomplete
-    , noResult = initAutocomplete
+    { base = initAutocomplete Base
+    , noResult = initAutocomplete NoResult
     }
 
 
@@ -232,34 +242,65 @@ jobToLabel job =
 componentsList : List ( String, SharedState x -> Html (ElmBook.Msg (SharedState x)) )
 componentsList =
     [ ( "Autocomplete"
-      , statefulComponent (Autocomplete.withLabel (Label.config "Label")) .base updateBase
+      , statefulComponent
+            "autocomplete-default"
+            Base
+            (Autocomplete.withLabel (Label.config "Label"))
+            .base
       )
     , ( "Additional content"
       , statefulComponent
+            "autocomplete-additional-content"
+            Base
             (Autocomplete.withAdditionalContent (Html.text "Additional content to the Autocomplete"))
             .base
-            updateBase
       )
     , ( "Hint"
-      , statefulComponent (Autocomplete.withHint "This is an hint for the autocomplete") .base updateBase
+      , statefulComponent
+            "autocomplete-hint"
+            Base
+            (Autocomplete.withHint "This is an hint for the autocomplete")
+            .base
       )
     , ( "Disabled"
-      , statefulComponent (Autocomplete.withDisabled True) .base updateBase
+      , statefulComponent
+            "autocomplete-disabled"
+            Base
+            (Autocomplete.withDisabled True)
+            .base
       )
     , ( "Label"
-      , statefulComponent (Autocomplete.withLabel (Label.config "Label")) .base updateBase
+      , statefulComponent
+            "autocomplete-label"
+            Base
+            (Autocomplete.withLabel (Label.config "Label"))
+            .base
       )
     , ( "No Results Found Message"
-      , statefulComponent (Autocomplete.withNoResultsFoundMessage "No result for this search!") .noResult updateNoResult
+      , statefulComponent
+            "autocomplete-message"
+            NoResult
+            (Autocomplete.withNoResultsFoundMessage "No result for this search!")
+            .noResult
       )
     , ( "Placeholder"
-      , statefulComponent (Autocomplete.withPlaceholder "Placeholder") .base updateBase
+      , statefulComponent
+            "autocomplete-placeholder"
+            Base
+            (Autocomplete.withPlaceholder "Placeholder")
+            .base
       )
     , ( "Size small"
-      , statefulComponent (Autocomplete.withSize Autocomplete.small) .base updateBase
+      , statefulComponent
+            "autocomplete-small"
+            Base
+            (Autocomplete.withSize Autocomplete.small)
+            .base
       )
     , ( "Action"
       , statefulComponent
+            "autocomplete-action"
+            Base
             (Autocomplete.withAddonAction
                 (Button.ghost
                     |> Button.withText "Visit the page"
@@ -268,80 +309,75 @@ componentsList =
                 )
             )
             .base
-            updateBase
       )
     , ( "Header"
       , statefulComponent
+            "autocomplete-header"
+            Base
             (Autocomplete.withAddonHeader "Choose a role:")
             .base
-            updateBase
       )
     , ( "Suggestion"
       , statefulComponent
+            "autocomplete-suggestion"
+            Base
             (Autocomplete.withAddonSuggestion { title = "Suggestion", subtitle = Just "Subtitle", icon = IconSet.Search })
             .base
-            updateBase
       )
     ]
 
 
 type alias ConfigMapper =
-    Autocomplete.Config Job (Autocomplete.Msg Job) -> Autocomplete.Config Job (Autocomplete.Msg Job)
+    Autocomplete.Config Job Msg -> Autocomplete.Config Job Msg
 
 
-updateBase : Autocomplete.Msg Job -> Models -> ( Models, Cmd (Autocomplete.Msg Job) )
-updateBase msg model =
-    let
-        ( autocompleteModel, autocompleteCmd ) =
-            Autocomplete.update msg model.base
+update : Msg -> Models -> ( Models, Cmd Msg )
+update msg model =
+    case msg of
+        OnSelect Base ->
+            ( { model | base = model.base |> Autocomplete.setDropdownClosed }, Cmd.none )
 
-        hasReachedThreshold : String -> Bool
-        hasReachedThreshold str =
-            String.length str > 3
-    in
-    ( { model
-        | base =
-            autocompleteModel
-                |> PrimaFunction.ifThenElseMap (Autocomplete.getFilter >> hasReachedThreshold)
-                    (Autocomplete.setOptions (RemoteData.Success [ Designer, Developer, ProductManager ]))
-                    (Autocomplete.setOptions RemoteData.Loading)
-      }
-    , autocompleteCmd
-    )
+        OnSelect NoResult ->
+            ( { model | noResult = model.noResult |> Autocomplete.setDropdownClosed }, Cmd.none )
 
+        AutocompleteMsg Base internalMsg ->
+            let
+                ( autocompleteModel, autocompleteCmd ) =
+                    Autocomplete.update internalMsg model.base
+            in
+            ( { model
+                | base =
+                    autocompleteModel
+                        |> Autocomplete.setOptions (RemoteData.Success [ Designer, Developer, ProductManager ])
+              }
+            , autocompleteCmd
+            )
 
-updateNoResult : Autocomplete.Msg Job -> Models -> ( Models, Cmd (Autocomplete.Msg Job) )
-updateNoResult msg model =
-    let
-        ( autocompleteModel, autocompleteCmd ) =
-            Autocomplete.update msg model.noResult
-
-        hasReachedThreshold : String -> Bool
-        hasReachedThreshold str =
-            String.length str > 3
-    in
-    ( { model
-        | noResult =
-            autocompleteModel
-                |> PrimaFunction.ifThenElseMap (Autocomplete.getFilter >> hasReachedThreshold)
-                    (Autocomplete.setOptions (RemoteData.Success []))
-                    (Autocomplete.setOptions RemoteData.Loading)
-      }
-    , autocompleteCmd
-    )
+        AutocompleteMsg NoResult internalMsg ->
+            let
+                ( autocompleteModel, autocompleteCmd ) =
+                    Autocomplete.update internalMsg model.noResult
+            in
+            ( { model
+                | noResult =
+                    autocompleteModel
+                        |> Autocomplete.setOptions (RemoteData.Success [])
+              }
+            , autocompleteCmd
+            )
 
 
 statefulComponent :
-    ConfigMapper
+    String
+    -> StoryType
+    -> ConfigMapper
     -> (Models -> Model)
-    -> (Autocomplete.Msg Job -> Models -> ( Models, Cmd (Autocomplete.Msg Job) ))
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
-statefulComponent mapper modelPicker update sharedState =
-    Autocomplete.config
-        "autocomplete-config"
+statefulComponent name storyType mapper modelPicker sharedState =
+    Autocomplete.config name
         |> mapper
-        |> Autocomplete.render identity () (sharedState.autocomplete |> modelPicker)
+        |> Autocomplete.render (AutocompleteMsg storyType) () (sharedState.autocomplete |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \state model -> { state | autocomplete = model }

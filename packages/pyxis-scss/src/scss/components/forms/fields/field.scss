@@ -1,5 +1,6 @@
 @use "../../../foundations";
-@use "../mixins";
+@use "../mixins" as formMixins;
+@use "../../mixins";
 @use "../variables";
 
 // Add the same color and border-color to element.
@@ -13,7 +14,7 @@
 .form-field {
   @include foundations.radius(xs);
   @include foundations.text(m, book, neutralBase);
-  @include mixins.fieldStateDefault;
+  @include formMixins.fieldStateDefault;
   background-color: foundations.color(neutralLight);
   border: variables.$borderWidth solid foundations.color(neutral85);
   cursor: text;
@@ -26,15 +27,15 @@
 }
 
 .form-field--disabled {
-  @include mixins.fieldStateDisable;
+  @include formMixins.fieldStateDisable;
 }
 
 .form-field--error {
-  @include mixins.fieldStateError;
+  @include formMixins.fieldStateError;
 }
 
 .form-field--with-opened-dropdown {
-  @include mixins.fieldWithOpenedDropdown;
+  @include formMixins.fieldWithOpenedDropdown;
 }
 
 .form-field__wrapper {
@@ -55,6 +56,7 @@
   flex: 1;
   justify-content: center;
   pointer-events: none;
+  position: relative;
   transition: transform foundations.duration(fast) foundations.timing(base);
   user-select: none;
 
@@ -111,6 +113,16 @@
 
   .form-field__select--native.form-field__select--small + & {
     width: variables.$fieldHeightSmall;
+  }
+}
+
+.form-field__addon--loading {
+  .icon {
+    opacity: 0;
+  }
+
+  &:after {
+    @include mixins.loadingIcon;
   }
 }
 

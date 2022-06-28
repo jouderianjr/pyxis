@@ -15,7 +15,6 @@ module Pyxis.Components.Icon exposing
     , alert
     , error
     , withStyle
-    , withSpinner
     , withDescription
     , withClassList
     , render
@@ -58,7 +57,6 @@ module Pyxis.Components.Icon exposing
 
 ## Generics
 
-@docs withSpinner
 @docs withDescription
 @docs withClassList
 
@@ -87,7 +85,6 @@ type Config
         , description : Maybe String
         , icon : IconSet.Icon
         , size : Size
-        , spinner : Bool
         , style : Style
         , theme : Theme
         }
@@ -131,7 +128,6 @@ config icon =
         , description = Nothing
         , icon = icon
         , size = Medium
-        , spinner = False
         , style = Default
         , theme = Theme.default
         }
@@ -217,13 +213,6 @@ error =
     Boxed Error
 
 
-{-| Sets whether the Icon should spin or not.
--}
-withSpinner : Bool -> Config -> Config
-withSpinner spinner (Config configuration) =
-    Config { configuration | spinner = spinner }
-
-
 {-| Adds an accessible text to the Icon.
 -}
 withDescription : String -> Config -> Config
@@ -257,7 +246,6 @@ render (Config configData) =
     Html.div
         [ Html.Attributes.classList
             ([ ( "icon", True )
-             , ( "icon--spinner", configData.spinner )
              , ( "icon--size-l", Large == configData.size )
              , ( "icon--size-m", Medium == configData.size )
              , ( "icon--size-s", Small == configData.size )

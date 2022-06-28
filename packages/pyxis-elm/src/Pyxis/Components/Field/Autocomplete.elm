@@ -190,7 +190,7 @@ type alias Option value =
 -}
 setOptions : RemoteData err (List value) -> Model ctx value msg -> Model ctx value msg
 setOptions optionsRemoteData (Model modelData) =
-    Model { modelData | values = RemoteData.mapError (always ()) optionsRemoteData, isDropdownOpen = True }
+    Model { modelData | values = RemoteData.mapError (always ()) optionsRemoteData, isDropdownOpen = RemoteData.isSuccess optionsRemoteData }
 
 
 {-| Represents the Autocomplete message.
@@ -223,8 +223,7 @@ update msg ((Model modelData) as model) =
                     ]
 
         OnReset ->
-            modelData.validation
-                |> init Nothing modelData.valueToString modelData.optionsFilter
+            Model { modelData | filter = "", isFiltering = False, value = Nothing, activeOption = Nothing }
                 |> mapFieldStatus Status.onInput
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onReset
@@ -242,7 +241,13 @@ update msg ((Model modelData) as model) =
         OnKeyDown event ->
             model
                 |> updateOnKeyEvent event
-                |> PrimaUpdate.withoutCmds
+                |> PrimaUpdate.withCmd
+                    (if KeyDown.isEnter event && modelData.activeOption /= Nothing then
+                        Commands.dispatchFromMaybe modelData.onSelect
+
+                     else
+                        Cmd.none
+                    )
 
 
 updateOnKeyEvent : KeyDown.Event -> Model ctx value msg -> Model ctx value msg
@@ -579,7 +584,7 @@ render msgMapper ctx ((Model modelData) as model) ((Config configData) as config
     Html.div
         [ Html.Attributes.classList
             [ ( "form-field", True )
-            , ( "form-field--with-opened-dropdown", modelData.isDropdownOpen && Maybe.Extra.isJust dropdown )
+            , ( "form-field--with-opened-dropdown", modelData.isDropdownOpen && Maybe.Extra.isJust dropdown && RemoteData.isSuccess modelData.values )
             , ( "form-field--error", Result.Extra.isErr validationResult )
             , ( "form-field--disabled", configData.disabled )
             ]
@@ -670,7 +675,10 @@ renderField validationResult msgMapper ((Model modelData) as model) (Config conf
 renderFieldIconAddon : Model ctx value msg -> Html (Msg value)
 renderFieldIconAddon ((Model modelData) as model) =
     Html.div
-        [ Html.Attributes.class "form-field__addon"
+        [ Html.Attributes.classList
+            [ ( "form-field__addon", True )
+            , ( "form-field__addon--loading", RemoteData.isLoading modelData.values )
+            ]
         ]
         [ model
             |> getFieldAddonIcon
@@ -679,6 +687,7 @@ renderFieldIconAddon ((Model modelData) as model) =
             |> CommonsRender.renderIf (Maybe.Extra.isNothing modelData.value)
         , Html.button
             [ Html.Attributes.class "form-field__addon__reset"
+            , Html.Attributes.type_ "button"
             , Html.Events.onClick OnReset
             , CommonsAttributes.ariaLabel "reset"
             ]
@@ -695,12 +704,7 @@ renderFieldIconAddon ((Model modelData) as model) =
 -}
 getFieldAddonIcon : Model ctx value msg -> Icon.Config
 getFieldAddonIcon (Model modelData) =
-    if RemoteData.isLoading modelData.values then
-        IconSet.Loader
-            |> Icon.config
-            |> Icon.withSpinner True
-
-    else if Maybe.Extra.isJust modelData.value then
+    if Maybe.Extra.isJust modelData.value then
         Icon.config IconSet.Close
 
     else

@@ -38,7 +38,7 @@ validation _ value =
         Ok value
 
 
-textFieldModel : Input.Model FormData Input.Msg
+textFieldModel : Input.Model FormData String Msg
 textFieldModel =
     Input.init "" validation
 
