@@ -26,6 +26,7 @@ type Msg
     | InsuranceTypeChanged (RadioCardGroup.Msg Fields.Insurance)
     | ClaimTypeChanged (RadioCardGroup.Msg Fields.Claim)
     | PeopleInvolvedChanged (RadioCardGroup.Msg Bool)
-    | PrivacyChanged (CheckboxGroup.Msg ())
+    | PrivacyChanged (CheckboxGroup.Msg Fields.Option)
+    | VehiclesOwnChanged (CheckboxGroup.Msg Fields.Vehicles)
     | ShowModal Bool
     | FaqToggled Accordion.Msg

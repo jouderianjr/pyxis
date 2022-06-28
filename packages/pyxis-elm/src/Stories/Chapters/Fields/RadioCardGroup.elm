@@ -25,13 +25,13 @@ type Option
 type Msg
     = OnRadioCardFieldMsg (RadioCardGroup.Msg Option)
 
-validation : () -> Maybe Option -> Result String Option
-validation _ value =
-    value
-        |> Maybe.map (Ok)
-        |> Maybe.withDefault (Err "Invalid selection")
 
-radioCardGroupModel : RadioCardGroup.Model () Option Option (RadioCardGroup.Msg Option)
+validation : () -> Maybe option -> Result String option
+validation _ selected =
+    Result.fromMaybe "You must select one option" selected
+
+
+radioCardGroupModel : RadioCardGroup.Model () Option (RadioCardGroup.Msg Option)
 radioCardGroupModel =
     RadioCardGroup.init (Just Motor) validation
 
@@ -173,32 +173,32 @@ type Product
 
 
 type alias Model =
-    { base : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
-    , vertical : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
-    , disabled : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
-    , large : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
-    , icon : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
-    , text : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
-    , additionalContent : RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
+    { base : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
+    , vertical : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
+    , disabled : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
+    , large : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
+    , icon : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
+    , text : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
+    , additionalContent : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
     }
 
 
 init : Model
 init =
     { base =
-        RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+        RadioCardGroup.init Nothing validation
     , vertical =
-        RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+        RadioCardGroup.init (Just Motor) validation
     , disabled =
-        RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+        RadioCardGroup.init (Just Motor) validation
     , large =
-        RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+        RadioCardGroup.init (Just Motor) validation
     , icon =
-        RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+        RadioCardGroup.init (Just Motor) validation
     , text =
-        RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+        RadioCardGroup.init (Just Motor) validation
     , additionalContent =
-        RadioCardGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+        RadioCardGroup.init (Just Motor) validation
     }
 
 
@@ -273,7 +273,7 @@ optionsWithTextAddon =
 type alias StatefulConfig =
     { name : String
     , configModifier : RadioCardGroup.Config Product -> RadioCardGroup.Config Product
-    , modelPicker : Model -> RadioCardGroup.Model () Product Product (RadioCardGroup.Msg Product)
+    , modelPicker : Model -> RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
     , update : RadioCardGroup.Msg Product -> Model -> ( Model, Cmd (RadioCardGroup.Msg Product) )
     }
 
@@ -394,3 +394,8 @@ componentsList =
             }
       )
     ]
+
+
+validation : () -> Maybe Product -> Result String Product
+validation _ selected =
+    Result.fromMaybe "You must select one option" selected

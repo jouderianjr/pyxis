@@ -4,7 +4,6 @@ import ElmBook
 import ElmBook.Actions
 import ElmBook.Chapter
 import Html exposing (Html)
-import Html.Attributes
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Label as Label
 
@@ -40,7 +39,7 @@ validation _ selected =
             Ok selected
 
 
-checkboxGroupModel : CheckboxGroup.Model () Option (List Option) (CheckboxGroup.Msg Option)
+checkboxGroupModel : CheckboxGroup.Model () Option (CheckboxGroup.Msg Option)
 checkboxGroupModel =
     CheckboxGroup.init [] validation
 
@@ -89,30 +88,6 @@ CheckboxGroup.config "checkbox-name"
         checkboxGroupModel
 ```
 
-# With a single option
-<component with-label="CheckboxGroup with a single option" />
-```
-CheckboxGroup.single
-    (Html.div []
-     [ Html.text
-         "Dichiaro di aver letto l’"
-     , Html.a
-         [ Html.Attributes.href "https://www.prima.it/app/privacy-policy"
-         , Html.Attributes.target "blank"
-         , Html.Attributes.class "link"
-         ]
-         [ Html.text "Informativa Privacy" ]
-     , Html.text
-         ", disposta ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679. "
-     ]
-    )
-    "checkbox-name"
-    |> CheckboxGroup.render
-        OnCheckboxGroupMsg
-        formData
-        checkboxGroupModel
-```
-
 # With Additional Content
 
 <component with-label="CheckboxGroup with additional content" />
@@ -138,21 +113,19 @@ type Language
 
 
 type alias Model =
-    { base : CheckboxGroup.Model () Language (List Language) (CheckboxGroup.Msg Language)
-    , noValidation : CheckboxGroup.Model () Language (List Language) (CheckboxGroup.Msg Language)
-    , disabled : CheckboxGroup.Model () Language (List Language) (CheckboxGroup.Msg Language)
-    , single : CheckboxGroup.Model () () Bool (CheckboxGroup.Msg ())
-    , additionalContent : CheckboxGroup.Model () Language (List Language) (CheckboxGroup.Msg Language)
+    { base : CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
+    , noValidation : CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
+    , disabled : CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
+    , additionalContent : CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
     }
 
 
 init : Model
 init =
     { base = CheckboxGroup.init [] validation
-    , noValidation = CheckboxGroup.init [] (always Ok)
-    , disabled = CheckboxGroup.init [] (always Ok)
-    , single = CheckboxGroup.init [] singleOptionValidation
-    , additionalContent = CheckboxGroup.init [] (always Ok)
+    , noValidation = CheckboxGroup.init [] validation
+    , disabled = CheckboxGroup.init [] validation
+    , additionalContent = CheckboxGroup.init [] validation
     }
 
 
@@ -164,15 +137,6 @@ validation _ selected =
 
         _ ->
             Ok selected
-
-
-singleOptionValidation : () -> List () -> Result String Bool
-singleOptionValidation _ list =
-    if List.length list > 0 then
-        Ok True
-
-    else
-        Err "You must select the option"
 
 
 options : List (CheckboxGroup.Option Language msg)
@@ -197,7 +161,7 @@ optionsWithDisabled =
 type alias StatefulConfig msg =
     { name : String
     , configModifier : CheckboxGroup.Config Language msg -> CheckboxGroup.Config Language msg
-    , modelPicker : Model -> CheckboxGroup.Model () Language (List Language) (CheckboxGroup.Msg Language)
+    , modelPicker : Model -> CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
     , update : CheckboxGroup.Msg Language -> Model -> ( Model, Cmd (CheckboxGroup.Msg Language) )
     }
 
@@ -254,34 +218,6 @@ componentsList =
                     , Tuple.second (CheckboxGroup.update msg models.disabled)
                     )
             }
-      )
-    , ( "CheckboxGroup with a single option"
-      , \sharedState ->
-            CheckboxGroup.single
-                (Html.div []
-                    [ Html.text
-                        "Dichiaro di aver letto l’"
-                    , Html.a
-                        [ Html.Attributes.href "https://www.prima.it/app/privacy-policy"
-                        , Html.Attributes.target "blank"
-                        , Html.Attributes.class "link"
-                        ]
-                        [ Html.text "Informativa Privacy" ]
-                    , Html.text
-                        ", disposta ai sensi degli articoli 13 e 14 del Regolamento UE 2016/679. "
-                    ]
-                )
-                "checkbox-name"
-                |> CheckboxGroup.render identity () sharedState.checkbox.single
-                |> Html.map
-                    (ElmBook.Actions.mapUpdate
-                        { toState = \sharedState_ models -> { sharedState_ | checkbox = models }
-                        , fromState = .checkbox
-                        , update =
-                            \msg models ->
-                                { models | single = Tuple.first (CheckboxGroup.update msg models.single) }
-                        }
-                    )
       )
     , ( "CheckboxGroup with additional content"
       , statefulComponent

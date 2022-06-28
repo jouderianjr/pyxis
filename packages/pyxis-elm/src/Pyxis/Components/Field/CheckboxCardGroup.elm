@@ -130,10 +130,10 @@ import Pyxis.Components.IconSet as IconSet
 
 {-| The CheckboxCardGroup model.
 -}
-type Model ctx value parsedValue msg
+type Model ctx value msg
     = Model
         { checkedValues : List value
-        , validation : ctx -> List value -> Result String parsedValue
+        , validation : ctx -> List value -> Result String (List value)
         , fieldStatus : FieldStatus.Status
         , onBlur : Maybe msg
         , onFocus : Maybe msg
@@ -143,7 +143,7 @@ type Model ctx value parsedValue msg
 
 {-| Initialize the CheckboxCardGroup Model.
 -}
-init : List value -> (ctx -> List value -> Result String parsedValue) -> Model ctx value parsedValue msg
+init : List value -> (ctx -> List value -> Result String (List value)) -> Model ctx value msg
 init initialValues validation =
     Model
         { checkedValues = initialValues
@@ -207,7 +207,7 @@ type Msg value
 
 {-| Update the CheckboxGroup Model.
 -}
-update : Msg value -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
+update : Msg value -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnBlur _ ->
@@ -234,56 +234,56 @@ update msg ((Model modelData) as model) =
 
 {-| Update the field value.
 -}
-updateValue : value -> Bool -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
+updateValue : value -> Bool -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
 updateValue value checked =
     update (OnCheck value checked)
 
 
 {-| Internal
 -}
-checkValue : value -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+checkValue : value -> Model ctx value msg -> Model ctx value msg
 checkValue value =
     mapCheckedValues ((::) value)
 
 
 {-| Internal
 -}
-uncheckValue : value -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+uncheckValue : value -> Model ctx value msg -> Model ctx value msg
 uncheckValue value =
     mapCheckedValues (List.filter ((/=) value))
 
 
 {-| Sets an OnBlur side effect.
 -}
-setOnBlur : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
 setOnBlur msg (Model configuration) =
     Model { configuration | onBlur = Just msg }
 
 
 {-| Sets an OnFocus side effect.
 -}
-setOnFocus : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
 setOnFocus msg (Model configuration) =
     Model { configuration | onFocus = Just msg }
 
 
 {-| Sets an OnCheck side effect.
 -}
-setOnCheck : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnCheck : msg -> Model ctx value msg -> Model ctx value msg
 setOnCheck msg (Model configuration) =
     Model { configuration | onCheck = Just msg }
 
 
 {-| Return the selected value.
 -}
-getValue : Model ctx value parsedValue msg -> List value
+getValue : Model ctx value msg -> List value
 getValue (Model { checkedValues }) =
     checkedValues
 
 
 {-| Get the parsed value
 -}
-validate : ctx -> Model ctx value parsedValue msg -> Result String parsedValue
+validate : ctx -> Model ctx value msg -> Result String (List value)
 validate ctx (Model { checkedValues, validation }) =
     validation ctx checkedValues
 
@@ -470,7 +470,7 @@ withAdditionalContent additionalContent (Config configuration) =
 
 {-| Render the checkboxCardGroup
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue msg -> Config value -> Html msg
+render : (Msg value -> msg) -> ctx -> Model ctx value msg -> Config value -> Html msg
 render tagger ctx (Model modelData) (Config configData) =
     let
         shownValidation : Result String ()
@@ -508,13 +508,13 @@ mapOption tagger checkedValues (Option { value, text, title, addon, disabled }) 
 
 {-| Internal
 -}
-mapCheckedValues : (List value -> List value) -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+mapCheckedValues : (List value -> List value) -> Model ctx value msg -> Model ctx value msg
 mapCheckedValues f (Model r) =
     Model { r | checkedValues = f r.checkedValues }
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
 mapFieldStatus f (Model model) =
     Model { model | fieldStatus = f model.fieldStatus }

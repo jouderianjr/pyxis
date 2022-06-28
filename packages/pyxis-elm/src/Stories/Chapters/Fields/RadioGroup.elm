@@ -29,13 +29,11 @@ type Msg
 
 
 validation : () -> Maybe Option -> Result String Option
-validation _ value =
-    value
-        |> Maybe.map (Ok)
-        |> Maybe.withDefault (Err "Invalid selection")
+validation _ selected =
+    Result.fromMaybe "You must select one option" selected
 
 
-radioGroupModel : RadioGroup.Model (RadioGroup.Msg Option) () Option Option
+radioGroupModel : RadioGroup.Model () Option (RadioGroup.Msg Option)
 radioGroupModel =
     RadioGroup.init (Just Home) validation
 
@@ -103,23 +101,23 @@ type Product
 
 
 type alias Model =
-    { base : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
-    , vertical : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
-    , disabled : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
-    , additionalContent : RadioGroup.Model () Product Product (RadioGroup.Msg Product)
+    { base : RadioGroup.Model () Product (RadioGroup.Msg Product)
+    , vertical : RadioGroup.Model () Product (RadioGroup.Msg Product)
+    , disabled : RadioGroup.Model () Product (RadioGroup.Msg Product)
+    , additionalContent : RadioGroup.Model () Product (RadioGroup.Msg Product)
     }
 
 
 init : Model
 init =
     { base =
-        RadioGroup.init Nothing (always (Result.fromMaybe "Invalid selection"))
+        RadioGroup.init Nothing validation
     , vertical =
-        RadioGroup.init (Just Motor) (always (Result.fromMaybe "Invalid selection"))
+        RadioGroup.init (Just Motor) validation
     , disabled =
-        RadioGroup.init (Just Home) (always (Result.fromMaybe "Invalid selection"))
+        RadioGroup.init (Just Home) validation
     , additionalContent =
-        RadioGroup.init (Just Home) (always (Result.fromMaybe "Invalid selection"))
+        RadioGroup.init (Just Home) validation
     }
 
 
@@ -188,7 +186,7 @@ options =
 type alias StatefulConfig =
     { name : String
     , configModifier : RadioGroup.Config Product -> RadioGroup.Config Product
-    , modelPicker : Model -> RadioGroup.Model () Product Product (RadioGroup.Msg Product)
+    , modelPicker : Model -> RadioGroup.Model () Product (RadioGroup.Msg Product)
     , update : RadioGroup.Msg Product -> Model -> ( Model, Cmd (RadioGroup.Msg Product) )
     }
 
@@ -206,3 +204,8 @@ statefulComponent { name, configModifier, modelPicker, update } sharedState =
                 , update = update
                 }
             )
+
+
+validation : () -> Maybe Product -> Result String Product
+validation _ selected =
+    Result.fromMaybe "You must select one option" selected

@@ -160,13 +160,11 @@ suite =
                                 model
                                     |> CheckboxGroup.validate ()
                                     |> whenOk
-                                        (\( hd, tl ) ->
-                                            Expect.all
-                                                [ List.member Typescript >> Expect.true "`Typescript` option should  be selected"
-                                                , List.member Elixir >> Expect.false "`Elixir` option should not be selected"
-                                                , List.member Rust >> Expect.false "`Rust` option should not be selected"
-                                                ]
-                                                (hd :: tl)
+                                        (Expect.all
+                                            [ List.member Typescript >> Expect.true "`Typescript` option should  be selected"
+                                            , List.member Elixir >> Expect.false "`Elixir` option should not be selected"
+                                            , List.member Rust >> Expect.false "`Rust` option should not be selected"
+                                            ]
                                         )
                             )
                         |> Simulation.run
@@ -189,7 +187,7 @@ suite =
 
 
 type alias ComponentModel =
-    CheckboxGroup.Model () Lang (NonemptyList Lang) ComponentMsg
+    CheckboxGroup.Model () Lang ComponentMsg
 
 
 type alias ComponentMsg =
@@ -233,18 +231,14 @@ renderCheckboxGroup =
     CheckboxGroup.render identity () (CheckboxGroup.init [] (always Ok)) >> Query.fromHtml
 
 
-type alias NonemptyList a =
-    ( a, List a )
-
-
-nonEmptyLangValidation : () -> List Lang -> Result String (NonemptyList Lang)
+nonEmptyLangValidation : () -> List Lang -> Result String (List Lang)
 nonEmptyLangValidation () langs =
     case langs of
         [] ->
             Err "You must select at least one option"
 
-        hd :: tl ->
-            Ok ( hd, tl )
+        _ ->
+            Ok langs
 
 
 simulation : Simulation ComponentModel ComponentMsg

@@ -129,10 +129,10 @@ import Pyxis.Components.IconSet as IconSet
 
 {-| The RadioCardGroup model.
 -}
-type Model ctx value parsedValue msg
+type Model ctx value msg
     = Model
         { selectedValue : Maybe value
-        , validation : ctx -> Maybe value -> Result String parsedValue
+        , validation : ctx -> Maybe value -> Result String value
         , fieldStatus : FieldStatus.Status
         , onBlur : Maybe msg
         , onFocus : Maybe msg
@@ -142,7 +142,7 @@ type Model ctx value parsedValue msg
 
 {-| Initialize the RadioCardGroup Model.
 -}
-init : Maybe value -> (ctx -> Maybe value -> Result String parsedValue) -> Model ctx value parsedValue msg
+init : Maybe value -> (ctx -> Maybe value -> Result String value) -> Model ctx value msg
 init initialValue validation =
     Model
         { selectedValue = initialValue
@@ -376,7 +376,7 @@ withStrategy strategy (Config configuration) =
 
 {-| Render the RadioCardGroup.
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue msg -> Config value -> Html msg
+render : (Msg value -> msg) -> ctx -> Model ctx value msg -> Config value -> Html msg
 render tagger ctx (Model modelData) (Config configData) =
     let
         shownValidation : Result String ()
@@ -408,7 +408,7 @@ mapOption isDisabled checkedValue (Option { value, text, title, addon }) =
 
 {-| Update the RadioGroup Model.
 -}
-update : Msg value -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
+update : Msg value -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnCheck value ->
@@ -432,48 +432,48 @@ update msg ((Model modelData) as model) =
 
 {-| Update the field value.
 -}
-updateValue : value -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
+updateValue : value -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
 updateValue value =
     update (OnCheck value)
 
 
 {-| Sets an OnBlur side effect.
 -}
-setOnBlur : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
 setOnBlur msg (Model configuration) =
     Model { configuration | onBlur = Just msg }
 
 
 {-| Sets an OnFocus side effect.
 -}
-setOnFocus : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
 setOnFocus msg (Model configuration) =
     Model { configuration | onFocus = Just msg }
 
 
 {-| Sets an OnCheck side effect.
 -}
-setOnCheck : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnCheck : msg -> Model ctx value msg -> Model ctx value msg
 setOnCheck msg (Model configuration) =
     Model { configuration | onCheck = Just msg }
 
 
 {-| Return the selected value.
 -}
-getValue : Model ctx value parsedValue msg -> Maybe value
+getValue : Model ctx value msg -> Maybe value
 getValue (Model { selectedValue }) =
     selectedValue
 
 
 {-| Get the parsed value
 -}
-validate : ctx -> Model ctx value parsedValue msg -> Result String parsedValue
+validate : ctx -> Model ctx value msg -> Result String value
 validate ctx (Model { selectedValue, validation }) =
     validation ctx selectedValue
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
 mapFieldStatus f (Model model) =
     Model { model | fieldStatus = f model.fieldStatus }

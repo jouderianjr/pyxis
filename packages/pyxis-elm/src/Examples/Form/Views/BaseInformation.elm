@@ -2,6 +2,7 @@ module Examples.Form.Views.BaseInformation exposing (view)
 
 import Examples.Form.Data exposing (Data(..))
 import Examples.Form.Msg as Msg exposing (Msg)
+import Examples.Form.Types as Types
 import Html exposing (Html)
 import Html.Attributes
 import Pyxis.Components.Field.Autocomplete as Autocomplete
@@ -86,6 +87,23 @@ view ((Data config) as data) =
             , Grid.row
                 [ Row.smallSize ]
                 [ Grid.simpleCol
+                    [ "vehicles-own"
+                        |> CheckboxGroup.config
+                        |> CheckboxGroup.withOptions
+                            [ CheckboxGroup.option { value = Types.Car, label = Html.text "Car" }
+                            , CheckboxGroup.option { value = Types.Motorcycle, label = Html.text "Motorcycle" }
+                            , CheckboxGroup.option { value = Types.Van, label = Html.text "Van" }
+                            ]
+                        |> CheckboxGroup.withLabel (Label.config "Kind of vehicles involved in the accident")
+                        |> CheckboxGroup.withStrategy Strategy.onSubmit
+                        |> CheckboxGroup.withLayout CheckboxGroup.vertical
+                        |> CheckboxGroup.withIsSubmitted config.isFormSubmitted
+                        |> CheckboxGroup.render Msg.VehiclesOwnChanged data config.vehiclesOwn
+                    ]
+                ]
+            , Grid.row
+                [ Row.smallSize ]
+                [ Grid.simpleCol
                     [ "claim_date"
                         |> Input.date
                         |> Input.withStrategy Strategy.onSubmit
@@ -98,7 +116,9 @@ view ((Data config) as data) =
                 [ Row.smallSize ]
                 [ Grid.simpleCol
                     [ "checkbox-id"
-                        |> CheckboxGroup.single viewPrivacy
+                        |> CheckboxGroup.config
+                        |> CheckboxGroup.withOptions
+                            [ CheckboxGroup.option { value = Types.AcceptPrivacy, label = viewPrivacy } ]
                         |> CheckboxGroup.withStrategy Strategy.onSubmit
                         |> CheckboxGroup.withIsSubmitted config.isFormSubmitted
                         |> CheckboxGroup.withId "checkbox-group-single"

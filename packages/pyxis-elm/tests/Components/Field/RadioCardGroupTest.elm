@@ -168,7 +168,7 @@ suite =
 
 
 type alias ComponentModel =
-    RadioCardGroup.Model () Option Option ComponentMsg
+    RadioCardGroup.Model () Option ComponentMsg
 
 
 type alias ComponentMsg =

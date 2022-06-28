@@ -111,7 +111,7 @@ suite =
 
 
 type alias ComponentModel =
-    RadioGroup.Model () Option Option ComponentMsg
+    RadioGroup.Model () Option ComponentMsg
 
 
 type alias ComponentMsg =

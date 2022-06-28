@@ -57,3 +57,6 @@ update msg model =
 
         FaqToggled subMsg ->
             Model.updateFaqs subMsg model
+
+        VehiclesOwnChanged subMsg ->
+            Model.updateDataAndDispatch (Data.updateVehiclesOwn subMsg) model

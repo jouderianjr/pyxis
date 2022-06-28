@@ -25,7 +25,6 @@ module Pyxis.Components.Field.CheckboxGroup exposing
     , option
     , withOptions
     , withDisabledOption
-    , single
     , render
     )
 
@@ -84,7 +83,6 @@ module Pyxis.Components.Field.CheckboxGroup exposing
 @docs option
 @docs withOptions
 @docs withDisabledOption
-@docs single
 
 
 ## Rendering
@@ -111,10 +109,10 @@ import Result.Extra
 
 {-| A type representing the CheckboxGroup field internal state.
 -}
-type Model ctx value parsedValue msg
+type Model ctx value msg
     = Model
         { checkedValues : List value
-        , validation : ctx -> List value -> Result String parsedValue
+        , validation : ctx -> List value -> Result String (List value)
         , fieldStatus : FieldStatus.Status
         , onBlur : Maybe msg
         , onFocus : Maybe msg
@@ -125,7 +123,7 @@ type Model ctx value parsedValue msg
 {-| Initialize the CheckboxGroup internal state.
 Takes a validation function as argument
 -}
-init : List value -> (ctx -> List value -> Result String parsedValue) -> Model ctx value parsedValue msg
+init : List value -> (ctx -> List value -> Result String (List value)) -> Model ctx value msg
 init initialValues validation =
     Model
         { checkedValues = initialValues
@@ -147,7 +145,7 @@ type Msg value
 
 {-| Update the internal state of the CheckboxGroup component
 -}
-update : Msg value -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
+update : Msg value -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnBlur ->
@@ -174,42 +172,42 @@ update msg ((Model modelData) as model) =
 
 {-| Update the field value.
 -}
-updateValue : value -> Bool -> Model ctx value parsedValue msg -> ( Model ctx value parsedValue msg, Cmd msg )
+updateValue : value -> Bool -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
 updateValue value checked =
     update (OnCheck value checked)
 
 
 {-| Add the value to the checked list
 -}
-checkValue : value -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+checkValue : value -> Model ctx value msg -> Model ctx value msg
 checkValue value =
     mapCheckedValues ((::) value)
 
 
 {-| Remove the value to the checked list
 -}
-uncheckValue : value -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+uncheckValue : value -> Model ctx value msg -> Model ctx value msg
 uncheckValue value =
     mapCheckedValues (List.filter ((/=) value))
 
 
 {-| Sets an OnBlur side effect.
 -}
-setOnBlur : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
 setOnBlur msg (Model configuration) =
     Model { configuration | onBlur = Just msg }
 
 
 {-| Sets an OnFocus side effect.
 -}
-setOnFocus : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
 setOnFocus msg (Model configuration) =
     Model { configuration | onFocus = Just msg }
 
 
 {-| Sets an OnCheck side effect.
 -}
-setOnCheck : msg -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+setOnCheck : msg -> Model ctx value msg -> Model ctx value msg
 setOnCheck msg (Model configuration) =
     Model { configuration | onCheck = Just msg }
 
@@ -362,28 +360,9 @@ config name =
         }
 
 
-{-| Creates a config with only one one [`CheckboxGroup.Option`](CheckboxGroup#Option) applied
-
-    single "I accept the cookie policy"
-
-    -- Is equivalent to
-    config
-        |> withOptions
-            [ option { value = (), label = "I accept the cookie policy" }
-            ]
-
--}
-single : Html msg -> String -> Config () msg
-single label id =
-    config id
-        |> withOptions
-            [ option { value = (), label = label }
-            ]
-
-
 {-| Render the CheckboxGroup
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value parsedValue msg -> Config value msg -> Html msg
+render : (Msg value -> msg) -> ctx -> Model ctx value msg -> Config value msg -> Html msg
 render tagger ctx (Model modelData) (Config configData) =
     let
         shownValidation : Result String ()
@@ -411,7 +390,7 @@ render tagger ctx (Model modelData) (Config configData) =
         |> FormItem.render shownValidation
 
 
-{-| Internal
+{-| Internal.
 Handles the single input / input group markup difference
 -}
 renderControlGroup : ConfigData value msg -> List (Html msg) -> Html msg
@@ -437,14 +416,14 @@ renderControlGroup configData children =
 
 {-| Get the parsed value
 -}
-validate : ctx -> Model ctx value parsedValue msg -> Result String parsedValue
+validate : ctx -> Model ctx value msg -> Result String (List value)
 validate ctx (Model modelData) =
     modelData.validation ctx modelData.checkedValues
 
 
 {-| Get the checked options **without** passing through the validation
 -}
-getValue : Model ctx value parsedValue msg -> List value
+getValue : Model ctx value msg -> List value
 getValue (Model modelData) =
     modelData.checkedValues
 
@@ -483,13 +462,13 @@ renderCheckbox tagger { hasError, checkedValues } configData (Option optionData)
 -- Getters/Setters boilerplate
 
 
-mapCheckedValues : (List value -> List value) -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+mapCheckedValues : (List value -> List value) -> Model ctx value msg -> Model ctx value msg
 mapCheckedValues f (Model modelData) =
     Model { modelData | checkedValues = f modelData.checkedValues }
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value parsedValue msg -> Model ctx value parsedValue msg
+mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
 mapFieldStatus f (Model model) =
     Model { model | fieldStatus = f model.fieldStatus }
