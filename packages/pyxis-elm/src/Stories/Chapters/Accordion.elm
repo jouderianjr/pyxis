@@ -208,7 +208,7 @@ accordionItems : List (AccordionItem.Config msg)
 accordionItems =
     [ AccordionItem.config "id-one"
         |> AccordionItem.withTitle "Title one"
-        |> AccordionItem.withAddon (Accordion.iconAddon IconSet.Car)
+        |> AccordionItem.withIcon IconSet.Car
         |> AccordionItem.withContent
             [ Html.div
                 []
@@ -216,7 +216,7 @@ accordionItems =
             ]
     , AccordionItem.config "id-two"
         |> AccordionItem.withTitle "Title two"
-        |> AccordionItem.withAddon (Accordion.imageAddon "../../../assets/placeholder.svg")
+        |> AccordionItem.withImage "../../../assets/placeholder.svg"
         |> AccordionItem.withContent
             [ Html.div
                 []
@@ -462,7 +462,7 @@ accordionItemWithAddons : String -> List (AccordionItem.Config msg)
 accordionItemWithAddons id =
     [ AccordionItem.config (id ++ "-1")
         |> AccordionItem.withTitle "Title one"
-        |> AccordionItem.withAddon (AccordionItem.iconAddon IconSet.Car)
+        |> AccordionItem.withIcon IconSet.Car
         |> AccordionItem.withContent
             [ Html.div
                 []
@@ -470,7 +470,7 @@ accordionItemWithAddons id =
             ]
     , AccordionItem.config (id ++ "-2")
         |> AccordionItem.withTitle "Title two"
-        |> AccordionItem.withAddon (AccordionItem.imageAddon "../../../assets/placeholder.svg")
+        |> AccordionItem.withImage "../../../assets/placeholder.svg"
         |> AccordionItem.withContent
             [ Html.div
                 []

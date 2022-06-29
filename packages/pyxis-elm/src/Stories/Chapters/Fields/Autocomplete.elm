@@ -151,10 +151,13 @@ Autocomplete.config "autocomplete-name"
 ```
 
 ## Addon
-<component with-label="Action" />
+
+### No Result Found Action
+A button or link that appears at the end of the list of options, in case that the list is empty (there are no results).
+<component with-label="NoResultFoundAction" />
 ```
 Autocomplete.config "autocomplete-name"
-    |> Autocomplete.withAddonAction
+    |> Autocomplete.withNoResultFoundAction
         (Button.ghost
             |> Button.withText "Visit the page"
             |> Button.withType (Button.link "https://www.google.com")
@@ -163,17 +166,21 @@ Autocomplete.config "autocomplete-name"
     |> Autocomplete.render AutocompleteMsg () model.job
 ```
 
-<component with-label="Header" />
+### Header Text
+A text that appears at the begging of the list of options.
+<component with-label="HeaderText" />
 ```
 Autocomplete.config "autocomplete-name"
-    |> Autocomplete.withAddonHeader "Choose a role:"
+    |> Autocomplete.withHeaderText "Choose a role:"
     |> Autocomplete.render AutocompleteMsg () model.job
 ```
 
+### Suggestion
+A hint composed by title and subtitle that appears in the dropdown before starting to type.
 <component with-label="Suggestion" />
 ```
 Autocomplete.config "autocomplete-name"
-    |> Autocomplete.withAddonSuggestion { title = "Suggestion", subtitle = Just "Subtitle", icon = IconSet.Search }
+    |> Autocomplete.withSuggestion { title = "Suggestion", subtitle = Just "Subtitle", icon = IconSet.Search }
     |> Autocomplete.render AutocompleteMsg () model.job
 ```
 """
@@ -297,11 +304,11 @@ componentsList =
             (Autocomplete.withSize Autocomplete.small)
             .base
       )
-    , ( "Action"
+    , ( "NoResultFoundAction"
       , statefulComponent
             "autocomplete-action"
             Base
-            (Autocomplete.withAddonAction
+            (Autocomplete.withNoResultFoundAction
                 (Button.ghost
                     |> Button.withText "Visit the page"
                     |> Button.withType (Button.link "https://www.google.com")
@@ -310,19 +317,19 @@ componentsList =
             )
             .base
       )
-    , ( "Header"
+    , ( "HeaderText"
       , statefulComponent
             "autocomplete-header"
             Base
-            (Autocomplete.withAddonHeader "Choose a role:")
+            (Autocomplete.withHeaderText "Choose a role:")
             .base
       )
     , ( "Suggestion"
       , statefulComponent
             "autocomplete-suggestion"
-            Base
-            (Autocomplete.withAddonSuggestion { title = "Suggestion", subtitle = Just "Subtitle", icon = IconSet.Search })
-            .base
+            NoResult
+            (Autocomplete.withSuggestion { title = "Suggestion", subtitle = Just "Subtitle", icon = IconSet.Search })
+            .noResult
       )
     ]
 

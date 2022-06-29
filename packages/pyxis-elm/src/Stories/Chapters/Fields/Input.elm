@@ -5,7 +5,6 @@ import ElmBook
 import ElmBook.Actions
 import ElmBook.Chapter
 import Html exposing (Html)
-import Pyxis.Commons.Properties.Placement as Placement
 import Pyxis.Components.Field.Input as Input
 import Pyxis.Components.IconSet as IconSet
 
@@ -100,7 +99,7 @@ Input field can have several addons, such as icons or texts. They are used to ma
 
 ```
 Input.text "text-name"
-    |> Input.withAddon Placement.prepend (Input.textAddon "mq")
+    |> Input.withTextPrepend "mq"
     |> Input.render OnInputFieldMsg formData textFieldModel
 ```
 
@@ -109,7 +108,7 @@ Input.text "text-name"
 
 ```
 Input.text "text-name"
-    |> Input.withAddon Placement.append (Input.textAddon "€")
+    |> Input.withTextAppend "€"
     |> Input.render OnInputFieldMsg formData textFieldModel
 ```
 
@@ -118,7 +117,7 @@ Input.text "text-name"
 
 ```
 Input.text "text-name"
-    |> Input.withAddon Placement.prepend (Input.iconAddon IconSet.AccessKey)
+    |> Input.withIconPrepend IconSet.AccessKey
     |> Input.render OnInputFieldMsg formData textFieldModel
 ```
 
@@ -127,7 +126,7 @@ Input.text "text-name"
 
 ```
 Input.text "text-name"
-    |> Input.withAddon Placement.append (Input.iconAddon IconSet.Bell)
+    |> Input.withIconAppend IconSet.Bell
     |> Input.render OnInputFieldMsg formData textFieldModel
 ```
 
@@ -267,28 +266,28 @@ componentsList =
     , ( "Input withAddon prepend text"
       , \sharedState ->
             Input.text "with-addon-prepend-text"
-                |> Input.withAddon Placement.prepend (Input.textAddon "mq")
+                |> Input.withTextPrepend "mq"
                 |> Input.render identity () sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withAddon append text"
       , \sharedState ->
             Input.text "with-addon-append-text"
-                |> Input.withAddon Placement.append (Input.textAddon "€")
+                |> Input.withTextAppend "€"
                 |> Input.render identity () sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withAddon prepend icon"
       , \sharedState ->
             Input.text "with-addon-prepend-icon"
-                |> Input.withAddon Placement.prepend (Input.iconAddon IconSet.AccessKey)
+                |> Input.withIconPrepend IconSet.AccessKey
                 |> Input.render identity () sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withAddon append icon"
       , \sharedState ->
             Input.text "with-addon-append-icon"
-                |> Input.withAddon Placement.append (Input.iconAddon IconSet.Bell)
+                |> Input.withIconAppend IconSet.Bell
                 |> Input.render identity () sharedState.input.base
                 |> statelessComponent
       )

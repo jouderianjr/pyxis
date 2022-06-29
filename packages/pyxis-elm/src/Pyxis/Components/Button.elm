@@ -105,7 +105,6 @@ import Html.Events
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Attributes.LinkTarget exposing (LinkTarget)
 import Pyxis.Commons.Constraints as CommonsConstraints
-import Pyxis.Commons.Properties.Placement as Placement exposing (Placement)
 import Pyxis.Commons.Properties.Theme as Theme exposing (Theme)
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Icon as Icon
@@ -343,7 +342,8 @@ small (Config configuration) =
 {-| Internal.
 -}
 type ButtonIcon
-    = PlacedIcon Placement IconSet.Icon
+    = Append IconSet.Icon
+    | Prepend IconSet.Icon
     | Standalone IconSet.Icon
     | None
 
@@ -353,8 +353,8 @@ type ButtonIcon
 isPrepend : ButtonIcon -> Bool
 isPrepend buttonIcon =
     case buttonIcon of
-        PlacedIcon placement _ ->
-            Placement.isPrepend placement
+        Prepend _ ->
+            True
 
         _ ->
             False
@@ -365,8 +365,8 @@ isPrepend buttonIcon =
 isAppend : ButtonIcon -> Bool
 isAppend buttonIcon =
     case buttonIcon of
-        PlacedIcon placement _ ->
-            Placement.isAppend placement
+        Append _ ->
+            True
 
         _ ->
             False
@@ -389,7 +389,10 @@ isStandalone buttonIcon =
 pickIcon : ButtonIcon -> Maybe IconSet.Icon
 pickIcon buttonIcon =
     case buttonIcon of
-        PlacedIcon _ icon ->
+        Append icon ->
+            Just icon
+
+        Prepend icon ->
             Just icon
 
         Standalone icon ->
@@ -512,7 +515,7 @@ withIconPrepend :
     -> Config { c | iconPrepend : CommonsConstraints.Allowed } msg
     -> Config { c | iconPrepend : CommonsConstraints.Denied } msg
 withIconPrepend icon (Config configuration) =
-    Config { configuration | icon = PlacedIcon Placement.prepend icon }
+    Config { configuration | icon = Prepend icon }
 
 
 {-| Adds an icon to the Button. The icon will be shown after button's content from ltr.
@@ -522,7 +525,7 @@ withIconAppend :
     -> Config { c | iconAppend : CommonsConstraints.Allowed } msg
     -> Config { c | iconAppend : CommonsConstraints.Denied } msg
 withIconAppend icon (Config configuration) =
-    Config { configuration | icon = PlacedIcon Placement.append icon }
+    Config { configuration | icon = Append icon }
 
 
 {-| Adds an icon to the Button. This will be the only content of the Button.

@@ -6,9 +6,8 @@ module Pyxis.Components.Accordion.Item exposing
     , withContent
     , ActionText
     , withActionText
-    , withAddon
-    , iconAddon
-    , imageAddon
+    , withImage
+    , withIcon
     , setContentId
     , render
     )
@@ -36,9 +35,8 @@ module Pyxis.Components.Accordion.Item exposing
 
 @docs ActionText
 @docs withActionText
-@docs withAddon
-@docs iconAddon
-@docs imageAddon
+@docs withImage
+@docs withIcon
 
 
 # Generics
@@ -118,20 +116,6 @@ config id =
         }
 
 
-{-| Creates an Addon with an Icon from our IconSet.
--}
-iconAddon : IconSet.Icon -> AddonType
-iconAddon =
-    IconAddon
-
-
-{-| Creates an Addon with an Image
--}
-imageAddon : ImageUrl -> AddonType
-imageAddon =
-    ImageAddon
-
-
 {-| Sets the title.
 -}
 withTitle : String -> Config msg -> Config msg
@@ -153,11 +137,18 @@ withActionText actionText (Config itemConfig) =
     Config { itemConfig | actionText = Just actionText }
 
 
-{-| Sets an Addon by type.
+{-| Sets an Icon Addon.
 -}
-withAddon : AddonType -> Config msg -> Config msg
-withAddon type_ (Config itemConfig) =
-    Config { itemConfig | addon = Just type_ }
+withIcon : IconSet.Icon -> Config msg -> Config msg
+withIcon icon (Config itemConfig) =
+    Config { itemConfig | addon = IconAddon icon |> Just }
+
+
+{-| Sets a Text Addon.
+-}
+withImage : ImageUrl -> Config msg -> Config msg
+withImage url (Config itemConfig) =
+    Config { itemConfig | addon = ImageAddon url |> Just }
 
 
 {-| Sets the content.

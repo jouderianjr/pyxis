@@ -35,7 +35,7 @@ Legend.config "Legend"
 <component with-label="WithImageAddon" />
 ```
 Legend.config "Legend"
-    |> Legend.withAddon (Legend.imageAddon "../assets/placeholder.svg")
+    |> Legend.withImage "../assets/placeholder.svg"
     |> Legend.withDescription "Legend description"
     |> Legend.render
 ```
@@ -44,7 +44,7 @@ Legend.config "Legend"
 <component with-label="WithIconAddon" />
 ```
 Legend.config "Legend"
-    |> Legend.withAddon (Legend.iconAddon Icon.Car)
+    |> Legend.withIcon Icon.Car
     |> Legend.withDescription "Legend description"
     |> Legend.render
 ```
@@ -73,13 +73,13 @@ componentsList =
       )
     , ( "WithImageAddon"
       , Legend.config "Legend"
-            |> Legend.withAddon (Legend.imageAddon "../assets/placeholder.svg")
+            |> Legend.withImage "../assets/placeholder.svg"
             |> Legend.withDescription "Legend description"
             |> Legend.render
       )
     , ( "WithIconAddon"
       , Legend.config "Legend"
-            |> Legend.withAddon (Legend.iconAddon Icon.Car)
+            |> Legend.withIcon Icon.Car
             |> Legend.withDescription "Legend description"
             |> Legend.render
       )

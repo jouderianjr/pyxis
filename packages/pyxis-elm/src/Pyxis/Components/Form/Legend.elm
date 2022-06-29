@@ -1,9 +1,8 @@
 module Pyxis.Components.Form.Legend exposing
     ( Config
     , config
-    , iconAddon
-    , imageAddon
-    , withAddon
+    , withIcon
+    , withImage
     , withDescription
     , withAlignmentLeft
     , render
@@ -20,9 +19,8 @@ module Pyxis.Components.Form.Legend exposing
 
 ## Addons
 
-@docs iconAddon
-@docs imageAddon
-@docs withAddon
+@docs withIcon
+@docs withImage
 
 
 ## Generics
@@ -54,7 +52,7 @@ type Config msg
 -}
 type AddonType
     = IconAddon IconSet.Icon
-    | ImageAddon String
+    | ImageAddon ImageUrl
 
 
 {-| Internal.
@@ -75,20 +73,6 @@ type Alignment
 isAlignedLeft : Alignment -> Bool
 isAlignedLeft =
     (==) Left
-
-
-{-| Creates an Addon with an Icon from our IconSet.
--}
-iconAddon : IconSet.Icon -> AddonType
-iconAddon =
-    IconAddon
-
-
-{-| Creates an Addon with an Image
--}
-imageAddon : ImageUrl -> AddonType
-imageAddon =
-    ImageAddon
 
 
 {-| Internal.
@@ -129,9 +113,16 @@ withAlignmentLeft (Config configuration) =
 
 {-| Sets an Addon by type to the Legend.
 -}
-withAddon : AddonType -> Config msg -> Config msg
-withAddon type_ (Config configuration) =
-    Config { configuration | addon = Just type_ }
+withImage : ImageUrl -> Config msg -> Config msg
+withImage url (Config configuration) =
+    Config { configuration | addon = ImageAddon url |> Just }
+
+
+{-| Sets an Addon by type to the Legend.
+-}
+withIcon : IconSet.Icon -> Config msg -> Config msg
+withIcon icon (Config configuration) =
+    Config { configuration | addon = IconAddon icon |> Just }
 
 
 {-| Internal.

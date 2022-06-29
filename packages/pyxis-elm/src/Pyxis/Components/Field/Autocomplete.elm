@@ -21,9 +21,9 @@ module Pyxis.Components.Field.Autocomplete exposing
     , small
     , medium
     , withSize
-    , withAddonAction
-    , withAddonHeader
-    , withAddonSuggestion
+    , withNoResultFoundAction
+    , withHeaderText
+    , withSuggestion
     , Msg
     , setDropdownClosed
     , setOptions
@@ -78,9 +78,9 @@ module Pyxis.Components.Field.Autocomplete exposing
 
 ## Suggestions Addon
 
-@docs withAddonAction
-@docs withAddonHeader
-@docs withAddonSuggestion
+@docs withNoResultFoundAction
+@docs withHeaderText
+@docs withSuggestion
 
 
 ## Update
@@ -422,15 +422,15 @@ type Config value msg
     = Config
         { additionalContent : Maybe (Html Never)
         , disabled : Bool
-        , addonHeader : Maybe String
+        , headerText : Maybe String
         , hint : Maybe Hint.Config
         , id : String
         , isSubmitted : Bool
         , label : Maybe Label.Config
         , name : String
         , noResultsFoundMessage : String
-        , addonAction : Maybe (Html msg)
-        , addonSuggestion : Maybe FormDropdown.SuggestionData
+        , footerAction : Maybe (Html msg)
+        , suggestion : Maybe FormDropdown.SuggestionData
         , placeholder : String
         , size : Size
         , strategy : Strategy
@@ -444,15 +444,15 @@ config name =
     Config
         { additionalContent = Nothing
         , disabled = False
-        , addonHeader = Nothing
+        , headerText = Nothing
         , hint = Nothing
         , id = "id-" ++ name
         , isSubmitted = False
         , label = Nothing
         , name = name
         , noResultsFoundMessage = "No results found."
-        , addonAction = Nothing
-        , addonSuggestion = Nothing
+        , footerAction = Nothing
+        , suggestion = Nothing
         , placeholder = ""
         , strategy = Strategy.onBlur
         , size = Medium
@@ -462,24 +462,24 @@ config name =
 {-| Add an addon which suggest or help the user during search.
 Will be prepended to options.
 -}
-withAddonHeader : String -> Config value msg -> Config value msg
-withAddonHeader addonHeader (Config configData) =
-    Config { configData | addonHeader = Just addonHeader }
+withHeaderText : String -> Config value msg -> Config value msg
+withHeaderText text (Config configData) =
+    Config { configData | headerText = Just text }
 
 
 {-| Add an addon with a call to action to be shown when no options are found.
 -}
-withAddonAction : Html msg -> Config value msg -> Config value msg
-withAddonAction addonAction (Config configData) =
-    Config { configData | addonAction = Just addonAction }
+withNoResultFoundAction : Html msg -> Config value msg -> Config value msg
+withNoResultFoundAction action (Config configData) =
+    Config { configData | footerAction = Just action }
 
 
 {-| Add an addon which suggest or help the user during search.
 Will be appended to options.
 -}
-withAddonSuggestion : FormDropdown.SuggestionData -> Config value msg -> Config value msg
-withAddonSuggestion addonSuggestion (Config configData) =
-    Config { configData | addonSuggestion = Just addonSuggestion }
+withSuggestion : FormDropdown.SuggestionData -> Config value msg -> Config value msg
+withSuggestion suggestion (Config configData) =
+    Config { configData | suggestion = Just suggestion }
 
 
 {-| Append an additional custom html.
@@ -727,7 +727,7 @@ renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
             List.length (getOptions model) == 0 && RemoteData.isSuccess modelData.values
     in
     if String.isEmpty modelData.filter && List.isEmpty renderedOptions then
-        configData.addonSuggestion
+        configData.suggestion
             |> Maybe.map FormDropdown.suggestion
             |> Maybe.map (FormDropdown.render configData.id (mapDropdownSize configData.size))
 
@@ -738,13 +738,13 @@ renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
             (if noAvailableOptions then
                 FormDropdown.noResult
                     { label = configData.noResultsFoundMessage
-                    , action = configData.addonAction
+                    , action = configData.footerAction
                     }
 
              else
                 case
-                    ( configData.addonHeader
-                    , configData.addonSuggestion
+                    ( configData.headerText
+                    , configData.suggestion
                     )
                 of
                     ( Just headerLabel, _ ) ->

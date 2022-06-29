@@ -66,7 +66,7 @@ view ((Data config) as data) =
                         |> Autocomplete.withLabel (Label.config "Residential city")
                         |> Autocomplete.withHint "Type at least 3 chars to start searching."
                         |> Autocomplete.withPlaceholder "Milano"
-                        |> Autocomplete.withAddonSuggestion
+                        |> Autocomplete.withSuggestion
                             { icon = IconSet.InfoCircle
                             , title = "Lorem ipsum"
                             , subtitle = Just "Lorem ipsum dolor sit amet."

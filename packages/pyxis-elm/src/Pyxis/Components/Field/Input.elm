@@ -14,11 +14,10 @@ module Pyxis.Components.Field.Input exposing
     , PasswordConfig
     , text
     , TextConfig
-    , Addon
-    , AddonType
-    , iconAddon
-    , textAddon
-    , withAddon
+    , withTextPrepend
+    , withTextAppend
+    , withIconPrepend
+    , withIconAppend
     , small
     , medium
     , Size
@@ -72,11 +71,10 @@ module Pyxis.Components.Field.Input exposing
 
 ## Addon
 
-@docs Addon
-@docs AddonType
-@docs iconAddon
-@docs textAddon
-@docs withAddon
+@docs withTextPrepend
+@docs withTextAppend
+@docs withIconPrepend
+@docs withIconAppend
 
 
 ## Size
@@ -131,7 +129,6 @@ import PrimaUpdate
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Commands as Commands
 import Pyxis.Commons.Constraints as CommonsConstraints
-import Pyxis.Commons.Properties.Placement as Placement exposing (Placement)
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Field.Error as Error
 import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
@@ -498,9 +495,52 @@ type AddonType
 {-| Addon configuration.
 -}
 type alias Addon =
-    { placement : Placement
+    { placement : AddonPlacement
     , type_ : AddonType
     }
+
+
+{-| Addon placement
+-}
+type AddonPlacement
+    = Prepend
+    | Append
+
+
+{-| Internal
+-}
+isPrepend : AddonPlacement -> Bool
+isPrepend placement =
+    case placement of
+        Prepend ->
+            True
+
+        _ ->
+            False
+
+
+{-| Internal
+-}
+isAppend : AddonPlacement -> Bool
+isAppend placement =
+    case placement of
+        Append ->
+            True
+
+        _ ->
+            False
+
+
+{-| Internal
+-}
+placementToString : AddonPlacement -> String
+placementToString placement =
+    case placement of
+        Prepend ->
+            "prepend"
+
+        Append ->
+            "append"
 
 
 {-| Internal
@@ -515,26 +555,12 @@ addonTypeToString addonType =
             "text"
 
 
-{-| Creates an Addon with an Icon from our IconSet.
--}
-iconAddon : IconSet.Icon -> AddonType
-iconAddon =
-    IconAddon
-
-
-{-| Creates an Addon with a String content.
--}
-textAddon : String -> AddonType
-textAddon =
-    TextAddon
-
-
 {-| Internal.
 -}
 addonToAttribute : Addon -> Html.Attribute msg
 addonToAttribute { type_, placement } =
     [ "form-field--with"
-    , Placement.toString placement
+    , placementToString placement
     , addonTypeToString type_
     ]
         |> String.join "-"
@@ -579,15 +605,44 @@ withIsSubmitted isSubmitted (Config configuration) =
     Config { configuration | isSubmitted = isSubmitted }
 
 
-{-| Sets an Addon to the Input.
+{-| Sets a Text Addon prepended to the Input.
 -}
-withAddon :
-    Placement
-    -> AddonType
+withTextPrepend :
+    String
     -> Config { c | addon : CommonsConstraints.Allowed }
     -> Config { c | addon : CommonsConstraints.Denied }
-withAddon placement type_ (Config configuration) =
-    Config { configuration | addon = Just { placement = placement, type_ = type_ } }
+withTextPrepend text_ (Config configuration) =
+    Config { configuration | addon = Just { placement = Prepend, type_ = TextAddon text_ } }
+
+
+{-| Sets a Text Addon appended to the Input.
+-}
+withTextAppend :
+    String
+    -> Config { c | addon : CommonsConstraints.Allowed }
+    -> Config { c | addon : CommonsConstraints.Denied }
+withTextAppend text_ (Config configuration) =
+    Config { configuration | addon = Just { placement = Append, type_ = TextAddon text_ } }
+
+
+{-| Sets an Icon Addon prepended to the Input.
+-}
+withIconPrepend :
+    IconSet.Icon
+    -> Config { c | addon : CommonsConstraints.Allowed }
+    -> Config { c | addon : CommonsConstraints.Denied }
+withIconPrepend icon (Config configuration) =
+    Config { configuration | addon = Just { placement = Prepend, type_ = IconAddon icon } }
+
+
+{-| Sets an Icon Addon appended to the Input.
+-}
+withIconAppend :
+    IconSet.Icon
+    -> Config { c | addon : CommonsConstraints.Allowed }
+    -> Config { c | addon : CommonsConstraints.Denied }
+withIconAppend icon (Config configuration) =
+    Config { configuration | addon = Just { placement = Append, type_ = IconAddon icon } }
 
 
 {-| Adds a Label to the Input.
@@ -712,7 +767,7 @@ addIconCalendarToDateField : Config constraints -> Config constraints
 addIconCalendarToDateField ((Config configData) as config_) =
     case configData.type_ of
         Date ->
-            Config { configData | addon = Just { placement = Placement.prepend, type_ = iconAddon IconSet.Calendar } }
+            Config { configData | addon = Just { placement = Prepend, type_ = IconAddon IconSet.Calendar } }
 
         _ ->
             config_
@@ -765,9 +820,9 @@ renderAddon : Result String () -> Model ctx value msg -> Config constraints -> A
 renderAddon validationResult model configuration addon =
     Html.label
         [ Html.Attributes.class "form-field__wrapper" ]
-        [ CommonsRender.renderIf (Placement.isPrepend addon.placement) (renderAddonByType addon.type_)
+        [ CommonsRender.renderIf (isPrepend addon.placement) (renderAddonByType addon.type_)
         , renderInput validationResult model configuration
-        , CommonsRender.renderIf (Placement.isAppend addon.placement) (renderAddonByType addon.type_)
+        , CommonsRender.renderIf (isAppend addon.placement) (renderAddonByType addon.type_)
         ]
 
 

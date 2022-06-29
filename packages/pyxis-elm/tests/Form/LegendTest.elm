@@ -45,7 +45,7 @@ suite =
         , Test.fuzz Fuzz.string "contains image addon" <|
             \s ->
                 Legend.config "Legend"
-                    |> Legend.withAddon (Legend.imageAddon s)
+                    |> Legend.withImage s
                     |> Legend.render
                     |> Query.fromHtml
                     |> Query.contains
@@ -61,7 +61,7 @@ suite =
         , Test.test "contains icon addon" <|
             \_ ->
                 Legend.config "Legend"
-                    |> Legend.withAddon (Legend.iconAddon IconSet.User)
+                    |> Legend.withIcon IconSet.User
                     |> Legend.render
                     |> Query.fromHtml
                     |> Query.contains

@@ -101,7 +101,7 @@ suite =
             [ Test.test "Show action under no result message" <|
                 \() ->
                     config
-                        |> Autocomplete.withAddonAction
+                        |> Autocomplete.withNoResultFoundAction
                             (Button.ghost
                                 |> Button.withText "Visit the page"
                                 |> Button.withType (Button.link "https://www.google.com")
@@ -119,7 +119,7 @@ suite =
             , Test.test "Prepend an header to the option list" <|
                 \() ->
                     config
-                        |> Autocomplete.withAddonHeader "Choose a role:"
+                        |> Autocomplete.withHeaderText "Choose a role:"
                         |> simulation
                         |> Simulation.simulate ( Event.focus, [ Selector.class "form-field__autocomplete" ] )
                         |> Simulation.simulate ( Event.input "D", [ Selector.class "form-field__autocomplete" ] )
@@ -132,7 +132,7 @@ suite =
             , Test.test "On focus the suggestion should be visible" <|
                 \() ->
                     config
-                        |> Autocomplete.withAddonSuggestion { title = "Suggestion", subtitle = Just "Subtitle", icon = IconSet.Search }
+                        |> Autocomplete.withSuggestion { title = "Suggestion", subtitle = Just "Subtitle", icon = IconSet.Search }
                         |> render
                         |> findDropdown
                         |> Query.find [ Selector.class "form-dropdown__suggestion" ]

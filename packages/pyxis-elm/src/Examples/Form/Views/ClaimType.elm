@@ -21,7 +21,7 @@ view ((Data config) as data) =
         |> FieldSet.withHeader
             [ Grid.simpleOneColRow
                 [ Legend.config "Choose the accident type"
-                    |> Legend.withAddon (Legend.imageAddon "../../../assets/placeholder.svg")
+                    |> Legend.withImage "../../../assets/placeholder.svg"
                     |> Legend.render
                 ]
             ]

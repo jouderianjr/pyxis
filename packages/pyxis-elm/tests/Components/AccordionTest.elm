@@ -157,7 +157,7 @@ suite =
                         >> Query.contains [ Html.text "show" ]
             , Test.test "renders item with addon wrapper" <|
                 \() ->
-                    AccordionItem.withAddon (AccordionItem.iconAddon IconSet.Car)
+                    AccordionItem.withIcon IconSet.Car
                         |> accordionItemsWithAdditionalContent
                         |> initialConfig
                         |> renderConfig
@@ -166,7 +166,7 @@ suite =
                         |> Query.count (Expect.equal 1)
             , Test.test "renders item with icon addon" <|
                 \() ->
-                    AccordionItem.withAddon (AccordionItem.iconAddon IconSet.Car)
+                    AccordionItem.withIcon IconSet.Car
                         |> accordionItemsWithAdditionalContent
                         |> initialConfig
                         |> renderConfig
@@ -175,7 +175,7 @@ suite =
                         |> Query.count (Expect.equal 1)
             , Test.test "renders item with image addon" <|
                 \() ->
-                    AccordionItem.withAddon (AccordionItem.imageAddon "../../../assets/placeholder.svg")
+                    AccordionItem.withImage "../../../assets/placeholder.svg"
                         |> accordionItemsWithAdditionalContent
                         |> initialConfig
                         |> renderConfig
