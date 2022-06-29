@@ -12,6 +12,7 @@
     "lerna": "^4.0.0"
   },
   "scripts": {
+    "release": "lerna version --no-git-tag-version --no-push",
     "build": "lerna run build --stream",
     "elmbook:build": "lerna run elmbook:build",
     "elmbook:serve": "lerna run elmbook:serve",
