@@ -1,4 +1,7 @@
 @use "../foundations";
+@use "../components/mixins";
+
+$_resizeIcon: "%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_254_81187)'%3E%3Crect x='14.6064' y='10.364' width='6' height='2' rx='1' transform='rotate(135 14.6064 10.364)' fill='%%COLOR%%'/%3E%3Crect x='13.8994' y='5.41431' width='12' height='2' rx='1' transform='rotate(135 13.8994 5.41431)' fill='%%COLOR%%'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_254_81187'%3E%3Crect width='16' height='16' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E";
 
 button,
 input,
@@ -70,4 +73,13 @@ input::-webkit-date-and-time-value {
   color: foundations.color(neutral50);
   opacity: 1;
   user-select: none;
+}
+
+::-webkit-resizer {
+  @include mixins.backgroundImage($_resizeIcon, neutral75);
+  background-color: transparent;
+  background-size: contain;
+  border: none;
+  box-shadow: none;
+  outline: none;
 }

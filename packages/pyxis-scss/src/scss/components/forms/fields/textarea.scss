@@ -1,4 +1,5 @@
 @use "../../../foundations";
+@use "../../mixins";
 
 $_offset: foundations.spacing(3xs);
 
@@ -8,8 +9,7 @@ $_offset: foundations.spacing(3xs);
   flex: 1;
   margin: 0 $_offset $_offset 0;
   min-height: foundations.rem(100px);
-  padding-left: foundations.spacing(s);
-  padding-top: foundations.spacing(xs);
+  padding: foundations.spacing(xs s 0);
   resize: vertical;
   width: calc(100% - #{$_offset});
 }
@@ -19,3 +19,4 @@ $_offset: foundations.spacing(3xs);
   padding-left: foundations.spacing(xs);
   padding-top: foundations.spacing(2xs);
 }
+
