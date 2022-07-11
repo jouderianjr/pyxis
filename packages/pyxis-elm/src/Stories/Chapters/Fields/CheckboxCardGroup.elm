@@ -21,16 +21,16 @@ As normal checkbox, checkbox cards can be combined together in groups too, in or
 
 <component with-label="CheckboxCardGroup" />
 ```
-type Option
-    = Home
+type Product
+    = Household
     | Motor
 
 
 type Msg
-    = OnCheckboxFieldMsg (CheckboxCardGroup.Msg Option)
+    = OnCheckboxFieldMsg (CheckboxCardGroup.Msg Product)
 
 
-validation : () -> List Option -> Result String (List Option)
+validation : () -> List Product -> Result String (List Product)
 validation _ selected =
     case selected of
         [] ->
@@ -40,16 +40,16 @@ validation _ selected =
             Ok selected
 
 
-checkboxCardGroupModel : Model () Option (CheckboxCardGroup.Msg Option)
+checkboxCardGroupModel : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
 checkboxCardGroupModel =
-    CheckboxCardGroup.init [] validation
+    CheckboxCardGroup.init []
 
 
-checkboxCardGroupView : () -> Html Msg
-checkboxCardGroupView formData =
+checkboxCardGroupView : Bool -> () -> Html Msg
+checkboxCardGroupView isSubmitted formData =
     CheckboxCardGroup.config "checkboxCard-name"
         |> CheckboxCardGroup.withLabel (Label.config "Choose the area")
-        |> CheckboxCardGroup.withName "area"
+        |> CheckboxCardGroup.withValidationOnBlur validation isSubmitted
         |> CheckboxCardGroup.withOptions
             [ CheckboxCardGroup.option
                 { value = Motor
@@ -58,7 +58,7 @@ checkboxCardGroupView formData =
                 , addon = Nothing
                 }
             , CheckboxCardGroup.option
-                { value = Home
+                { value = Household
                 , title = Just "Home"
                 , text = Just "Lorem ipsum dolor"
                 , addon = Nothing
@@ -77,7 +77,7 @@ CheckboxGroup.config "checkboxgroup-name"
 Please note that with large layout you need to configure an image addon.
 <component with-label="CheckboxCardGroup large" />
 ```
-optionsWithImage : List (CheckboxCardGroup.Option Option)
+optionsWithImage : List (CheckboxCardGroup.Option Product)
 optionsWithImage =
     [ CheckboxCardGroup.option
         { value = Motor
@@ -86,7 +86,7 @@ optionsWithImage =
         , addon = CheckboxCardGroup.imgAddon "../assets/placeholder.svg"
         }
     , CheckboxCardGroup.option
-        { value = Home
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.imgAddon "../assets/placeholder.svg"
@@ -101,7 +101,7 @@ CheckboxGroup.config "checkbox-id"
 ## Icon addon
 <component with-label="CheckboxCardGroup with icon" />
 ```
-optionsWithIcon : List (CheckboxCardGroup.Option Option)
+optionsWithIcon : List (CheckboxCardGroup.Option Product)
 optionsWithIcon =
     [ CheckboxCardGroup.option
         { value = Motor
@@ -110,7 +110,7 @@ optionsWithIcon =
         , addon = CheckboxCardGroup.iconAddon IconSet.Car
         }
     , CheckboxCardGroup.option
-        { value = Home
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.iconAddon IconSet.Home
@@ -124,7 +124,7 @@ CheckboxGroup.config "checkboxgroup-name"
 ## Text addon
 <component with-label="CheckboxCardGroup with text" />
 ```
-optionsWithTextAddon : List (CheckboxCardGroup.Option Option)
+optionsWithTextAddon : List (CheckboxCardGroup.Option Product)
 optionsWithTextAddon =
     [ CheckboxCardGroup.option
         { value = Motor
@@ -133,7 +133,7 @@ optionsWithTextAddon =
         , addon = CheckboxCardGroup.textAddon "€ 800,00"
         }
     , CheckboxCardGroup.option
-        { value = Home
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = CheckboxCardGroup.textAddon "€ 1.000,00"
@@ -168,37 +168,30 @@ type Product
 
 
 type alias Model =
-    { base : CheckboxCardGroup.Model () Product (CheckboxCardGroup.Msg Product)
-    , vertical : CheckboxCardGroup.Model () Product (CheckboxCardGroup.Msg Product)
-    , disabled : CheckboxCardGroup.Model () Product (CheckboxCardGroup.Msg Product)
-    , large : CheckboxCardGroup.Model () Product (CheckboxCardGroup.Msg Product)
-    , icon : CheckboxCardGroup.Model () Product (CheckboxCardGroup.Msg Product)
-    , text : CheckboxCardGroup.Model () Product (CheckboxCardGroup.Msg Product)
-    , additionalContent : CheckboxCardGroup.Model () Product (CheckboxCardGroup.Msg Product)
+    { base : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
+    , vertical : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
+    , disabled : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
+    , large : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
+    , icon : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
+    , text : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
+    , additionalContent : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
     }
 
 
 init : Model
 init =
-    { base =
-        CheckboxCardGroup.init [] validationRequired
-    , vertical =
-        CheckboxCardGroup.init [] validationRequired
-    , disabled =
-        CheckboxCardGroup.init [] validationRequired
-    , large =
-        CheckboxCardGroup.init [] validationRequired
-    , icon =
-        CheckboxCardGroup.init [] validationRequired
-    , text =
-        CheckboxCardGroup.init [] validationRequired
-    , additionalContent =
-        CheckboxCardGroup.init [] validationRequired
+    { base = CheckboxCardGroup.init []
+    , vertical = CheckboxCardGroup.init []
+    , disabled = CheckboxCardGroup.init []
+    , large = CheckboxCardGroup.init []
+    , icon = CheckboxCardGroup.init []
+    , text = CheckboxCardGroup.init []
+    , additionalContent = CheckboxCardGroup.init []
     }
 
 
-validationRequired : () -> List Product -> Result String (List Product)
-validationRequired () langs =
+required : () -> List Product -> Result String (List Product)
+required () langs =
     case langs of
         [] ->
             Err "You must select at least one option"
@@ -260,8 +253,8 @@ optionsWithTextAddon =
 
 type alias StatefulConfig =
     { name : String
-    , configModifier : CheckboxCardGroup.Config Product -> CheckboxCardGroup.Config Product
-    , modelPicker : Model -> CheckboxCardGroup.Model () Product (CheckboxCardGroup.Msg Product)
+    , configModifier : CheckboxCardGroup.Config () Product (List Product) -> CheckboxCardGroup.Config () Product (List Product)
+    , modelPicker : Model -> CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
     , update : CheckboxCardGroup.Msg Product -> Model -> ( Model, Cmd (CheckboxCardGroup.Msg Product) )
     }
 
@@ -283,6 +276,7 @@ statefulComponent { name, configModifier, modelPicker, update } sharedState =
                 , addon = Nothing
                 }
             ]
+        |> CheckboxCardGroup.withValidationOnBlur required False
         |> configModifier
         |> CheckboxCardGroup.render identity () (sharedState.checkboxCard |> modelPicker)
         |> Html.map

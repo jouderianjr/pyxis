@@ -1,12 +1,11 @@
 module Examples.Form.Views.ClaimType exposing (view)
 
-import Examples.Form.Data exposing (Data(..))
+import Examples.Form.Data as Data exposing (Data(..))
 import Examples.Form.Msg as Msg exposing (Msg)
 import Examples.Form.Types as Fields
 import Html
 import Html.Attributes
 import Pyxis.Components.Button as Button
-import Pyxis.Components.Field.Error.Strategy as Strategy
 import Pyxis.Components.Field.RadioCardGroup as RadioCardGroup
 import Pyxis.Components.Form.FieldSet as FieldSet
 import Pyxis.Components.Form.Grid as Grid
@@ -16,7 +15,7 @@ import Pyxis.Components.IconSet as IconSet
 
 
 view : Data -> FieldSet.Config Msg
-view ((Data config) as data) =
+view (Data config) =
     FieldSet.config
         |> FieldSet.withHeader
             [ Grid.simpleOneColRow
@@ -31,8 +30,7 @@ view ((Data config) as data) =
                 [ Grid.simpleCol
                     [ "claim-type"
                         |> RadioCardGroup.config
-                        |> RadioCardGroup.withStrategy Strategy.onSubmit
-                        |> RadioCardGroup.withIsSubmitted config.isFormSubmitted
+                        |> RadioCardGroup.withValidationOnBlur Data.radioValidation config.isFormSubmitted
                         |> RadioCardGroup.withLayout RadioCardGroup.vertical
                         |> RadioCardGroup.withOptions
                             [ RadioCardGroup.option
@@ -48,7 +46,7 @@ view ((Data config) as data) =
                                 , addon = RadioCardGroup.iconAddon IconSet.VehicleFullKasko
                                 }
                             ]
-                        |> RadioCardGroup.render Msg.ClaimTypeChanged data config.claimType
+                        |> RadioCardGroup.render Msg.ClaimTypeChanged () config.claimType
                     ]
                 ]
             ]

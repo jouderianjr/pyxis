@@ -37,15 +37,16 @@ validation _ value =
         Ok value
 
 
-textFieldModel : Input.Model FormData String Msg
+textFieldModel : Input.Model Msg
 textFieldModel =
-    Input.init "" validation
+    Input.init ""
 
 
-textField : FormData -> Html Msg
-textField formData =
+textField : Bool -> FormData -> Html Msg
+textField isSubmitted formData =
     Input.text "text-name"
         |> Input.withLabel (Label.config "Name")
+        |> Input.withValidationOnBlur validation isSubmitted
         |> Input.render OnInputFieldMsg formData textFieldModel
 ```
 
@@ -188,28 +189,38 @@ type alias Msg x =
 
 
 type alias Model =
-    { base : Input.Model () String Input.Msg
-    , date : Input.Model () Date Input.Msg
-    , email : Input.Model () String Input.Msg
-    , number : Input.Model () Float Input.Msg
-    , password : Input.Model () String Input.Msg
-    , text : Input.Model () String Input.Msg
-    , withValidation : Input.Model () String Input.Msg
-    , additionalContent : Input.Model () String Input.Msg
+    { base : Input.Model Input.Msg
+    , date : Input.Model Input.Msg
+    , email : Input.Model Input.Msg
+    , number : Input.Model Input.Msg
+    , password : Input.Model Input.Msg
+    , text : Input.Model Input.Msg
+    , withValidation : Input.Model Input.Msg
+    , additionalContent : Input.Model Input.Msg
     }
 
 
 init : Model
 init =
-    { base = Input.init "" (always Ok)
-    , date = Input.init "" (always Date.fromIsoString)
-    , email = Input.init "" (always Ok)
-    , number = Input.init "" (always (String.toFloat >> Result.fromMaybe "Invalid number"))
-    , password = Input.init "" (always Ok)
-    , text = Input.init "" (always Ok)
-    , additionalContent = Input.init "" (always Ok)
-    , withValidation = Input.init "" validation
+    { base = Input.init ""
+    , date = Input.init ""
+    , email = Input.init ""
+    , number = Input.init ""
+    , password = Input.init ""
+    , text = Input.init ""
+    , additionalContent = Input.init ""
+    , withValidation = Input.init ""
     }
+
+
+floatValidation : () -> String -> Result String Float
+floatValidation =
+    always (String.toFloat >> Result.fromMaybe "Invalid number")
+
+
+dateValidation : () -> String -> Result String Date
+dateValidation _ =
+    Date.fromIsoString
 
 
 validation : () -> String -> Result String String
@@ -226,6 +237,7 @@ componentsList =
     [ ( "Input"
       , \sharedState ->
             Input.text "input"
+                |> Input.withValidationOnBlur validation False
                 |> Input.render identity () sharedState.input.withValidation
                 |> statefulComponent updateWithValidation
       )
@@ -240,12 +252,14 @@ componentsList =
       , \sharedState ->
             Input.number "number"
                 |> Input.withPlaceholder "Age"
+                |> Input.withValidationOnBlur floatValidation False
                 |> Input.render identity () sharedState.input.number
                 |> statefulComponent updateNumber
       )
     , ( "Input with type date"
       , \sharedState ->
             Input.date "date"
+                |> Input.withValidationOnBlur dateValidation False
                 |> Input.render identity () sharedState.input.date
                 |> statefulComponent updateDate
       )

@@ -17,10 +17,11 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
     , withAdditionalContent
     , withClassList
     , withHint
-    , withIsSubmitted
-    , withLabel
     , withId
-    , withStrategy
+    , withLabel
+    , withValidationOnBlur
+    , withValidationOnInput
+    , withValidationOnSubmit
     , medium
     , large
     , withSize
@@ -28,7 +29,6 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
     , update
     , updateValue
     , getValue
-    , validate
     , Option
     , option
     , withOptions
@@ -75,10 +75,11 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
 @docs withAdditionalContent
 @docs withClassList
 @docs withHint
-@docs withIsSubmitted
-@docs withLabel
 @docs withId
-@docs withStrategy
+@docs withLabel
+@docs withValidationOnBlur
+@docs withValidationOnInput
+@docs withValidationOnSubmit
 
 
 ## Size
@@ -98,7 +99,6 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
 ## Readers
 
 @docs getValue
-@docs validate
 
 
 ## Options
@@ -118,23 +118,22 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
 import Html exposing (Html)
 import PrimaFunction
 import PrimaUpdate
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Commands as Commands
 import Pyxis.Components.CardGroup as CardGroup
-import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
-import Pyxis.Components.Field.Error.Strategy.Internal as InternalStrategy
+import Pyxis.Components.Field.Error as Error
+import Pyxis.Components.Field.FieldStatus as FieldStatus exposing (FieldStatus)
 import Pyxis.Components.Field.Hint as Hint
 import Pyxis.Components.Field.Label as Label
-import Pyxis.Components.Field.Status as FieldStatus
 import Pyxis.Components.IconSet as IconSet
 
 
 {-| The CheckboxCardGroup model.
 -}
-type Model ctx value msg
+type Model value msg
     = Model
         { checkedValues : List value
-        , validation : ctx -> List value -> Result String (List value)
-        , fieldStatus : FieldStatus.Status
+        , fieldStatus : FieldStatus
         , onBlur : Maybe msg
         , onFocus : Maybe msg
         , onCheck : Maybe msg
@@ -143,43 +142,40 @@ type Model ctx value msg
 
 {-| Initialize the CheckboxCardGroup Model.
 -}
-init : List value -> (ctx -> List value -> Result String (List value)) -> Model ctx value msg
-init initialValues validation =
+init : List value -> Model value msg
+init initialValues =
     Model
         { checkedValues = initialValues
-        , validation = validation
-        , fieldStatus = FieldStatus.Untouched
+        , fieldStatus = FieldStatus.init
         , onBlur = Nothing
         , onFocus = Nothing
         , onCheck = Nothing
         }
 
 
-type alias ConfigData value =
-    { additionalContent : Maybe (Html Never)
-    , classList : List ( String, Bool )
-    , hint : Maybe Hint.Config
-    , id : String
-    , isDisabled : Bool
-    , label : Maybe Label.Config
-    , layout : CardGroup.Layout
-    , name : String
-    , options : List (Option value)
-    , size : CardGroup.Size
-    , strategy : Strategy
-    , isSubmitted : Bool
-    }
-
-
 {-| The CheckboxCardGroup configuration.
 -}
-type Config value
-    = Config (ConfigData value)
+type Config validationData value parsedValue
+    = Config
+        { additionalContent : Maybe (Html Never)
+        , classList : List ( String, Bool )
+        , hint : Maybe Hint.Config
+        , id : CommonsAlias.Id
+        , isDisabled : Bool
+        , label : Maybe Label.Config
+        , layout : CardGroup.Layout
+        , name : CommonsAlias.Name
+        , options : List (Option value)
+        , size : CardGroup.Size
+        , errorShowingStrategy : Maybe Error.ShowingStrategy
+        , isSubmitted : CommonsAlias.IsSubmitted
+        , validation : Maybe (CommonsAlias.Validation validationData (List value) parsedValue)
+        }
 
 
 {-| Initialize the CheckboxCardGroup Config.
 -}
-config : String -> Config value
+config : CommonsAlias.Name -> Config validationData value parsedValue
 config name =
     Config
         { additionalContent = Nothing
@@ -192,8 +188,9 @@ config name =
         , name = name
         , options = []
         , size = CardGroup.Medium
-        , strategy = Strategy.onBlur
+        , errorShowingStrategy = Nothing
         , isSubmitted = False
+        , validation = Nothing
         }
 
 
@@ -207,18 +204,17 @@ type Msg value
 
 {-| Update the CheckboxGroup Model.
 -}
-update : Msg value -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+update : Msg value -> Model value msg -> ( Model value msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnBlur _ ->
             model
-                |> mapFieldStatus FieldStatus.onBlur
+                |> mapFieldStatus (FieldStatus.setIsBlurred True)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onBlur ]
 
         OnFocus _ ->
             model
-                |> mapFieldStatus FieldStatus.onFocus
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onFocus ]
 
@@ -227,82 +223,70 @@ update msg ((Model modelData) as model) =
                 |> PrimaFunction.ifThenElseMap (always check)
                     (checkValue value)
                     (uncheckValue value)
-                |> mapFieldStatus FieldStatus.onChange
+                |> mapFieldStatus (FieldStatus.setIsDirty True)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onCheck ]
 
 
 {-| Update the field value.
 -}
-updateValue : value -> Bool -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+updateValue : value -> Bool -> Model value msg -> ( Model value msg, Cmd msg )
 updateValue value checked =
     update (OnCheck value checked)
 
 
 {-| Internal
 -}
-checkValue : value -> Model ctx value msg -> Model ctx value msg
+checkValue : value -> Model value msg -> Model value msg
 checkValue value =
     mapCheckedValues ((::) value)
 
 
 {-| Internal
 -}
-uncheckValue : value -> Model ctx value msg -> Model ctx value msg
+uncheckValue : value -> Model value msg -> Model value msg
 uncheckValue value =
     mapCheckedValues (List.filter ((/=) value))
 
 
 {-| Sets an OnBlur side effect.
 -}
-setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
+setOnBlur : msg -> Model value msg -> Model value msg
 setOnBlur msg (Model configuration) =
     Model { configuration | onBlur = Just msg }
 
 
 {-| Sets an OnFocus side effect.
 -}
-setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
+setOnFocus : msg -> Model value msg -> Model value msg
 setOnFocus msg (Model configuration) =
     Model { configuration | onFocus = Just msg }
 
 
 {-| Sets an OnCheck side effect.
 -}
-setOnCheck : msg -> Model ctx value msg -> Model ctx value msg
+setOnCheck : msg -> Model value msg -> Model value msg
 setOnCheck msg (Model configuration) =
     Model { configuration | onCheck = Just msg }
 
 
 {-| Return the selected value.
 -}
-getValue : Model ctx value msg -> List value
+getValue : Model value msg -> List value
 getValue (Model { checkedValues }) =
     checkedValues
-
-
-{-| Get the parsed value
--}
-validate : ctx -> Model ctx value msg -> Result String (List value)
-validate ctx (Model { checkedValues, validation }) =
-    validation ctx checkedValues
 
 
 {-| Represent the single Checkbox option.
 -}
 type Option value
-    = Option (OptionConfig value)
-
-
-{-| Internal.
--}
-type alias OptionConfig value =
-    { value : value
-    , text : Maybe String
-    , title : Maybe String
-    , addon : Maybe Addon
-    , disabled : Bool
-    }
+    = Option
+        { value : value
+        , text : Maybe String
+        , title : Maybe String
+        , addon : Maybe Addon
+        , disabled : Bool
+        }
 
 
 {-| Generate a CheckboxCard Option
@@ -380,21 +364,21 @@ vertical =
 
 {-| Change the visual layout. The default one is horizontal.
 -}
-withLayout : Layout -> Config value -> Config value
+withLayout : Layout -> Config validationData value parsedValue -> Config validationData value parsedValue
 withLayout (Layout layout) (Config configuration) =
     Config { configuration | layout = layout }
 
 
 {-| Add the classes to the card group wrapper.
 -}
-withClassList : List ( String, Bool ) -> Config value -> Config value
+withClassList : List ( String, Bool ) -> Config validationData value parsedValue -> Config validationData value parsedValue
 withClassList classList (Config configuration) =
     Config { configuration | classList = classList }
 
 
 {-| Adds the hint to the CheckboxCardGroup.
 -}
-withHint : String -> Config value -> Config value
+withHint : String -> Config validationData value parsedValue -> Config validationData value parsedValue
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -407,35 +391,21 @@ withHint hintMessage (Config configuration) =
 
 {-| Add an ID to the inputs.
 -}
-withId : String -> Config value -> Config value
+withId : CommonsAlias.Id -> Config validationData value parsedValue -> Config validationData value parsedValue
 withId id (Config configuration) =
     Config { configuration | id = id }
 
 
-{-| Sets the validation strategy (when to show the error, if present)
--}
-withStrategy : Strategy -> Config value -> Config value
-withStrategy strategy (Config configuration) =
-    Config { configuration | strategy = strategy }
-
-
-{-| Sets whether the form was submitted
--}
-withIsSubmitted : Bool -> Config value -> Config value
-withIsSubmitted isSubmitted (Config configuration) =
-    Config { configuration | isSubmitted = isSubmitted }
-
-
 {-| Add a label to the card group.
 -}
-withLabel : Label.Config -> Config value -> Config value
+withLabel : Label.Config -> Config validationData value parsedValue -> Config validationData value parsedValue
 withLabel label (Config configuration) =
     Config { configuration | label = Just label }
 
 
 {-| Define the visible options in the checkbox group.
 -}
-withOptions : List (Option value) -> Config value -> Config value
+withOptions : List (Option value) -> Config validationData value parsedValue -> Config validationData value parsedValue
 withOptions options (Config configuration) =
     Config { configuration | options = options }
 
@@ -456,35 +426,91 @@ large =
 
 {-| Define the size of cards.
 -}
-withSize : CardGroup.Size -> Config value -> Config value
+withSize : CardGroup.Size -> Config validationData value parsedValue -> Config validationData value parsedValue
 withSize size (Config configuration) =
     Config { configuration | size = size }
 
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config value -> Config value
+withAdditionalContent : Html Never -> Config validationData value parsedValue -> Config validationData value parsedValue
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
 
+{-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
+-}
+withValidationOnSubmit :
+    CommonsAlias.Validation validationData (List value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue
+    -> Config validationData value parsedValue
+withValidationOnSubmit validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onSubmit |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
+-}
+withValidationOnInput :
+    CommonsAlias.Validation validationData (List value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue
+    -> Config validationData value parsedValue
+withValidationOnInput validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onInput |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
+-}
+withValidationOnBlur :
+    CommonsAlias.Validation validationData (List value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue
+    -> Config validationData value parsedValue
+withValidationOnBlur validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onBlur |> Just
+        }
+
+
 {-| Render the checkboxCardGroup
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value msg -> Config value -> Html msg
-render tagger ctx (Model modelData) (Config configData) =
-    let
-        shownValidation : Result String ()
-        shownValidation =
-            InternalStrategy.getValidationResult
-                modelData.fieldStatus
-                (modelData.validation ctx modelData.checkedValues)
-                configData.isSubmitted
-                configData.strategy
-    in
+render : (Msg value -> msg) -> validationData -> Model value msg -> Config validationData value parsedValue -> Html msg
+render tagger validationData ((Model { checkedValues }) as model) ((Config configData) as config_) =
     CardGroup.renderCheckbox
-        shownValidation
+        (generateErrorConfig validationData model config_)
         configData
-        (List.map (mapOption tagger modelData.checkedValues) configData.options)
+        (List.map (mapOption tagger checkedValues) configData.options)
+
+
+{-| Internal
+-}
+generateErrorConfig : validationData -> Model value msg -> Config validationData value parsedValue -> Maybe (Error.Config parsedValue)
+generateErrorConfig validationData (Model { fieldStatus, checkedValues }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+    let
+        getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
+        getErrorConfig validationResult =
+            Error.config id validationResult
+                >> Error.withIsDirty fieldStatus.isDirty
+                >> Error.withIsBlurred fieldStatus.isBlurred
+                >> Error.withIsSubmitted isSubmitted
+    in
+    Maybe.map2 getErrorConfig
+        (Maybe.map (\v -> v validationData checkedValues) validation)
+        errorShowingStrategy
 
 
 {-| Internal
@@ -502,19 +528,15 @@ mapOption tagger checkedValues (Option { value, text, title, addon, disabled }) 
     }
 
 
-
--- Getters/Setters boilerplate
-
-
 {-| Internal
 -}
-mapCheckedValues : (List value -> List value) -> Model ctx value msg -> Model ctx value msg
+mapCheckedValues : (List value -> List value) -> Model value msg -> Model value msg
 mapCheckedValues f (Model r) =
     Model { r | checkedValues = f r.checkedValues }
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
-mapFieldStatus f (Model model) =
-    Model { model | fieldStatus = f model.fieldStatus }
+mapFieldStatus : (FieldStatus -> FieldStatus) -> Model value msg -> Model value msg
+mapFieldStatus mapper (Model model) =
+    Model { model | fieldStatus = mapper model.fieldStatus }

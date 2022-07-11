@@ -29,6 +29,7 @@ type alias Model =
     { data : Data
     , citiesApi : RemoteData Http.Error (List City)
     , showModal : Bool
+    , showSuccess : Bool
     , faqs : Accordion.Model
     }
 
@@ -50,6 +51,7 @@ initialModel =
     { data = Data.initialData
     , citiesApi = RemoteData.NotAsked
     , showModal = False
+    , showSuccess = False
     , faqs = Accordion.init (Accordion.singleOpening (Just "accordion-1"))
     }
 
@@ -90,22 +92,29 @@ updateModal isOpen model =
 
 submit : Model -> ( Model, Cmd Msg )
 submit model =
-    model
-        |> mapData (\(Data d) -> Data { d | isFormSubmitted = True })
+    let
+        updatedModel : Model
+        updatedModel =
+            mapData (\(Data d) -> Data { d | isFormSubmitted = True }) model
+    in
+    updatedModel.data
+        |> validate
+        |> Result.map (always { model | showSuccess = True })
+        |> Result.withDefault updatedModel
         |> PrimaUpdate.withoutCmds
 
 
 validate : Data -> Result String Response
-validate ((Data config) as data) =
+validate (Data config) =
     Ok Response
-        |> parseAndThen (Input.validate data config.birth)
-        |> parseAndThen (Input.validate data config.claimDate)
-        |> parseAndThen (RadioCardGroup.validate data config.claimType)
-        |> parseAndThen (Textarea.validate data config.dynamic)
-        |> parseAndThen (RadioCardGroup.validate data config.insuranceType)
-        |> parseAndThen (RadioCardGroup.validate data config.peopleInvolved)
-        |> parseAndThen (Input.validate data config.plate)
-        |> parseAndThen (Autocomplete.validate data config.residentialCity)
+        |> parseAndThen (Data.dateValidation () (Input.getValue config.birth))
+        |> parseAndThen (Data.dateValidation () (Input.getValue config.claimDate))
+        |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.claimType))
+        |> parseAndThen (Data.notEmptyStringValidation () (Textarea.getValue config.dynamic))
+        |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.insuranceType))
+        |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.peopleInvolved))
+        |> parseAndThen (Data.notEmptyStringValidation () (Input.getValue config.plate))
+        |> parseAndThen (Data.residentialCityValidation () (Autocomplete.getValue config.residentialCity))
 
 
 parseAndThen : Result x a -> Result x (a -> b) -> Result x b

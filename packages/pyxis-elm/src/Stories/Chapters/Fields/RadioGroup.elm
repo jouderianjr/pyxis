@@ -19,32 +19,31 @@ Radio group have a horizontal layout as default, but with more then two items a 
 
 <component with-label="RadioGroup" />
 ```
-type Option
-    = Home
+type Product
+    = Household
     | Motor
 
 
 type Msg
-    = OnRadioFieldMsg (RadioGroup.Msg Option)
+    = OnRadioFieldMsg (RadioGroup.Msg Product)
 
 
-validation : () -> Maybe Option -> Result String Option
+validation : () -> Maybe Product -> Result String Product
 validation _ selected =
     Result.fromMaybe "You must select one option" selected
 
 
-radioGroupModel : RadioGroup.Model () Option (RadioGroup.Msg Option)
-radioGroupModel =
-    RadioGroup.init (Just Home) validation
+radioGroupModel : RadioGroup.Model Product (RadioGroup.Msg Product)
+radioGroupModel = RadioGroup.init (Just Household)
 
 
-radioGroupView : () -> Html Msg
-radioGroupView formData =
+radioGroupView : Bool -> () -> Html Msg
+radioGroupView isSubmitted formData =
     RadioGroup.config "radio-name"
-        |> RadioGroup.withName "insurance-type"
         |> RadioGroup.withLabel (Label.config "Choose the insurance type")
+        |> RadioGroup.withValidationOnBlur validation isSubmitted
         |> RadioGroup.withOptions
-            [ RadioGroup.option { value = Home, label = "Home" }
+            [ RadioGroup.option { value = Household, label = "Home" }
             , RadioGroup.option { value = Motor, label = "Motor" }
             ]
         |> RadioGroup.render OnRadioFieldMsg formData radioGroupModel
@@ -75,7 +74,7 @@ RadioGroup.config name
     |> RadioGroup.render
         OnRadioFieldMsg
         formData
-        (radioGroupModel |> RadioGroup.setValue Home)
+        (radioGroupModel |> RadioGroup.setValue Household)
 ```
 
 # Additional Content
@@ -86,7 +85,7 @@ RadioGroup.config name
     |> RadioGroup.render
         OnRadioFieldMsg
         formData
-        (radioGroupModel |> RadioGroup.setValue Home)
+        (radioGroupModel |> RadioGroup.setValue Household)
 ```
 """
 
@@ -96,28 +95,24 @@ type alias SharedState x =
 
 
 type Product
-    = Home
+    = Household
     | Motor
 
 
 type alias Model =
-    { base : RadioGroup.Model () Product (RadioGroup.Msg Product)
-    , vertical : RadioGroup.Model () Product (RadioGroup.Msg Product)
-    , disabled : RadioGroup.Model () Product (RadioGroup.Msg Product)
-    , additionalContent : RadioGroup.Model () Product (RadioGroup.Msg Product)
+    { base : RadioGroup.Model Product (RadioGroup.Msg Product)
+    , vertical : RadioGroup.Model Product (RadioGroup.Msg Product)
+    , disabled : RadioGroup.Model Product (RadioGroup.Msg Product)
+    , additionalContent : RadioGroup.Model Product (RadioGroup.Msg Product)
     }
 
 
 init : Model
 init =
-    { base =
-        RadioGroup.init Nothing validation
-    , vertical =
-        RadioGroup.init (Just Motor) validation
-    , disabled =
-        RadioGroup.init (Just Home) validation
-    , additionalContent =
-        RadioGroup.init (Just Home) validation
+    { base = RadioGroup.init (Just Household)
+    , vertical = RadioGroup.init (Just Motor)
+    , disabled = RadioGroup.init (Just Household)
+    , additionalContent = RadioGroup.init (Just Household)
     }
 
 
@@ -178,15 +173,15 @@ componentsList =
 
 options : List (RadioGroup.Option Product)
 options =
-    [ RadioGroup.option { value = Home, label = "Home" }
+    [ RadioGroup.option { value = Household, label = "Home" }
     , RadioGroup.option { value = Motor, label = "Motor" }
     ]
 
 
 type alias StatefulConfig =
     { name : String
-    , configModifier : RadioGroup.Config Product -> RadioGroup.Config Product
-    , modelPicker : Model -> RadioGroup.Model () Product (RadioGroup.Msg Product)
+    , configModifier : RadioGroup.Config () Product Product -> RadioGroup.Config () Product Product
+    , modelPicker : Model -> RadioGroup.Model Product (RadioGroup.Msg Product)
     , update : RadioGroup.Msg Product -> Model -> ( Model, Cmd (RadioGroup.Msg Product) )
     }
 
@@ -195,6 +190,7 @@ statefulComponent : StatefulConfig -> SharedState x -> Html (ElmBook.Msg (Shared
 statefulComponent { name, configModifier, modelPicker, update } sharedState =
     RadioGroup.config name
         |> RadioGroup.withOptions options
+        |> RadioGroup.withValidationOnBlur validation False
         |> configModifier
         |> RadioGroup.render identity () (sharedState.radio |> modelPicker)
         |> Html.map

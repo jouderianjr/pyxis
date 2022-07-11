@@ -1,7 +1,6 @@
 module Pyxis.Commons.Render exposing
     ( empty
     , renderIf
-    , renderErrorOrHint
     , renderMaybe
     , renderUnless
     , renderListIf
@@ -17,7 +16,6 @@ module Pyxis.Commons.Render exposing
 ## Render
 
 @docs renderIf
-@docs renderErrorOrHint
 @docs renderMaybe
 @docs renderUnless
 @docs renderListIf
@@ -27,9 +25,6 @@ module Pyxis.Commons.Render exposing
 -}
 
 import Html exposing (Html)
-import Maybe.Extra
-import Pyxis.Components.Field.Error as Error
-import Pyxis.Components.Field.Hint as Hint
 
 
 {-| Renders an empty Html node.
@@ -87,12 +82,3 @@ renderMaybe =
 renderListMaybe : Maybe (List (Html msg)) -> List (Html msg)
 renderListMaybe =
     Maybe.withDefault []
-
-
-{-| -}
-renderErrorOrHint : String -> Maybe Hint.Config -> Maybe Error.Config -> Html msg
-renderErrorOrHint id hintConfig errorConfig =
-    Maybe.Extra.or
-        (Maybe.map (Error.withFieldId id >> Error.render) errorConfig)
-        (Maybe.map (Hint.withFieldId id >> Hint.render) hintConfig)
-        |> renderMaybe

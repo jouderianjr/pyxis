@@ -93,7 +93,8 @@ suite =
                         |> Simulation.simulate ( Event.focus, [ Selector.attribute (CommonsAttributes.testId "gender-male-option") ] )
                         |> Simulation.simulate ( Event.blur, [ Selector.attribute (CommonsAttributes.testId "gender-male-option") ] )
                         |> Simulation.expectModel
-                            (RadioGroup.validate ()
+                            (RadioGroup.getValue
+                                >> validation ()
                                 >> Expect.equal (Err "Required")
                             )
                         |> Simulation.expectHtml (Query.find [ Selector.id "gender-error" ] >> Query.contains [ Html.text "Required" ])
@@ -111,7 +112,7 @@ suite =
 
 
 type alias ComponentModel =
-    RadioGroup.Model () Option ComponentMsg
+    RadioGroup.Model Option ComponentMsg
 
 
 type alias ComponentMsg =
@@ -130,25 +131,25 @@ radioOptions =
     ]
 
 
-radioGroupConfig : RadioGroup.Config Option
+radioGroupConfig : RadioGroup.Config () Option Option
 radioGroupConfig =
     RadioGroup.config "gender"
         |> RadioGroup.withOptions radioOptions
         |> RadioGroup.withId "gender"
 
 
-renderRadioGroup : RadioGroup.Config Option -> Query.Single ComponentMsg
+renderRadioGroup : RadioGroup.Config () Option Option -> Query.Single ComponentMsg
 renderRadioGroup =
-    RadioGroup.render identity () (RadioGroup.init Nothing validation)
+    RadioGroup.render identity () (RadioGroup.init Nothing)
         >> Query.fromHtml
 
 
 simulationWithValidation : Simulation.Simulation ComponentModel ComponentMsg
 simulationWithValidation =
     Simulation.fromSandbox
-        { init = RadioGroup.init Nothing validation
+        { init = RadioGroup.init Nothing
         , update = \subMsg model -> Tuple.first (RadioGroup.update subMsg model)
-        , view = \model -> RadioGroup.render identity () model radioGroupConfig
+        , view = \model -> radioGroupConfig |> RadioGroup.withValidationOnBlur validation False |> RadioGroup.render identity () model
         }
 
 

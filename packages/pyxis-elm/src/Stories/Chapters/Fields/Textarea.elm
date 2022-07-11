@@ -22,9 +22,9 @@ type Msg
     = OnTextareaMsg Textarea.Msg
 
 
-textareaModel : Textarea.Model () Textarea.Msg
+textareaModel : Textarea.Model Textarea.Msg
 textareaModel =
-    Textarea.init "" validation
+    Textarea.init ""
 
 
 validation : () -> String -> Result String String
@@ -36,10 +36,11 @@ validation _ value =
         Ok value
 
 
-textareaField : String -> () -> Html Msg
-textareaField name formData =
+textareaField : String -> Bool -> () -> Html Msg
+textareaField name isSubmitted formData =
     Textarea.config name
         |> Textarea.withLabel (Label.config "Textarea")
+        |> Textarea.withValidationOnBlur validation isSubmitted
         |> Textarea.render OnTextareaMsg formData textareaModel
 ```
 
@@ -92,15 +93,15 @@ type alias SharedState x =
 
 
 type alias Model =
-    { base : Textarea.Model () Textarea.Msg
-    , withValidation : Textarea.Model () Textarea.Msg
+    { base : Textarea.Model Textarea.Msg
+    , withValidation : Textarea.Model Textarea.Msg
     }
 
 
 init : Model
 init =
-    { base = Textarea.init "" (always Ok)
-    , withValidation = Textarea.init "" validation
+    { base = Textarea.init ""
+    , withValidation = Textarea.init ""
     }
 
 
@@ -141,7 +142,7 @@ componentsList =
     ]
 
 
-statelessComponent : String -> (Textarea.Config -> Textarea.Config) -> SharedState x -> Html (ElmBook.Msg (SharedState x))
+statelessComponent : String -> (Textarea.Config () String -> Textarea.Config () String) -> SharedState x -> Html (ElmBook.Msg (SharedState x))
 statelessComponent name configModifier { textarea } =
     Textarea.config name
         |> configModifier
@@ -163,13 +164,14 @@ statelessComponent name configModifier { textarea } =
 
 statefulComponent :
     String
-    -> (Model -> Textarea.Model () Textarea.Msg)
+    -> (Model -> Textarea.Model Textarea.Msg)
     -> (Textarea.Msg -> Model -> ( Model, Cmd Textarea.Msg ))
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
 statefulComponent name modelPicker update sharedState =
     Textarea.config name
         |> Textarea.withLabel (Label.config name)
+        |> Textarea.withValidationOnBlur validation False
         |> Textarea.render identity () (sharedState.textarea |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd

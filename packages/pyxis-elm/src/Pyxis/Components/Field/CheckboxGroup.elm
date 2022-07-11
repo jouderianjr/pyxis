@@ -13,14 +13,14 @@ module Pyxis.Components.Field.CheckboxGroup exposing
     , withAdditionalContent
     , withClassList
     , withId
-    , withIsSubmitted
     , withLabel
-    , withStrategy
+    , withValidationOnBlur
+    , withValidationOnInput
+    , withValidationOnSubmit
     , Msg
     , update
     , updateValue
     , getValue
-    , validate
     , Option
     , option
     , withOptions
@@ -59,9 +59,10 @@ module Pyxis.Components.Field.CheckboxGroup exposing
 @docs withAdditionalContent
 @docs withClassList
 @docs withId
-@docs withIsSubmitted
 @docs withLabel
-@docs withStrategy
+@docs withValidationOnBlur
+@docs withValidationOnInput
+@docs withValidationOnSubmit
 
 
 ## Update
@@ -74,7 +75,6 @@ module Pyxis.Components.Field.CheckboxGroup exposing
 ## Readers
 
 @docs getValue
-@docs validate
 
 
 ## Options
@@ -96,24 +96,22 @@ import Html.Attributes
 import Html.Events
 import PrimaFunction
 import PrimaUpdate
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Commands as Commands
-import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
-import Pyxis.Components.Field.Error.Strategy.Internal as InternalStrategy
+import Pyxis.Components.Field.Error as Error
+import Pyxis.Components.Field.FieldStatus as FieldStatus exposing (FieldStatus)
 import Pyxis.Components.Field.Hint as Hint
 import Pyxis.Components.Field.Label as Label
-import Pyxis.Components.Field.Status as FieldStatus
 import Pyxis.Components.Form.FormItem as FormItem
-import Result.Extra
 
 
 {-| A type representing the CheckboxGroup field internal state.
 -}
-type Model ctx value msg
+type Model value msg
     = Model
         { checkedValues : List value
-        , validation : ctx -> List value -> Result String (List value)
-        , fieldStatus : FieldStatus.Status
+        , fieldStatus : FieldStatus
         , onBlur : Maybe msg
         , onFocus : Maybe msg
         , onCheck : Maybe msg
@@ -123,12 +121,11 @@ type Model ctx value msg
 {-| Initialize the CheckboxGroup internal state.
 Takes a validation function as argument
 -}
-init : List value -> (ctx -> List value -> Result String (List value)) -> Model ctx value msg
-init initialValues validation =
+init : List value -> Model value msg
+init initialValues =
     Model
         { checkedValues = initialValues
-        , validation = validation
-        , fieldStatus = FieldStatus.Untouched
+        , fieldStatus = FieldStatus.init
         , onBlur = Nothing
         , onFocus = Nothing
         , onCheck = Nothing
@@ -145,18 +142,17 @@ type Msg value
 
 {-| Update the internal state of the CheckboxGroup component
 -}
-update : Msg value -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+update : Msg value -> Model value msg -> ( Model value msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnBlur ->
             model
-                |> mapFieldStatus FieldStatus.onBlur
+                |> mapFieldStatus (FieldStatus.setIsBlurred True)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onBlur ]
 
         OnFocus ->
             model
-                |> mapFieldStatus FieldStatus.onFocus
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onFocus ]
 
@@ -165,49 +161,49 @@ update msg ((Model modelData) as model) =
                 |> PrimaFunction.ifThenElseMap (always check)
                     (checkValue value)
                     (uncheckValue value)
-                |> mapFieldStatus FieldStatus.onChange
+                |> mapFieldStatus (FieldStatus.setIsDirty True)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onCheck ]
 
 
 {-| Update the field value.
 -}
-updateValue : value -> Bool -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+updateValue : value -> Bool -> Model value msg -> ( Model value msg, Cmd msg )
 updateValue value checked =
     update (OnCheck value checked)
 
 
 {-| Add the value to the checked list
 -}
-checkValue : value -> Model ctx value msg -> Model ctx value msg
+checkValue : value -> Model value msg -> Model value msg
 checkValue value =
     mapCheckedValues ((::) value)
 
 
 {-| Remove the value to the checked list
 -}
-uncheckValue : value -> Model ctx value msg -> Model ctx value msg
+uncheckValue : value -> Model value msg -> Model value msg
 uncheckValue value =
     mapCheckedValues (List.filter ((/=) value))
 
 
 {-| Sets an OnBlur side effect.
 -}
-setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
+setOnBlur : msg -> Model value msg -> Model value msg
 setOnBlur msg (Model configuration) =
     Model { configuration | onBlur = Just msg }
 
 
 {-| Sets an OnFocus side effect.
 -}
-setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
+setOnFocus : msg -> Model value msg -> Model value msg
 setOnFocus msg (Model configuration) =
     Model { configuration | onFocus = Just msg }
 
 
 {-| Sets an OnCheck side effect.
 -}
-setOnCheck : msg -> Model ctx value msg -> Model ctx value msg
+setOnCheck : msg -> Model value msg -> Model value msg
 setOnCheck msg (Model configuration) =
     Model { configuration | onCheck = Just msg }
 
@@ -235,7 +231,7 @@ option { label, value } =
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config value msg -> Config value msg
+withAdditionalContent : Html Never -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withAdditionalContent additionalContent (Config configData) =
     Config { configData | additionalContent = Just additionalContent }
 
@@ -249,44 +245,30 @@ withDisabledOption disabled (Option optionData) =
 
 {-| Set the CheckboxGroup checkboxes options
 -}
-withOptions : List (Option value msg) -> Config value msg -> Config value msg
+withOptions : List (Option value msg) -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withOptions options (Config configData) =
     Config { configData | options = options }
 
 
 {-| Sets the label attribute
 -}
-withLabel : Label.Config -> Config value msg -> Config value msg
+withLabel : Label.Config -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withLabel label (Config configData) =
     Config { configData | label = Just label }
 
 
 {-| Sets the classList attribute
 -}
-withClassList : List ( String, Bool ) -> Config value msg -> Config value msg
+withClassList : List ( String, Bool ) -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withClassList classList (Config configData) =
     Config { configData | classList = classList }
 
 
 {-| Sets the id attribute
 -}
-withId : String -> Config value msg -> Config value msg
+withId : CommonsAlias.Id -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withId id (Config configData) =
     Config { configData | id = id }
-
-
-{-| Sets the validation strategy (when to show the error, if present)
--}
-withStrategy : Strategy -> Config value msg -> Config value msg
-withStrategy strategy (Config configuration) =
-    Config { configuration | strategy = strategy }
-
-
-{-| Sets whether the form was submitted
--}
-withIsSubmitted : Bool -> Config value msg -> Config value msg
-withIsSubmitted isSubmitted (Config configuration) =
-    Config { configuration | isSubmitted = isSubmitted }
 
 
 {-| Represent the layout of the group.
@@ -298,7 +280,7 @@ type Layout
 
 {-| Sets the CheckboxGroup layout
 -}
-withLayout : Layout -> Config value msg -> Config value msg
+withLayout : Layout -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withLayout layout (Config configData) =
     Config { configData | layout = layout }
 
@@ -317,33 +299,82 @@ vertical =
     Vertical
 
 
+{-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
+-}
+withValidationOnSubmit :
+    CommonsAlias.Validation validationData (List value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
+withValidationOnSubmit validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onSubmit |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
+-}
+withValidationOnInput :
+    CommonsAlias.Validation validationData (List value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
+withValidationOnInput validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onInput |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
+-}
+withValidationOnBlur :
+    CommonsAlias.Validation validationData (List value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
+withValidationOnBlur validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onBlur |> Just
+        }
+
+
 {-| Internal
 -}
-type alias ConfigData value msg =
+type alias ConfigData validationData value parsedValue msg =
     { additionalContent : Maybe (Html Never)
     , ariaLabelledBy : Maybe String
     , classList : List ( String, Bool )
     , hint : Maybe Hint.Config
-    , id : String
+    , id : CommonsAlias.Id
     , label : Maybe Label.Config
     , layout : Layout
-    , name : String
+    , name : CommonsAlias.Name
     , options : List (Option value msg)
-    , strategy : Strategy
-    , isSubmitted : Bool
+    , errorShowingStrategy : Maybe Error.ShowingStrategy
+    , isSubmitted : CommonsAlias.IsSubmitted
+    , validation : Maybe (CommonsAlias.Validation validationData (List value) parsedValue)
     }
 
 
 {-| A type representing the select rendering options.
 This should not belong to the app `Model`
 -}
-type Config value msg
-    = Config (ConfigData value msg)
+type Config validationData value parsedValue msg
+    = Config (ConfigData validationData value parsedValue msg)
 
 
 {-| Create a default [`CheckboxGroup.Config`](CheckboxGroup#Config)
 -}
-config : String -> Config value msg
+config : CommonsAlias.Name -> Config validationData value parsedValue msg
 config name =
     Config
         { additionalContent = Nothing
@@ -355,29 +386,26 @@ config name =
         , layout = Horizontal
         , name = name
         , options = []
-        , strategy = Strategy.onBlur
+        , errorShowingStrategy = Nothing
         , isSubmitted = False
+        , validation = Nothing
         }
 
 
 {-| Render the CheckboxGroup
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value msg -> Config value msg -> Html msg
-render tagger ctx (Model modelData) (Config configData) =
+render : (Msg value -> msg) -> validationData -> Model value msg -> Config validationData value parsedValue msg -> Html msg
+render tagger validationData ((Model { checkedValues }) as model) ((Config configData) as config_) =
     let
-        shownValidation : Result String ()
-        shownValidation =
-            InternalStrategy.getValidationResult
-                modelData.fieldStatus
-                (modelData.validation ctx modelData.checkedValues)
-                configData.isSubmitted
-                configData.strategy
+        error : Maybe (Error.Config parsedValue)
+        error =
+            generateErrorConfig validationData model config_
 
         renderCheckbox_ : Option value msg -> Html msg
         renderCheckbox_ =
             renderCheckbox tagger
-                { hasError = Result.Extra.isErr shownValidation
-                , checkedValues = modelData.checkedValues
+                { hasError = Error.isVisible error
+                , checkedValues = checkedValues
                 }
                 configData
     in
@@ -387,13 +415,34 @@ render tagger ctx (Model modelData) (Config configData) =
         |> FormItem.config configData
         |> FormItem.withLabel configData.label
         |> FormItem.withAdditionalContent configData.additionalContent
-        |> FormItem.render shownValidation
+        |> FormItem.render error
+
+
+{-| Internal
+-}
+generateErrorConfig :
+    validationData
+    -> Model value msg
+    -> Config validationData value parsedValue msg
+    -> Maybe (Error.Config parsedValue)
+generateErrorConfig validationData (Model { fieldStatus, checkedValues }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+    let
+        getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
+        getErrorConfig validationResult =
+            Error.config id validationResult
+                >> Error.withIsDirty fieldStatus.isDirty
+                >> Error.withIsBlurred fieldStatus.isBlurred
+                >> Error.withIsSubmitted isSubmitted
+    in
+    Maybe.map2 getErrorConfig
+        (Maybe.map (\v -> v validationData checkedValues) validation)
+        errorShowingStrategy
 
 
 {-| Internal.
 Handles the single input / input group markup difference
 -}
-renderControlGroup : ConfigData value msg -> List (Html msg) -> Html msg
+renderControlGroup : ConfigData validationData value parsedValue msg -> List (Html msg) -> Html msg
 renderControlGroup configData children =
     case children of
         [ child ] ->
@@ -414,23 +463,16 @@ renderControlGroup configData children =
                 children
 
 
-{-| Get the parsed value
--}
-validate : ctx -> Model ctx value msg -> Result String (List value)
-validate ctx (Model modelData) =
-    modelData.validation ctx modelData.checkedValues
-
-
 {-| Get the checked options **without** passing through the validation
 -}
-getValue : Model ctx value msg -> List value
+getValue : Model value msg -> List value
 getValue (Model modelData) =
     modelData.checkedValues
 
 
 {-| Internal
 -}
-renderCheckbox : (Msg value -> msg) -> { hasError : Bool, checkedValues : List value } -> { r | name : String } -> Option value msg -> Html msg
+renderCheckbox : (Msg value -> msg) -> { hasError : Bool, checkedValues : List value } -> { r | name : CommonsAlias.Name } -> Option value msg -> Html msg
 renderCheckbox tagger { hasError, checkedValues } configData (Option optionData) =
     Html.label
         [ Html.Attributes.classList
@@ -458,17 +500,13 @@ renderCheckbox tagger { hasError, checkedValues } configData (Option optionData)
         ]
 
 
-
--- Getters/Setters boilerplate
-
-
-mapCheckedValues : (List value -> List value) -> Model ctx value msg -> Model ctx value msg
-mapCheckedValues f (Model modelData) =
-    Model { modelData | checkedValues = f modelData.checkedValues }
+mapCheckedValues : (List value -> List value) -> Model value msg -> Model value msg
+mapCheckedValues mapper (Model modelData) =
+    Model { modelData | checkedValues = mapper modelData.checkedValues }
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
-mapFieldStatus f (Model model) =
-    Model { model | fieldStatus = f model.fieldStatus }
+mapFieldStatus : (FieldStatus -> FieldStatus) -> Model value msg -> Model value msg
+mapFieldStatus mapper (Model model) =
+    Model { model | fieldStatus = mapper model.fieldStatus }

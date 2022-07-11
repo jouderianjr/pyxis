@@ -11,12 +11,13 @@ module Pyxis.Components.Field.Autocomplete exposing
     , withAdditionalContent
     , withDisabled
     , withHint
-    , withIsSubmitted
+    , withId
     , withLabel
     , withNoResultsFoundMessage
     , withPlaceholder
-    , withStrategy
-    , withId
+    , withValidationOnBlur
+    , withValidationOnInput
+    , withValidationOnSubmit
     , Size
     , small
     , medium
@@ -28,7 +29,6 @@ module Pyxis.Components.Field.Autocomplete exposing
     , setDropdownClosed
     , setOptions
     , update
-    , validate
     , getValue
     , getFilter
     , render
@@ -59,13 +59,13 @@ module Pyxis.Components.Field.Autocomplete exposing
 @docs withAdditionalContent
 @docs withDisabled
 @docs withHint
-@docs withIsSubmitted
+@docs withId
 @docs withLabel
-
 @docs withNoResultsFoundMessage
 @docs withPlaceholder
-@docs withStrategy
-@docs withId
+@docs withValidationOnBlur
+@docs withValidationOnInput
+@docs withValidationOnSubmit
 
 
 ## Size
@@ -89,7 +89,6 @@ module Pyxis.Components.Field.Autocomplete exposing
 @docs setDropdownClosed
 @docs setOptions
 @docs update
-@docs validate
 
 
 ## Readers
@@ -111,36 +110,34 @@ import Html.Events
 import Maybe.Extra
 import PrimaFunction
 import PrimaUpdate
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Commands as Commands
 import Pyxis.Commons.Events.KeyDown as KeyDown
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Field.Error as Error
-import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
-import Pyxis.Components.Field.Error.Strategy.Internal as StrategyInternal
+import Pyxis.Components.Field.FieldStatus as FieldStatus exposing (FieldStatus)
 import Pyxis.Components.Field.Hint as Hint
 import Pyxis.Components.Field.Label as Label
-import Pyxis.Components.Field.Status as Status
 import Pyxis.Components.Form.Dropdown as FormDropdown
 import Pyxis.Components.Form.FormItem as FormItem
 import Pyxis.Components.Icon as Icon
 import Pyxis.Components.IconSet as IconSet
 import RemoteData exposing (RemoteData)
-import Result.Extra
 
 
 {-| Represents the Autocomplete state.
 -}
-type Model ctx value msg
+type Model value msg
     = Model
         { activeOption : Maybe (Option value)
         , isDropdownOpen : Bool
-        , fieldStatus : Status.Status
+        , fieldStatus : FieldStatus
         , filter : String
         , isFiltering : Bool
+        , hasFocus : Bool
         , optionsFilter : String -> value -> Bool
         , values : RemoteData () (List value)
-        , validation : ctx -> Maybe value -> Result String value
         , value : Maybe value
         , valueToString : value -> String
         , onBlur : Maybe msg
@@ -157,18 +154,17 @@ init :
     Maybe value
     -> (value -> String)
     -> (String -> value -> Bool)
-    -> (ctx -> Maybe value -> Result String value)
-    -> Model ctx value msg
-init value valueToString optionsFilter validation =
+    -> Model value msg
+init value valueToString optionsFilter =
     Model
         { activeOption = Nothing
         , isDropdownOpen = False
-        , fieldStatus = Status.Untouched
+        , fieldStatus = FieldStatus.init
         , filter = ""
         , isFiltering = False
+        , hasFocus = False
         , optionsFilter = optionsFilter
         , values = RemoteData.NotAsked
-        , validation = validation
         , value = value
         , valueToString = valueToString
         , onBlur = Nothing
@@ -180,7 +176,7 @@ init value valueToString optionsFilter validation =
 
 
 type alias Option value =
-    { id : String
+    { id : CommonsAlias.Id
     , value : value
     , index : Int
     }
@@ -188,7 +184,7 @@ type alias Option value =
 
 {-| Allow to updates the options list.
 -}
-setOptions : RemoteData err (List value) -> Model ctx value msg -> Model ctx value msg
+setOptions : RemoteData err (List value) -> Model value msg -> Model value msg
 setOptions optionsRemoteData (Model modelData) =
     Model { modelData | values = RemoteData.mapError (always ()) optionsRemoteData, isDropdownOpen = RemoteData.isSuccess optionsRemoteData }
 
@@ -205,26 +201,27 @@ type Msg value
 
 {-| Updates the Autocomplete.
 -}
-update : Msg value -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+update : Msg value -> Model value msg -> ( Model value msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnFocus ->
             Model { modelData | isDropdownOpen = True }
-                |> mapFieldStatus Status.onFocus
+                |> setHasFocus True
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onFocus
                     ]
 
         OnInput value ->
             Model { modelData | filter = value, isFiltering = True }
-                |> mapFieldStatus Status.onInput
+                |> mapFieldStatus (FieldStatus.setIsDirty True)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onInput
                     ]
 
         OnReset ->
             Model { modelData | filter = "", isFiltering = False, value = Nothing, activeOption = Nothing }
-                |> mapFieldStatus Status.onInput
+                |> mapFieldStatus (FieldStatus.setIsDirty False)
+                |> mapFieldStatus (FieldStatus.setIsBlurred False)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onReset
                     ]
@@ -233,7 +230,7 @@ update msg ((Model modelData) as model) =
             model
                 |> updateSelectedValue value
                 |> setDropdownClosed
-                |> mapFieldStatus Status.onInput
+                |> mapFieldStatus (FieldStatus.setIsDirty True)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onSelect
                     ]
@@ -250,7 +247,7 @@ update msg ((Model modelData) as model) =
                     )
 
 
-updateOnKeyEvent : KeyDown.Event -> Model ctx value msg -> Model ctx value msg
+updateOnKeyEvent : KeyDown.Event -> Model value msg -> Model value msg
 updateOnKeyEvent event ((Model modelData) as model) =
     if KeyDown.isArrowDown event then
         updateActiveOption 1 model
@@ -273,54 +270,67 @@ updateOnKeyEvent event ((Model modelData) as model) =
 
 {-| Sets an OnBlur side effect.
 -}
-setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
+setOnBlur : msg -> Model value msg -> Model value msg
 setOnBlur msg (Model configuration) =
     Model { configuration | onBlur = Just msg }
 
 
 {-| Sets an OnFocus side effect.
 -}
-setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
+setOnFocus : msg -> Model value msg -> Model value msg
 setOnFocus msg (Model configuration) =
     Model { configuration | onFocus = Just msg }
 
 
 {-| Sets an OnReset side effect.
 -}
-setOnReset : msg -> Model ctx value msg -> Model ctx value msg
+setOnReset : msg -> Model value msg -> Model value msg
 setOnReset msg (Model configuration) =
     Model { configuration | onReset = Just msg }
 
 
 {-| Sets an OnInput side effect.
 -}
-setOnInput : msg -> Model ctx value msg -> Model ctx value msg
+setOnInput : msg -> Model value msg -> Model value msg
 setOnInput msg (Model configuration) =
     Model { configuration | onInput = Just msg }
 
 
 {-| Sets an OnSelect side effect.
 -}
-setOnSelect : msg -> Model ctx value msg -> Model ctx value msg
+setOnSelect : msg -> Model value msg -> Model value msg
 setOnSelect msg (Model configuration) =
     Model { configuration | onSelect = Just msg }
 
 
 {-| Update the Autocomplete Model closing the dropdown
 -}
-setDropdownClosed : Model ctx value msg -> Model ctx value msg
+setDropdownClosed : Model value msg -> Model value msg
 setDropdownClosed (Model modelData) =
-    Model { modelData | isFiltering = False, isDropdownOpen = False, activeOption = Nothing }
+    Model
+        { modelData
+            | isFiltering = False
+            , isDropdownOpen = False
+            , activeOption = Nothing
+            , hasFocus = False
+        }
 
 
 {-| Internal.
 -}
-updateSelectedValue : value -> Model ctx value msg -> Model ctx value msg
+setHasFocus : Bool -> Model value msg -> Model value msg
+setHasFocus hasFocus (Model modelData) =
+    Model { modelData | hasFocus = hasFocus }
+
+
+{-| Internal.
+-}
+updateSelectedValue : value -> Model value msg -> Model value msg
 updateSelectedValue value (Model modelData) =
     Model { modelData | value = Just value }
 
 
-updateActiveOption : Int -> Model ctx value msg -> Model ctx value msg
+updateActiveOption : Int -> Model value msg -> Model value msg
 updateActiveOption moveByPositions ((Model modelData) as model) =
     let
         newActiveOptionIndex : Int
@@ -348,7 +358,7 @@ updateActiveOption moveByPositions ((Model modelData) as model) =
         }
 
 
-getValuesLength : Model ctx value msg -> Int
+getValuesLength : Model value msg -> Int
 getValuesLength (Model modelData) =
     modelData.values
         |> RemoteData.withDefault []
@@ -358,35 +368,28 @@ getValuesLength (Model modelData) =
 
 {-| Return the input value
 -}
-getValue : Model ctx value msg -> Maybe value
+getValue : Model value msg -> Maybe value
 getValue (Model { value }) =
     value
 
 
 {-| Return the input value
 -}
-getFilter : Model ctx value msg -> String
+getFilter : Model value msg -> String
 getFilter (Model { filter }) =
     filter
 
 
-{-| Returns the validated value by running the function you gave to the init.
--}
-validate : ctx -> Model ctx value msg -> Result String value
-validate ctx (Model { validation, value }) =
-    validation ctx value
-
-
 {-| Internal.
 -}
-mapFieldStatus : (Status.Status -> Status.Status) -> Model ctx value msg -> Model ctx value msg
+mapFieldStatus : (FieldStatus -> FieldStatus) -> Model value msg -> Model value msg
 mapFieldStatus mapper (Model modelData) =
     Model { modelData | fieldStatus = mapper modelData.fieldStatus }
 
 
 {-| Internal.
 -}
-getOptions : Model ctx value msg -> List (Option value)
+getOptions : Model value msg -> List (Option value)
 getOptions (Model modelData) =
     modelData.values
         |> RemoteData.toMaybe
@@ -418,32 +421,34 @@ medium =
 
 {-| Represents the Autocomplete view configuration.
 -}
-type Config value msg
+type Config validationData value parsedValue msg
     = Config
         { additionalContent : Maybe (Html Never)
         , disabled : Bool
+        , footerAction : Maybe (Html msg)
         , headerText : Maybe String
         , hint : Maybe Hint.Config
         , id : String
-        , isSubmitted : Bool
+        , isSubmitted : CommonsAlias.IsSubmitted
         , label : Maybe Label.Config
-        , name : String
+        , name : CommonsAlias.Name
         , noResultsFoundMessage : String
-        , footerAction : Maybe (Html msg)
-        , suggestion : Maybe FormDropdown.SuggestionData
         , placeholder : String
         , size : Size
-        , strategy : Strategy
+        , errorShowingStrategy : Maybe Error.ShowingStrategy
+        , suggestion : Maybe FormDropdown.SuggestionData
+        , validation : Maybe (CommonsAlias.Validation validationData (Maybe value) parsedValue)
         }
 
 
 {-| Creates the Autocomplete view configuration.
 -}
-config : String -> Config value msg
+config : CommonsAlias.Name -> Config validationData value parsedValue msg
 config name =
     Config
         { additionalContent = Nothing
         , disabled = False
+        , footerAction = Nothing
         , headerText = Nothing
         , hint = Nothing
         , id = "id-" ++ name
@@ -451,25 +456,31 @@ config name =
         , label = Nothing
         , name = name
         , noResultsFoundMessage = "No results found."
-        , footerAction = Nothing
-        , suggestion = Nothing
         , placeholder = ""
-        , strategy = Strategy.onBlur
         , size = Medium
+        , errorShowingStrategy = Nothing
+        , suggestion = Nothing
+        , validation = Nothing
         }
 
 
 {-| Add an addon which suggest or help the user during search.
 Will be prepended to options.
 -}
-withHeaderText : String -> Config value msg -> Config value msg
+withHeaderText :
+    String
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
 withHeaderText text (Config configData) =
     Config { configData | headerText = Just text }
 
 
 {-| Add an addon with a call to action to be shown when no options are found.
 -}
-withNoResultFoundAction : Html msg -> Config value msg -> Config value msg
+withNoResultFoundAction :
+    Html msg
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
 withNoResultFoundAction action (Config configData) =
     Config { configData | footerAction = Just action }
 
@@ -477,28 +488,34 @@ withNoResultFoundAction action (Config configData) =
 {-| Add an addon which suggest or help the user during search.
 Will be appended to options.
 -}
-withSuggestion : FormDropdown.SuggestionData -> Config value msg -> Config value msg
+withSuggestion :
+    FormDropdown.SuggestionData
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
 withSuggestion suggestion (Config configData) =
     Config { configData | suggestion = Just suggestion }
 
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config value msg -> Config value msg
+withAdditionalContent :
+    Html Never
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
 
 {-| Sets whether the Autocomplete is disabled.
 -}
-withDisabled : Bool -> Config value msg -> Config value msg
+withDisabled : Bool -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withDisabled disabled (Config configuration) =
     Config { configuration | disabled = disabled }
 
 
 {-| Sets the Autocomplete hint.
 -}
-withHint : String -> Config value msg -> Config value msg
+withHint : String -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -510,92 +527,148 @@ withHint hintMessage (Config configuration) =
         }
 
 
-{-| Sets whether the form was submitted.
--}
-withIsSubmitted : Bool -> Config value msg -> Config value msg
-withIsSubmitted isSubmitted (Config configuration) =
-    Config { configuration | isSubmitted = isSubmitted }
-
-
 {-| Adds a label to the Autocomplete.
 -}
-withLabel : Label.Config -> Config value msg -> Config value msg
+withLabel :
+    Label.Config
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
 withLabel label (Config configData) =
     Config { configData | label = Just label }
 
 
 {-| Adds an id to the Autocomplete.
 -}
-withId : String -> Config value msg -> Config value msg
+withId : CommonsAlias.Id -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withId id (Config configData) =
     Config { configData | id = id }
 
 
 {-| Adds custom message instead of the default "No results found".
 -}
-withNoResultsFoundMessage : String -> Config value msg -> Config value msg
+withNoResultsFoundMessage :
+    String
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
 withNoResultsFoundMessage message (Config configuration) =
     Config { configuration | noResultsFoundMessage = message }
 
 
 {-| Sets the Autocomplete placeholder.
 -}
-withPlaceholder : String -> Config value msg -> Config value msg
+withPlaceholder :
+    String
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
 withPlaceholder placeholder (Config configuration) =
     Config { configuration | placeholder = placeholder }
 
 
 {-| Sets the Autocomplete size.
 -}
-withSize : Size -> Config value msg -> Config value msg
+withSize : Size -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
 withSize size (Config configuration) =
     Config { configuration | size = size }
 
 
-{-| Sets the validation strategy (when to show the error, if present).
+{-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
-withStrategy : Strategy -> Config value msg -> Config value msg
-withStrategy strategy (Config configuration) =
-    Config { configuration | strategy = strategy }
+withValidationOnSubmit :
+    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
+withValidationOnSubmit validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onSubmit |> Just
+        }
 
 
-getValidationResult : Model ctx value msg -> Config a msg -> ctx -> Result String ()
-getValidationResult (Model modelData) (Config configData) ctx =
-    StrategyInternal.getValidationResult
-        modelData.fieldStatus
-        (modelData.validation ctx modelData.value)
-        configData.isSubmitted
-        configData.strategy
+{-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
+-}
+withValidationOnInput :
+    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
+withValidationOnInput validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onInput |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
+-}
+withValidationOnBlur :
+    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value parsedValue msg
+    -> Config validationData value parsedValue msg
+withValidationOnBlur validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onBlur |> Just
+        }
 
 
 {-| Renders the Autocomplete.
 -}
-render : (Msg value -> msg) -> ctx -> Model ctx value msg -> Config value msg -> Html msg
-render msgMapper ctx ((Model modelData) as model) ((Config configData) as configuration) =
+render :
+    (Msg value -> msg)
+    -> validationData
+    -> Model value msg
+    -> Config validationData value parsedValue msg
+    -> Html msg
+render msgMapper validationData ((Model modelData) as model) ((Config configData) as config_) =
     let
-        validationResult : Result String ()
-        validationResult =
-            getValidationResult model configuration ctx
-
         dropdown : Maybe (Html msg)
         dropdown =
-            renderDropdown msgMapper model configuration
+            renderDropdown msgMapper model config_
+
+        error : Maybe (Error.Config parsedValue)
+        error =
+            generateErrorConfig validationData model config_
     in
     Html.div
         [ Html.Attributes.classList
             [ ( "form-field", True )
             , ( "form-field--with-opened-dropdown", modelData.isDropdownOpen && Maybe.Extra.isJust dropdown && RemoteData.isSuccess modelData.values )
-            , ( "form-field--error", Result.Extra.isErr validationResult )
+            , ( "form-field--error", Error.isVisible error )
             , ( "form-field--disabled", configData.disabled )
             ]
         ]
-        [ renderField validationResult msgMapper model configuration
+        [ renderField error msgMapper model config_
         , CommonsRender.renderMaybe dropdown
         ]
         |> FormItem.config configData
         |> FormItem.withLabel configData.label
         |> FormItem.withAdditionalContent configData.additionalContent
-        |> FormItem.render validationResult
+        |> FormItem.render error
+
+
+{-| Internal
+-}
+generateErrorConfig : validationData -> Model value msg -> Config validationData value parsedValue msg -> Maybe (Error.Config parsedValue)
+generateErrorConfig validationData (Model { fieldStatus, value }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+    let
+        getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
+        getErrorConfig validationResult =
+            Error.config id validationResult
+                >> Error.withIsDirty fieldStatus.isDirty
+                >> Error.withIsBlurred fieldStatus.isBlurred
+                >> Error.withIsSubmitted isSubmitted
+    in
+    Maybe.map2 getErrorConfig
+        (Maybe.map (\v -> v validationData value) validation)
+        errorShowingStrategy
 
 
 {-| Internal
@@ -611,8 +684,13 @@ handleSelectKeydown key =
 
 {-| Internal.
 -}
-renderField : Result String () -> (Msg value -> msg) -> Model ctx value msg -> Config value msg -> Html msg
-renderField validationResult msgMapper ((Model modelData) as model) (Config configData) =
+renderField :
+    Maybe (Error.Config parsedValue)
+    -> (Msg value -> msg)
+    -> Model value msg
+    -> Config validationData value parsedValue msg
+    -> Html msg
+renderField error msgMapper ((Model modelData) as model) (Config configData) =
     let
         activeOptionId : String
         activeOptionId =
@@ -658,11 +736,12 @@ renderField validationResult msgMapper ((Model modelData) as model) (Config conf
             , modelData.filter
                 |> Html.Attributes.value
                 |> CommonsAttributes.renderIf modelData.isFiltering
-            , validationResult
-                |> Error.fromResult
-                |> Maybe.map (always (Error.toId configData.id))
-                |> CommonsAttributes.ariaDescribedByErrorOrHint
-                    (Maybe.map (always (Hint.toId configData.id)) configData.hint)
+            , CommonsAttributes.ariaDescribedByErrorOrHint
+                (Maybe.map (always (Error.idFromFieldId configData.id)) error)
+                (Maybe.map (always (Hint.toId configData.id)) configData.hint)
+            , CommonsAttributes.ariaDescribedByErrorOrHint
+                (Maybe.map (always (Error.idFromFieldId configData.id)) error)
+                (Maybe.map (always (Hint.toId configData.id)) configData.hint)
             ]
             []
         , renderFieldIconAddon model
@@ -672,7 +751,7 @@ renderField validationResult msgMapper ((Model modelData) as model) (Config conf
 
 {-| Internal.
 -}
-renderFieldIconAddon : Model ctx value msg -> Html (Msg value)
+renderFieldIconAddon : Model value msg -> Html (Msg value)
 renderFieldIconAddon ((Model modelData) as model) =
     Html.div
         [ Html.Attributes.classList
@@ -702,7 +781,7 @@ renderFieldIconAddon ((Model modelData) as model) =
 
 {-| Internal.
 -}
-getFieldAddonIcon : Model ctx value msg -> Icon.Config
+getFieldAddonIcon : Model value msg -> Icon.Config
 getFieldAddonIcon (Model modelData) =
     if Maybe.Extra.isJust modelData.value then
         Icon.config IconSet.Close
@@ -713,7 +792,7 @@ getFieldAddonIcon (Model modelData) =
 
 {-| Internal.
 -}
-renderDropdown : (Msg value -> msg) -> Model ctx value msg -> Config value msg -> Maybe (Html msg)
+renderDropdown : (Msg value -> msg) -> Model value msg -> Config validationData value parsedValue msg -> Maybe (Html msg)
 renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
     let
         renderedOptions : List (Html msg)
@@ -731,7 +810,7 @@ renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
             |> Maybe.map FormDropdown.suggestion
             |> Maybe.map (FormDropdown.render configData.id (mapDropdownSize configData.size))
 
-    else if Status.hasFocus modelData.fieldStatus then
+    else if modelData.hasFocus then
         FormDropdown.render
             configData.id
             (mapDropdownSize configData.size)
@@ -771,7 +850,7 @@ renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
 
 {-| Internal.
 -}
-renderOptionsItem : (Msg value -> msg) -> Model ctx value msg -> Int -> Option value -> Html msg
+renderOptionsItem : (Msg value -> msg) -> Model value msg -> Int -> Option value -> Html msg
 renderOptionsItem msgMapper (Model modelData) index { id, value } =
     let
         isActive : Bool

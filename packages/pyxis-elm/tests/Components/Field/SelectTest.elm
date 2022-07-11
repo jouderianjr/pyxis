@@ -112,7 +112,7 @@ suite =
                         |> Simulation.simulate ( Event.input "DEVELOPER", [ Selector.tag "select" ] )
                         |> Simulation.expectModel
                             (Expect.all
-                                [ Select.validate () >> Expect.equal (Ok Developer)
+                                [ Select.getValue >> validation >> Expect.equal (Ok Developer)
                                 ]
                             )
                         |> Simulation.run
@@ -125,9 +125,9 @@ findSelect =
     Query.find [ Selector.tag "select" ]
 
 
-renderSelect : Select.Config -> Query.Single Select.Msg
+renderSelect : Select.Config () Job -> Query.Single Select.Msg
 renderSelect =
-    Select.render identity () (Select.init Nothing (always Ok)) >> Query.fromHtml
+    Select.render identity () (Select.init Nothing) >> Query.fromHtml
 
 
 requiredFieldValidation : Maybe a -> Result String a
@@ -156,12 +156,11 @@ validateJob job =
             Err "Inserire opzione valida"
 
 
-simulationDesktop : Simulation (Select.Model () Job Select.Msg) Select.Msg
+simulationDesktop : Simulation (Select.Model Select.Msg) Select.Msg
 simulationDesktop =
     Simulation.fromElement
         { init =
             ( Select.init Nothing
-                (always (requiredFieldValidation >> Result.andThen validateJob))
                 |> Select.setOptions
                     [ Select.option { value = "DEVELOPER", label = "Developer" }
                     , Select.option { value = "DESIGNER", label = "Designer" }
@@ -173,5 +172,11 @@ simulationDesktop =
         , view =
             \model ->
                 Select.config "select" False
+                    |> Select.withValidationOnBlur (always validation) False
                     |> Select.render identity () model
         }
+
+
+validation : Maybe String -> Result String Job
+validation =
+    requiredFieldValidation >> Result.andThen validateJob

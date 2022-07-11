@@ -8,7 +8,6 @@ module Pyxis.Components.Field.Select exposing
     , setOnInput
     , setOnSelect
     , setValue
-    , validate
     , Config
     , config
     , small
@@ -19,10 +18,11 @@ module Pyxis.Components.Field.Select exposing
     , withClassList
     , withDisabled
     , withHint
-    , withIsSubmitted
     , withLabel
     , withPlaceholder
-    , withStrategy
+    , withValidationOnBlur
+    , withValidationOnInput
+    , withValidationOnSubmit
     , Msg
     , update
     , Option
@@ -45,7 +45,6 @@ module Pyxis.Components.Field.Select exposing
 @docs setOnInput
 @docs setOnSelect
 @docs setValue
-@docs validate
 
 
 ## Config
@@ -68,10 +67,11 @@ module Pyxis.Components.Field.Select exposing
 @docs withClassList
 @docs withDisabled
 @docs withHint
-@docs withIsSubmitted
 @docs withLabel
 @docs withPlaceholder
-@docs withStrategy
+@docs withValidationOnBlur
+@docs withValidationOnInput
+@docs withValidationOnSubmit
 
 
 ## Update
@@ -103,21 +103,20 @@ import Maybe.Extra
 import PrimaCmd
 import PrimaFunction
 import PrimaUpdate exposing (PrimaUpdate)
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Commands as Commands
 import Pyxis.Commons.Events as CommonsEvents
 import Pyxis.Commons.Events.KeyDown as KeyDown
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Commons.String as CommonsString
-import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
-import Pyxis.Components.Field.Error.Strategy.Internal as StrategyInternal
+import Pyxis.Components.Field.Error as Error
+import Pyxis.Components.Field.FieldStatus as FieldStatus exposing (FieldStatus)
 import Pyxis.Components.Field.Hint as Hint
 import Pyxis.Components.Field.Label as Label
-import Pyxis.Components.Field.Status as FieldStatus
 import Pyxis.Components.Form.FormItem as FormItem
 import Pyxis.Components.Icon as Icon
 import Pyxis.Components.IconSet as IconSet
-import Result.Extra
 import Task
 
 
@@ -137,10 +136,10 @@ type Target
 
 {-| A type representing the select field internal state
 -}
-type Model ctx value msg
+type Model msg
     = Model
         { activeOption : Maybe Option
-        , fieldStatus : FieldStatus.Status
+        , fieldStatus : FieldStatus
         , isOpen : Bool
         , onBlur : Maybe msg
         , onFocus : Maybe msg
@@ -149,17 +148,16 @@ type Model ctx value msg
         , onSelect : Maybe msg
         , options : List Option
         , selectedValue : Maybe String
-        , validation : ctx -> Maybe String -> Result String value
         }
 
 
 {-| Initialize the select internal state. This belongs to your app's `Model`.
 -}
-init : Maybe String -> (ctx -> Maybe String -> Result String value) -> Model ctx value msg
-init initialValue validation =
+init : Maybe String -> Model msg
+init initialValue =
     Model
         { activeOption = Nothing
-        , fieldStatus = FieldStatus.Untouched
+        , fieldStatus = FieldStatus.init
         , isOpen = False
         , options = []
         , onBlur = Nothing
@@ -168,7 +166,6 @@ init initialValue validation =
         , onReset = Nothing
         , onSelect = Nothing
         , selectedValue = initialValue
-        , validation = validation
         }
 
 
@@ -179,7 +176,7 @@ type Option
         { index : Int
         , label : String
         , value : String
-        , id : String
+        , id : CommonsAlias.Id
         }
 
 
@@ -197,7 +194,7 @@ option { value, label } =
 
 {-| Internal.
 -}
-optionId : String -> Int -> String
+optionId : String -> Int -> CommonsAlias.Id
 optionId label index =
     label
         |> String.toLower
@@ -208,26 +205,27 @@ optionId label index =
 
 {-| Represents the Select view configuration.
 -}
-type Config
+type Config validationData parsedValue
     = Config
         { additionalContent : Maybe (Html Never)
         , classList : List ( String, Bool )
         , hint : Maybe Hint.Config
-        , id : String
+        , id : CommonsAlias.Id
         , isDisabled : Bool
         , isMobile : Bool
-        , isSubmitted : Bool
+        , isSubmitted : CommonsAlias.IsSubmitted
         , label : Maybe Label.Config
-        , name : String
+        , name : CommonsAlias.Name
         , placeholder : Maybe String
         , size : Size
-        , strategy : Strategy
+        , errorShowingStrategy : Maybe Error.ShowingStrategy
+        , validation : Maybe (CommonsAlias.Validation validationData (Maybe String) parsedValue)
         }
 
 
 {-| Creates the Select view configuration.
 -}
-config : String -> Bool -> Config
+config : CommonsAlias.Name -> Bool -> Config validationData parsedValue
 config name isMobile =
     Config
         { additionalContent = Nothing
@@ -241,7 +239,8 @@ config name isMobile =
         , name = name
         , placeholder = Nothing
         , size = Medium
-        , strategy = Strategy.onBlur
+        , errorShowingStrategy = Nothing
+        , validation = Nothing
         }
 
 
@@ -268,7 +267,7 @@ medium =
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config -> Config
+withAdditionalContent : Html Never -> Config validationData parsedValue -> Config validationData parsedValue
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
@@ -285,28 +284,28 @@ Only has the "b" class
 _WARNING_: this function is considered unstable and should be used only as an emergency escape hatch
 
 -}
-withClassList : List ( String, Bool ) -> Config -> Config
+withClassList : List ( String, Bool ) -> Config validationData parsedValue -> Config validationData parsedValue
 withClassList classList (Config select) =
     Config { select | classList = classList }
 
 
 {-| Set the disabled attribute
 -}
-withDisabled : Bool -> Config -> Config
+withDisabled : Bool -> Config validationData parsedValue -> Config validationData parsedValue
 withDisabled isDisabled (Config select) =
     Config { select | isDisabled = isDisabled }
 
 
 {-| Sets the component label
 -}
-withLabel : Label.Config -> Config -> Config
+withLabel : Label.Config -> Config validationData parsedValue -> Config validationData parsedValue
 withLabel label (Config configData) =
     Config { configData | label = Just label }
 
 
 {-| Adds the hint to the Select.
 -}
-withHint : String -> Config -> Config
+withHint : String -> Config validationData parsedValue -> Config validationData parsedValue
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -316,38 +315,72 @@ withHint hintMessage (Config configuration) =
         }
 
 
-{-| Sets whether the form was submitted
--}
-withIsSubmitted : Bool -> Config -> Config
-withIsSubmitted isSubmitted (Config configuration) =
-    Config { configuration | isSubmitted = isSubmitted }
-
-
 {-| Set the text visible when no option is selected
 Note: this is not a native placeholder attribute
 -}
-withPlaceholder : String -> Config -> Config
+withPlaceholder : String -> Config validationData parsedValue -> Config validationData parsedValue
 withPlaceholder placeholder (Config select) =
     Config { select | placeholder = Just placeholder }
 
 
 {-| Set the select size
 -}
-withSize : Size -> Config -> Config
+withSize : Size -> Config validationData parsedValue -> Config validationData parsedValue
 withSize size (Config select) =
     Config { select | size = size }
 
 
-{-| Sets the validation strategy (when to show the error, if present)
+{-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
-withStrategy : Strategy -> Config -> Config
-withStrategy strategy (Config configuration) =
-    Config { configuration | strategy = strategy }
+withValidationOnSubmit :
+    CommonsAlias.Validation validationData (Maybe String) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData parsedValue
+    -> Config validationData parsedValue
+withValidationOnSubmit validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onSubmit |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
+-}
+withValidationOnInput :
+    CommonsAlias.Validation validationData (Maybe String) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData parsedValue
+    -> Config validationData parsedValue
+withValidationOnInput validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onInput |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
+-}
+withValidationOnBlur :
+    CommonsAlias.Validation validationData (Maybe String) parsedValue
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData parsedValue
+    -> Config validationData parsedValue
+withValidationOnBlur validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onBlur |> Just
+        }
 
 
 {-| Internal.
 -}
-renderOptions : Model ctx value msg -> List (Html Msg)
+renderOptions : Model msg -> List (Html Msg)
 renderOptions (Model { selectedValue, activeOption, options }) =
     let
         isActive : String -> Bool
@@ -375,7 +408,7 @@ renderOptions (Model { selectedValue, activeOption, options }) =
             )
 
 
-renderNativeOptions : Config -> Model ctx value msg -> List (Html Msg)
+renderNativeOptions : Config validationData parsedValue -> Model msg -> List (Html Msg)
 renderNativeOptions (Config { placeholder }) (Model { selectedValue, options }) =
     options
         |> List.map
@@ -410,23 +443,19 @@ renderAddon =
 
 {-| Render the html
 -}
-render : (Msg -> msg) -> ctx -> Model ctx value msg -> Config -> Html.Html msg
-render tagger ctx ((Model modelData) as model) ((Config configData) as configuration) =
+render : (Msg -> msg) -> validationData -> Model msg -> Config validationData parsedValue -> Html.Html msg
+render tagger validationData ((Model modelData) as model) ((Config configData) as config_) =
     let
-        validationResult : Result String ()
-        validationResult =
-            StrategyInternal.getValidationResult
-                modelData.fieldStatus
-                (modelData.validation ctx modelData.selectedValue)
-                configData.isSubmitted
-                configData.strategy
+        error : Maybe (Error.Config parsedValue)
+        error =
+            generateErrorConfig validationData model config_
     in
     Html.div
         [ Html.Attributes.classList
             [ ( "form-field", True )
             , ( "form-field--with-select-dropdown", not configData.isMobile )
             , ( "form-field--with-opened-dropdown", not configData.isMobile && modelData.isOpen )
-            , ( "form-field--error", Result.Extra.error validationResult /= Nothing )
+            , ( "form-field--error", Error.isVisible error )
             , ( "form-field--disabled", configData.isDisabled )
             ]
         ]
@@ -451,7 +480,7 @@ render tagger ctx ((Model modelData) as model) ((Config configData) as configura
                     (not configData.isMobile && not configData.isDisabled)
                     (KeyDown.onKeyDownPreventDefaultOn handleKeydown)
                 ]
-                (renderNativeOptions configuration model)
+                (renderNativeOptions config_ model)
             , renderAddon
             ]
         , Html.div
@@ -473,12 +502,29 @@ render tagger ctx ((Model modelData) as model) ((Config configData) as configura
             , hint = Maybe.map (Hint.withFieldId configData.id) configData.hint
             }
         |> FormItem.withAdditionalContent configData.additionalContent
-        |> FormItem.withLabel (getLabelConfig configuration)
-        |> FormItem.render validationResult
+        |> FormItem.withLabel (getLabelConfig config_)
+        |> FormItem.render error
         |> Html.map tagger
 
 
-getLabelConfig : Config -> Maybe Label.Config
+{-| Internal
+-}
+generateErrorConfig : validationData -> Model msg -> Config validationData parsedValue -> Maybe (Error.Config parsedValue)
+generateErrorConfig validationData (Model { fieldStatus, selectedValue }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+    let
+        getErrorConfig : Result CommonsAlias.ErrorMessage value -> Error.ShowingStrategy -> Error.Config value
+        getErrorConfig validationResult =
+            Error.config id validationResult
+                >> Error.withIsDirty fieldStatus.isDirty
+                >> Error.withIsBlurred fieldStatus.isBlurred
+                >> Error.withIsSubmitted isSubmitted
+    in
+    Maybe.map2 getErrorConfig
+        (Maybe.map (\v -> v validationData selectedValue) validation)
+        errorShowingStrategy
+
+
+getLabelConfig : Config validationData parsedValue -> Maybe Label.Config
 getLabelConfig (Config configData) =
     configData.label
         |> Maybe.map (configData.size |> mapLabelSize |> Label.withSize)
@@ -497,21 +543,22 @@ mapLabelSize size =
 
 {-| Update the internal state of the Select component
 -}
-update : Msg -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+update : Msg -> Model msg -> ( Model msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnSelect value ->
             model
                 |> updateSelectedValue value
                 |> updateIsOpen False
+                |> mapFieldStatus (\fieldStatus -> { fieldStatus | isDirty = True })
                 |> resetActiveOption
-                |> mapFieldStatus FieldStatus.onInput
                 |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
         OnClick (DropdownOption (Option { value })) ->
             model
                 |> updateSelectedValue value
                 |> updateIsOpen False
+                |> mapFieldStatus (\fieldStatus -> { fieldStatus | isDirty = True })
                 |> resetActiveOption
                 |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onSelect ]
 
@@ -519,7 +566,6 @@ update msg ((Model modelData) as model) =
             model
                 |> updateIsOpen (not modelData.isOpen)
                 |> resetActiveOption
-                |> mapFieldStatus FieldStatus.onFocus
                 |> PrimaUpdate.withCmdsMap
                     [ PrimaCmd.ifThenCmdMap isDropdownOpen
                         attemptFocus
@@ -530,20 +576,19 @@ update msg ((Model modelData) as model) =
 
         OnFocus ->
             model
-                |> mapFieldStatus FieldStatus.onFocus
                 |> PrimaUpdate.withCmds [ Commands.dispatchFromMaybe modelData.onFocus ]
 
 
 {-| Internal.
 -}
-attemptFocus : Model ctx value msg -> Cmd msg
+attemptFocus : Model msg -> Cmd msg
 attemptFocus ((Model modelData) as model) =
     PrimaCmd.fromMaybeMap (focusOnActiveOption model) modelData.onFocus
 
 
 {-| Internal.
 -}
-focusOnActiveOption : Model ctx value msg -> msg -> Cmd msg
+focusOnActiveOption : Model msg -> msg -> Cmd msg
 focusOnActiveOption ((Model modelData) as model) msg =
     model
         |> getSelectedOption
@@ -558,7 +603,7 @@ focusOnActiveOption ((Model modelData) as model) msg =
 
 {-| Internal.
 -}
-withOnKeyDown : KeyDown.Event -> Model ctx value msg -> PrimaUpdate (Model ctx value msg) msg
+withOnKeyDown : KeyDown.Event -> Model msg -> PrimaUpdate (Model msg) msg
 withOnKeyDown event ((Model { onSelect, isOpen, activeOption }) as model) =
     if KeyDown.isArrowDown event || (KeyDown.isSpace event && not isOpen) then
         model
@@ -597,28 +642,28 @@ withOnKeyDown event ((Model { onSelect, isOpen, activeOption }) as model) =
 
 {-| Internal.
 -}
-updateSelectedValue : String -> Model ctx value msg -> Model ctx value msg
+updateSelectedValue : String -> Model msg -> Model msg
 updateSelectedValue value (Model modelData) =
     Model { modelData | selectedValue = Just value }
 
 
 {-| Internal.
 -}
-updateIsOpen : Bool -> Model ctx value msg -> Model ctx value msg
+updateIsOpen : Bool -> Model msg -> Model msg
 updateIsOpen isOpen (Model modelData) =
     Model { modelData | isOpen = isOpen }
 
 
 {-| Internal.
 -}
-resetActiveOption : Model ctx value msg -> Model ctx value msg
+resetActiveOption : Model msg -> Model msg
 resetActiveOption ((Model modelData) as model) =
     Model { modelData | activeOption = getSelectedOption model }
 
 
 {-| Internal.
 -}
-getNewActiveOption : Int -> Model ctx value msg -> Maybe Option
+getNewActiveOption : Int -> Model msg -> Maybe Option
 getNewActiveOption moveByPositions (Model { options, activeOption }) =
     let
         newOptionIndex : Int
@@ -644,23 +689,23 @@ getNewActiveOption moveByPositions (Model { options, activeOption }) =
 
 {-| Internal.
 -}
-updateActiveOption : Int -> Model ctx value msg -> Model ctx value msg
+updateActiveOption : Int -> Model msg -> Model msg
 updateActiveOption moveByPositions ((Model modelData) as model) =
     Model { modelData | activeOption = getNewActiveOption moveByPositions model }
 
 
 {-| Update the Autocomplete Model closing the dropdown
 -}
-setDropdownClosed : Model ctx value msg -> Model ctx value msg
+setDropdownClosed : Model msg -> Model msg
 setDropdownClosed (Model modelData) =
     Model { modelData | isOpen = False }
         |> resetActiveOption
-        |> mapFieldStatus FieldStatus.onInput
+        |> mapFieldStatus (\fieldStatus -> { fieldStatus | isBlurred = True })
 
 
 {-| Set the select options
 -}
-setOptions : List Option -> Model ctx value msg -> Model ctx value msg
+setOptions : List Option -> Model msg -> Model msg
 setOptions options (Model modelData) =
     Model
         { modelData
@@ -680,47 +725,47 @@ setOptions options (Model modelData) =
 
 {-| Internal.
 -}
-setValue : String -> Model ctx value msg -> Model ctx value msg
+setValue : String -> Model msg -> Model msg
 setValue selectedValue (Model model) =
     Model { model | selectedValue = Just selectedValue }
 
 
 {-| Sets an OnFocus side effect.
 -}
-setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
+setOnFocus : msg -> Model msg -> Model msg
 setOnFocus msg (Model configuration) =
     Model { configuration | onFocus = Just msg }
 
 
 {-| Sets an OnReset side effect.
 -}
-setOnReset : msg -> Model ctx value msg -> Model ctx value msg
+setOnReset : msg -> Model msg -> Model msg
 setOnReset msg (Model configuration) =
     Model { configuration | onReset = Just msg }
 
 
 {-| Sets an OnInput side effect.
 -}
-setOnInput : msg -> Model ctx value msg -> Model ctx value msg
+setOnInput : msg -> Model msg -> Model msg
 setOnInput msg (Model configuration) =
     Model { configuration | onInput = Just msg }
 
 
 {-| Sets an OnSelect side effect.
 -}
-setOnSelect : msg -> Model ctx value msg -> Model ctx value msg
+setOnSelect : msg -> Model msg -> Model msg
 setOnSelect msg (Model configuration) =
     Model { configuration | onSelect = Just msg }
 
 
 {-| Returns the current native value of the Select
 -}
-getValue : Model ctx value msg -> Maybe String
+getValue : Model msg -> Maybe String
 getValue (Model { selectedValue }) =
     selectedValue
 
 
-getSelectedOption : Model ctx value msg -> Maybe Option
+getSelectedOption : Model msg -> Maybe Option
 getSelectedOption (Model { selectedValue, options }) =
     List.Extra.find (\(Option { value }) -> Just value == selectedValue) options
 
@@ -743,21 +788,14 @@ handleKeydown key =
 
 {-| Internal.
 -}
-isDropdownOpen : Model ctx value msg -> Bool
+isDropdownOpen : Model msg -> Bool
 isDropdownOpen (Model modelData) =
     modelData.isOpen
 
 
-{-| Returns the validated value of the select
--}
-validate : ctx -> Model ctx value msg -> Result String value
-validate ctx (Model { selectedValue, validation }) =
-    validation ctx selectedValue
-
-
 {-| Internal.
 -}
-pickOptionId : Option -> String
+pickOptionId : Option -> CommonsAlias.Id
 pickOptionId (Option { id }) =
     id
 
@@ -769,8 +807,8 @@ pickOptionValue (Option { value }) =
     value
 
 
-{-| Internal.
+{-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
-mapFieldStatus f (Model model) =
-    Model { model | fieldStatus = f model.fieldStatus }
+mapFieldStatus : (FieldStatus -> FieldStatus) -> Model msg -> Model msg
+mapFieldStatus mapper (Model model) =
+    Model { model | fieldStatus = mapper model.fieldStatus }

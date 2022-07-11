@@ -47,9 +47,9 @@ toJob rawValue =
         [...]
 
 
-selectModel : Select.Model formData Job
+selectModel : Select.Model Job
 selectModel =
-    Select.init Nothing validation
+    Select.init Nothing
         |> Select.setOptions options
 
 
@@ -67,9 +67,10 @@ isMobile =
     False
 
 
-select : formData -> Html Msg
-select formData =
+select : Bool -> formData -> Html Msg
+select isSubmitted formData =
     Select.config "fuzz" isMobile
+        |> Select.withValidationOnBlur validation isSubmitted
         |> Select.withPlaceholder "Select your role..."
         |> Select.render OnSelectMsg formData selectModel
 ```
@@ -119,16 +120,16 @@ type alias SharedState x =
 
 
 type alias Model =
-    { base : Select.Model () (Maybe String) Select.Msg
-    , mobile : Select.Model () Job Select.Msg
-    , disabled : Select.Model () Job Select.Msg
-    , small : Select.Model () Job Select.Msg
-    , additionalContent : Select.Model () Job Select.Msg
+    { base : Select.Model Select.Msg
+    , mobile : Select.Model Select.Msg
+    , disabled : Select.Model Select.Msg
+    , small : Select.Model Select.Msg
+    , additionalContent : Select.Model Select.Msg
     }
 
 
-requiredValidation : formData -> Maybe String -> Result String Job
-requiredValidation _ maybeValue =
+required : formData -> Maybe String -> Result String Job
+required _ maybeValue =
     maybeValue
         |> Maybe.andThen toJob
         |> Result.fromMaybe "Required field"
@@ -163,11 +164,11 @@ toJob rawValue =
 
 init : Model
 init =
-    { base = Select.init Nothing (always Ok) |> Select.setOptions options
-    , mobile = Select.init Nothing requiredValidation |> Select.setOptions options
-    , disabled = Select.init Nothing requiredValidation |> Select.setOptions options
-    , small = Select.init Nothing requiredValidation |> Select.setOptions options
-    , additionalContent = Select.init Nothing requiredValidation |> Select.setOptions options
+    { base = Select.init Nothing |> Select.setOptions options
+    , mobile = Select.init Nothing |> Select.setOptions options
+    , disabled = Select.init Nothing |> Select.setOptions options
+    , small = Select.init Nothing |> Select.setOptions options
+    , additionalContent = Select.init Nothing |> Select.setOptions options
     }
 
 
@@ -197,26 +198,38 @@ componentsList =
       )
     , ( "Select (mobile)"
       , statefulComponent
-            { isMobile = True, configModifier = identity }
+            { isMobile = True, configModifier = Select.withValidationOnBlur required False }
             .mobile
             updateMobile
       )
     , ( "Select with disabled=True"
       , statefulComponent
-            { isMobile = False, configModifier = Select.withDisabled True }
+            { isMobile = False
+            , configModifier =
+                Select.withDisabled True
+                    >> Select.withValidationOnBlur required False
+            }
             .disabled
             (always (\model -> ( model, Cmd.none )))
       )
     , ( "Select with size=Small"
       , statefulComponent
-            { isMobile = False, configModifier = Select.withSize Select.small }
+            { isMobile = False
+            , configModifier =
+                Select.withSize Select.small
+                    >> Select.withValidationOnBlur required False
+            }
             .small
             updateSmall
       )
     , ( "Select with additional content"
       , statefulComponent
-            { isMobile = False, configModifier = Select.withAdditionalContent (Html.text "Additional Content") }
-            .small
+            { isMobile = False
+            , configModifier =
+                Select.withAdditionalContent (Html.text "Additional Content")
+                    >> Select.withValidationOnBlur required False
+            }
+            .additionalContent
             updateAdditionalContent
       )
     ]
@@ -224,19 +237,20 @@ componentsList =
 
 type alias StatelessConfig =
     { isMobile : Bool
-    , configModifier : Select.Config -> Select.Config
+    , configModifier : Select.Config () Job -> Select.Config () Job
     }
 
 
 statefulComponent :
     StatelessConfig
-    -> (Model -> Select.Model () parsed Select.Msg)
+    -> (Model -> Select.Model Select.Msg)
     -> (Select.Msg -> Model -> ( Model, Cmd Select.Msg ))
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
 statefulComponent { isMobile, configModifier } modelPicker internalUpdate sharedState =
     Select.config "example" isMobile
         |> Select.withPlaceholder "Select your role..."
+        |> Select.withValidationOnBlur required False
         |> configModifier
         |> Select.render identity () (sharedState.select |> modelPicker)
         |> Html.map

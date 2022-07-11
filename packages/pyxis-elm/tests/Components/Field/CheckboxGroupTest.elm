@@ -22,7 +22,7 @@ type Lang
     | Elixir
 
 
-langsConfig : CheckboxGroup.Config Lang msg
+langsConfig : CheckboxGroup.Config () Lang (List Lang) ComponentMsg
 langsConfig =
     CheckboxGroup.config "checkbox"
         |> CheckboxGroup.withOptions langsOptions
@@ -146,8 +146,9 @@ suite =
         , Test.describe "Validation"
             [ Test.test "should be applied initially" <|
                 \() ->
-                    CheckboxGroup.init [] nonEmptyLangValidation
-                        |> CheckboxGroup.validate ()
+                    CheckboxGroup.init []
+                        |> CheckboxGroup.getValue
+                        |> nonEmptyLangValidation ()
                         |> Expect.err
             , Test.test "should update when selecting items" <|
                 \() ->
@@ -158,7 +159,8 @@ suite =
                         |> Simulation.expectModel
                             (\model ->
                                 model
-                                    |> CheckboxGroup.validate ()
+                                    |> CheckboxGroup.getValue
+                                    |> nonEmptyLangValidation ()
                                     |> whenOk
                                         (Expect.all
                                             [ List.member Typescript >> Expect.true "`Typescript` option should  be selected"
@@ -178,7 +180,8 @@ suite =
                         |> Simulation.expectModel
                             (\model ->
                                 model
-                                    |> CheckboxGroup.validate ()
+                                    |> CheckboxGroup.getValue
+                                    |> nonEmptyLangValidation ()
                                     |> Expect.err
                             )
                         |> Simulation.run
@@ -187,7 +190,7 @@ suite =
 
 
 type alias ComponentModel =
-    CheckboxGroup.Model () Lang ComponentMsg
+    CheckboxGroup.Model Lang ComponentMsg
 
 
 type alias ComponentMsg =
@@ -226,9 +229,9 @@ findInput label =
     Query.find (inputSelectors label)
 
 
-renderCheckboxGroup : CheckboxGroup.Config Lang ComponentMsg -> Query.Single ComponentMsg
+renderCheckboxGroup : CheckboxGroup.Config () Lang (List Lang) ComponentMsg -> Query.Single ComponentMsg
 renderCheckboxGroup =
-    CheckboxGroup.render identity () (CheckboxGroup.init [] (always Ok)) >> Query.fromHtml
+    CheckboxGroup.render identity () (CheckboxGroup.init []) >> Query.fromHtml
 
 
 nonEmptyLangValidation : () -> List Lang -> Result String (List Lang)
@@ -244,7 +247,11 @@ nonEmptyLangValidation () langs =
 simulation : Simulation ComponentModel ComponentMsg
 simulation =
     Simulation.fromSandbox
-        { init = CheckboxGroup.init [] nonEmptyLangValidation
+        { init = CheckboxGroup.init []
         , update = \subMsg model -> Tuple.first (CheckboxGroup.update subMsg model)
-        , view = \model -> CheckboxGroup.render identity () model langsConfig
+        , view =
+            \model ->
+                langsConfig
+                    |> CheckboxGroup.withValidationOnBlur nonEmptyLangValidation False
+                    |> CheckboxGroup.render identity () model
         }

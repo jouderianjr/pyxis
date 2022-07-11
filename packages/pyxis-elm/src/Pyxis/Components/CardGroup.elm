@@ -18,6 +18,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Maybe.Extra
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Commons.String as CommonsString
@@ -27,7 +28,6 @@ import Pyxis.Components.Field.Label as Label
 import Pyxis.Components.Form.FormItem as FormItem
 import Pyxis.Components.Icon as Icon
 import Pyxis.Components.IconSet as IconSet
-import Result.Extra
 
 
 {-| Represent the layout of the group.
@@ -54,8 +54,8 @@ type Size
 type alias Config r =
     { r
         | size : Size
-        , name : String
-        , id : String
+        , name : CommonsAlias.Name
+        , id : CommonsAlias.Id
         , label : Maybe Label.Config
         , classList : List ( String, Bool )
         , layout : Layout
@@ -96,18 +96,18 @@ getRole type_ =
             "group"
 
 
-renderCheckbox : Result String value -> Config r -> List (Option msg) -> Html msg
+renderCheckbox : Maybe (Error.Config parsedValue) -> Config r -> List (Option msg) -> Html msg
 renderCheckbox =
     render Checkbox
 
 
-renderRadio : Result String value -> Config r -> List (Option msg) -> Html msg
+renderRadio : Maybe (Error.Config parsedValue) -> Config r -> List (Option msg) -> Html msg
 renderRadio =
     render Radio
 
 
-render : Type -> Result String value -> Config r -> List (Option msg) -> Html msg
-render type_ validationResult configData options =
+render : Type -> Maybe (Error.Config parsedValue) -> Config r -> List (Option msg) -> Html msg
+render type_ error configData options =
     Html.div
         [ Html.Attributes.classList
             [ ( "form-card-group", True )
@@ -118,25 +118,25 @@ render type_ validationResult configData options =
         , CommonsAttributes.testId configData.id
         , CommonsAttributes.role (getRole type_)
         , CommonsAttributes.ariaLabelledbyBy (labelId configData.id)
-        , CommonsAttributes.renderIf (Result.Extra.isErr validationResult)
-            (CommonsAttributes.ariaDescribedBy (Error.toId configData.id))
+        , CommonsAttributes.renderIf (Error.isVisible error)
+            (CommonsAttributes.ariaDescribedBy (Error.idFromFieldId configData.id))
         ]
-        (List.indexedMap (renderCard type_ validationResult configData) options)
+        (List.indexedMap (renderCard type_ error configData) options)
         |> FormItem.config configData
         |> FormItem.withLabel configData.label
         |> FormItem.withAdditionalContent configData.additionalContent
-        |> FormItem.render validationResult
+        |> FormItem.render error
 
 
 {-| Internal.
 -}
-labelId : String -> String
+labelId : CommonsAlias.Id -> String
 labelId id =
     id ++ "-label"
 
 
-renderCard : Type -> Result String value -> Config r -> Int -> Option msg -> Html msg
-renderCard type_ validationResult config index option =
+renderCard : Type -> Maybe (Error.Config parsedValue) -> Config r -> Int -> Option msg -> Html msg
+renderCard type_ error config index option =
     let
         id_ : String
         id_ =
@@ -145,7 +145,7 @@ renderCard type_ validationResult config index option =
     Html.label
         [ Html.Attributes.classList
             [ ( "form-card", True )
-            , ( "form-card--error", Result.Extra.isErr validationResult )
+            , ( "form-card--error", Error.isVisible error )
             , ( "form-card--checked", option.isChecked )
             , ( "form-card--disabled", option.isDisabled )
             , ( "form-card--large", config.size == Large )
@@ -191,7 +191,7 @@ renderContent identifier str =
 
 {-| Internal.
 -}
-makeId : { m | id : String } -> { c | text : Maybe String, title : Maybe String } -> Int -> String
+makeId : { m | id : CommonsAlias.Id } -> { c | text : Maybe String, title : Maybe String } -> Int -> String
 makeId { id } { text, title } index =
     [ id
     , Maybe.Extra.or title text

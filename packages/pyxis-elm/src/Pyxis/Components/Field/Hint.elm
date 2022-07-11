@@ -2,6 +2,7 @@ module Pyxis.Components.Field.Hint exposing (Config, config, render, toId, withF
 
 import Html exposing (Html)
 import Html.Attributes
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 
 
@@ -10,7 +11,7 @@ import Pyxis.Commons.Attributes as CommonsAttributes
 type Config
     = Config
         { message : String
-        , id : Maybe String
+        , id : Maybe CommonsAlias.Id
         }
 
 
@@ -23,14 +24,14 @@ config message =
 
 {-| Adds an id to the hint.
 -}
-withFieldId : String -> Config -> Config
-withFieldId a (Config configuration) =
-    Config { configuration | id = Just (toId a) }
+withFieldId : CommonsAlias.Id -> Config -> Config
+withFieldId fieldId (Config configuration) =
+    Config { configuration | id = Just (toId fieldId) }
 
 
 {-| Given the field id returns an hintId.
 -}
-toId : String -> String
+toId : CommonsAlias.Id -> String
 toId fieldId =
     fieldId ++ "-hint"
 

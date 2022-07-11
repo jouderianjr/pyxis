@@ -102,6 +102,7 @@ module Pyxis.Components.Button exposing
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Attributes.LinkTarget exposing (LinkTarget)
 import Pyxis.Commons.Constraints as CommonsConstraints
@@ -119,7 +120,7 @@ type alias ConfigData msg =
     , contentWidth : Bool
     , disabled : Bool
     , icon : ButtonIcon
-    , id : Maybe String
+    , id : Maybe CommonsAlias.Id
     , loading : Bool
     , onClick : Maybe msg
     , shadow : Bool
@@ -408,7 +409,7 @@ type Type
     = Button
     | Submit
     | Reset
-    | Link String (Maybe LinkTarget)
+    | Link CommonsAlias.Href (Maybe LinkTarget)
 
 
 {-| Creates a button with [type="button"].
@@ -434,14 +435,14 @@ reset =
 
 {-| Creates an anchor tag with button-like skin.
 -}
-link : String -> Type
+link : CommonsAlias.Href -> Type
 link href =
     Link href Nothing
 
 
 {-| Creates an anchor tag with button-like skin.
 -}
-linkWithTarget : String -> LinkTarget -> Type
+linkWithTarget : CommonsAlias.Href -> LinkTarget -> Type
 linkWithTarget href linkTarget =
     Link href (Just linkTarget)
 
@@ -554,7 +555,7 @@ withAriaLabel ariaLabel (Config configuration) =
 
 {-| Sets an id to the Button.
 -}
-withId : String -> Config { c | id : CommonsConstraints.Allowed } msg -> Config { c | id : CommonsConstraints.Denied } msg
+withId : CommonsAlias.Id -> Config { c | id : CommonsConstraints.Allowed } msg -> Config { c | id : CommonsConstraints.Denied } msg
 withId id (Config configuration) =
     Config { configuration | id = Just id }
 

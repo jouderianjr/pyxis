@@ -61,7 +61,7 @@ suite =
                 radioCardGroupConfig noAddonOptions
                     |> RadioCardGroup.render identity
                         ()
-                        (RadioCardGroup.init (Just Home) validation)
+                        (RadioCardGroup.init (Just Home))
                     |> Query.fromHtml
                     |> Query.find [ Selector.containing [ Selector.id "area-home---title-option" ] ]
                     |> Query.has [ Selector.class "form-card--checked" ]
@@ -168,7 +168,7 @@ suite =
 
 
 type alias ComponentModel =
-    RadioCardGroup.Model () Option ComponentMsg
+    RadioCardGroup.Model Option ComponentMsg
 
 
 type alias ComponentMsg =
@@ -253,23 +253,24 @@ withTextAddonOptions =
     ]
 
 
-radioCardGroupConfig : List (RadioCardGroup.Option Option) -> RadioCardGroup.Config Option
+radioCardGroupConfig : List (RadioCardGroup.Option Option) -> RadioCardGroup.Config () Option Option
 radioCardGroupConfig options =
     RadioCardGroup.config "area"
         |> RadioCardGroup.withOptions options
         |> RadioCardGroup.withId "area"
+        |> RadioCardGroup.withValidationOnBlur validation False
 
 
-renderRadioCardGroup : RadioCardGroup.Config Option -> Query.Single ComponentMsg
+renderRadioCardGroup : RadioCardGroup.Config () Option Option -> Query.Single ComponentMsg
 renderRadioCardGroup =
-    RadioCardGroup.render identity () (RadioCardGroup.init Nothing validation)
+    RadioCardGroup.render identity () (RadioCardGroup.init Nothing)
         >> Query.fromHtml
 
 
 simulationWithValidation : Simulation.Simulation ComponentModel ComponentMsg
 simulationWithValidation =
     Simulation.fromSandbox
-        { init = RadioCardGroup.init Nothing validation
+        { init = RadioCardGroup.init Nothing
         , update = \subMsg model -> Tuple.first (RadioCardGroup.update subMsg model)
         , view = \model -> RadioCardGroup.render identity () model (radioCardGroupConfig noAddonOptions)
         }

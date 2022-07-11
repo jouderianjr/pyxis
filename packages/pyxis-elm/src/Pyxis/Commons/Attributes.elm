@@ -53,6 +53,7 @@ import Html
 import Html.Attributes
 import Json.Encode
 import Maybe.Extra
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes.LinkTarget as CommonsAttributesLinkTarget exposing (LinkTarget)
 
 
@@ -91,21 +92,21 @@ role =
 
 {-| Creates an data-test-id attribute.
 -}
-testId : String -> Html.Attribute msg
+testId : CommonsAlias.Id -> Html.Attribute msg
 testId =
     Html.Attributes.attribute "data-test-id"
 
 
 {-| Creates an aria-describedby attribute.
 -}
-ariaDescribedBy : String -> Html.Attribute msg
+ariaDescribedBy : CommonsAlias.Id -> Html.Attribute msg
 ariaDescribedBy =
     Html.Attributes.attribute "aria-describedby"
 
 
 {-| Creates an aria-describedby attribute based on Error or Hint
 -}
-ariaDescribedByErrorOrHint : Maybe String -> Maybe String -> Html.Attribute msg
+ariaDescribedByErrorOrHint : Maybe CommonsAlias.Id -> Maybe CommonsAlias.Id -> Html.Attribute msg
 ariaDescribedByErrorOrHint errorId hintId =
     Maybe.Extra.or errorId hintId
         |> Maybe.map ariaDescribedBy
@@ -114,7 +115,7 @@ ariaDescribedByErrorOrHint errorId hintId =
 
 {-| Creates an aria-labelledby attribute.
 -}
-ariaLabelledbyBy : String -> Html.Attribute msg
+ariaLabelledbyBy : CommonsAlias.Id -> Html.Attribute msg
 ariaLabelledbyBy =
     Html.Attributes.attribute "aria-labelledby"
 
@@ -135,7 +136,7 @@ ariaExpanded =
 
 {-| Creates an aria-owns attribute.
 -}
-ariaOwns : String -> Html.Attribute msg
+ariaOwns : CommonsAlias.Id -> Html.Attribute msg
 ariaOwns =
     Html.Attributes.attribute "aria-owns"
 

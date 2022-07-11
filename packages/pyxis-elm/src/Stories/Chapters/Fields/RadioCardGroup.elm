@@ -17,30 +17,29 @@ docs =
         |> ElmBook.Chapter.render """
 <component with-label="RadioCardGroup" />
 ```
-type Option
-    = Home
+type Product
+    = Household
     | Motor
 
 
 type Msg
-    = OnRadioCardFieldMsg (RadioCardGroup.Msg Option)
+    = OnRadioCardFieldMsg (RadioCardGroup.Msg Product)
 
 
-validation : () -> Maybe option -> Result String option
+validation : () -> Maybe Product -> Result String Product
 validation _ selected =
     Result.fromMaybe "You must select one option" selected
 
 
-radioCardGroupModel : RadioCardGroup.Model () Option (RadioCardGroup.Msg Option)
-radioCardGroupModel =
-    RadioCardGroup.init (Just Motor) validation
+radioCardGroupModel : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
+radioCardGroupModel = RadioCardGroup.init Nothing
 
 
-radioCardGroupView : () -> Html Msg
-radioCardGroupView formData =
+radioCardGroupView : Bool -> () -> Html Msg
+radioCardGroupView isSubmitted formData =
     RadioCardGroup.config "radioCard-name"
         |> RadioCardGroup.withLabel (Label.config "Choose the insurance type")
-        |> RadioCardGroup.withName "insurance-type"
+        |> RadioCardGroup.withValidationOnBlur validation isSubmitted
         |> RadioCardGroup.withOptions
             [ RadioCardGroup.option
                 { value = Motor
@@ -49,7 +48,7 @@ radioCardGroupView formData =
                 , addon = Nothing
                 }
             , RadioCardGroup.option
-                { value = Home
+                { value = Household
                 , title = Just "Home"
                 , text = Just "Lorem ipsum dolor"
                 , addon = Nothing
@@ -66,13 +65,13 @@ RadioCardGroup.config name
     |> RadioCardGroup.render
         OnRadioCardFieldMsg
         formData
-        (radioCardModel )
+        radioCardModel
 ```
 ## Large Size
 Please note that with large layout you need to configure an image addon.
 <component with-label="RadioCardGroup large" />
 ```
-optionsWithImage : List (RadioCardGroup.Option Option)
+optionsWithImage : List (RadioCardGroup.Option Product)
 optionsWithImage =
     [ RadioCardGroup.option
         { value = Motor
@@ -81,7 +80,7 @@ optionsWithImage =
         , addon = RadioCardGroup.imgAddon "../assets/placeholder.svg"
         }
     , RadioCardGroup.option
-        { value = Home
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = RadioCardGroup.imgAddon "../assets/placeholder.svg"
@@ -94,12 +93,12 @@ RadioCardGroup.config name
     |> RadioCardGroup.render
         OnRadioCardFieldMsg
         formData
-        (radioCardModel )
+        radioCardModel
 ```
 ## Icon addon
 <component with-label="RadioCardGroup with icon" />
 ```
-optionsWithIcon : List (RadioCardGroup.Option Option)
+optionsWithIcon : List (RadioCardGroup.Option Product)
 optionsWithIcon =
     [ RadioCardGroup.option
         { value = Motor
@@ -108,7 +107,7 @@ optionsWithIcon =
         , addon = RadioCardGroup.iconAddon IconSet.Car
         }
     , RadioCardGroup.option
-        { value = Home
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = RadioCardGroup.iconAddon IconSet.Home
@@ -121,12 +120,12 @@ RadioCardGroup.config name
     |> RadioCardGroup.render
         OnRadioCardFieldMsg
         formData
-        (radioCardModel )
+        radioCardModel
 ```
 ## Text addon
 <component with-label="RadioCardGroup with text" />
 ```
-optionsWithTextAddon : List (RadioCardGroup.Option Option)
+optionsWithTextAddon : List (RadioCardGroup.Option Product)
 optionsWithTextAddon =
     [ RadioCardGroup.option
         { value = Motor
@@ -135,7 +134,7 @@ optionsWithTextAddon =
         , addon = RadioCardGroup.textAddon "€ 800,00"
         }
     , RadioCardGroup.option
-        { value = Home
+        { value = Household
         , title = Just "Home"
         , text = Just "Lorem ipsum dolor"
         , addon = RadioCardGroup.textAddon "€ 1.000,00"
@@ -148,7 +147,7 @@ RadioCardGroup.config name
     |> RadioCardGroup.render
         OnRadioCardFieldMsg
         formData
-        (radioCardModel )
+        radioCardModel
 ```
 ## Additional Content
 <component with-label="RadioCardGroup with additional content" />
@@ -158,7 +157,7 @@ RadioCardGroup.config name
     |> RadioCardGroup.render
         OnRadioCardFieldMsg
         formData
-        (radioCardModel )
+        radioCardModel
 ```
 """
 
@@ -173,32 +172,25 @@ type Product
 
 
 type alias Model =
-    { base : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
-    , vertical : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
-    , disabled : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
-    , large : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
-    , icon : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
-    , text : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
-    , additionalContent : RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
+    { base : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
+    , vertical : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
+    , disabled : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
+    , large : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
+    , icon : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
+    , text : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
+    , additionalContent : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
     }
 
 
 init : Model
 init =
-    { base =
-        RadioCardGroup.init Nothing validation
-    , vertical =
-        RadioCardGroup.init (Just Motor) validation
-    , disabled =
-        RadioCardGroup.init (Just Motor) validation
-    , large =
-        RadioCardGroup.init (Just Motor) validation
-    , icon =
-        RadioCardGroup.init (Just Motor) validation
-    , text =
-        RadioCardGroup.init (Just Motor) validation
-    , additionalContent =
-        RadioCardGroup.init (Just Motor) validation
+    { base = RadioCardGroup.init Nothing
+    , vertical = RadioCardGroup.init (Just Motor)
+    , disabled = RadioCardGroup.init (Just Motor)
+    , large = RadioCardGroup.init (Just Motor)
+    , icon = RadioCardGroup.init (Just Motor)
+    , text = RadioCardGroup.init (Just Motor)
+    , additionalContent = RadioCardGroup.init (Just Motor)
     }
 
 
@@ -272,8 +264,8 @@ optionsWithTextAddon =
 
 type alias StatefulConfig =
     { name : String
-    , configModifier : RadioCardGroup.Config Product -> RadioCardGroup.Config Product
-    , modelPicker : Model -> RadioCardGroup.Model () Product (RadioCardGroup.Msg Product)
+    , configModifier : RadioCardGroup.Config () Product Product -> RadioCardGroup.Config () Product Product
+    , modelPicker : Model -> RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
     , update : RadioCardGroup.Msg Product -> Model -> ( Model, Cmd (RadioCardGroup.Msg Product) )
     }
 
@@ -282,6 +274,7 @@ statefulComponent : StatefulConfig -> SharedState x -> Html (ElmBook.Msg (Shared
 statefulComponent { name, configModifier, modelPicker, update } sharedState =
     RadioCardGroup.config name
         |> RadioCardGroup.withOptions options
+        |> RadioCardGroup.withValidationOnBlur validation False
         |> configModifier
         |> RadioCardGroup.render identity () (sharedState.radioCard |> modelPicker)
         |> Html.map

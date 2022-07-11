@@ -39,14 +39,15 @@ validation _ selected =
             Ok selected
 
 
-checkboxGroupModel : CheckboxGroup.Model () Option (CheckboxGroup.Msg Option)
+checkboxGroupModel : CheckboxGroup.Model Option (CheckboxGroup.Msg Option)
 checkboxGroupModel =
-    CheckboxGroup.init [] validation
+    CheckboxGroup.init []
 
 
-checkboxGroup : () -> Html Msg
-checkboxGroup formData =
+checkboxGroup : Bool -> () -> Html Msg
+checkboxGroup isSubmitted formData =
     CheckboxGroup.config "checkbox-name"
+        |> CheckboxGroup.withValidationOnBlur validation isSubmitted
         |> CheckboxGroup.withOptions
             [ CheckboxGroup.option { value = Elm, label = Html.text "Elm" }
             , CheckboxGroup.option { value = Typescript, label = Html.text "Typescript" }
@@ -62,10 +63,7 @@ checkboxGroup formData =
 ```
 CheckboxGroup.config "checkbox-name"
     |> CheckboxGroup.withLayout CheckboxGroup.vertical
-    |> CheckboxGroup.render
-        OnCheckboxGroupMsg
-        formData
-        checkboxGroupModel
+    |> CheckboxGroup.render OnCheckboxGroupMsg formData checkboxGroupModel
 ```
 # With an option disabled
 
@@ -82,10 +80,7 @@ options =
 
 CheckboxGroup.config "checkbox-name"
     |> CheckboxGroup.withOptions options
-    |> CheckboxGroup.render
-        OnCheckboxGroupMsg
-        formData
-        checkboxGroupModel
+    |> CheckboxGroup.render OnCheckboxGroupMsg formData checkboxGroupModel
 ```
 
 # With Additional Content
@@ -94,10 +89,7 @@ CheckboxGroup.config "checkbox-name"
 ```
 CheckboxGroup.config "checkbox-name"
     |> CheckboxGroup.withAdditionalContent (Html.text "Additional Content")
-    |> CheckboxGroup.render
-        OnCheckboxGroupMsg
-        formData
-        checkboxGroupModel
+    |> CheckboxGroup.render OnCheckboxGroupMsg formData checkboxGroupModel
 """
 
 
@@ -113,19 +105,19 @@ type Language
 
 
 type alias Model =
-    { base : CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
-    , noValidation : CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
-    , disabled : CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
-    , additionalContent : CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
+    { base : CheckboxGroup.Model Language (CheckboxGroup.Msg Language)
+    , noValidation : CheckboxGroup.Model Language (CheckboxGroup.Msg Language)
+    , disabled : CheckboxGroup.Model Language (CheckboxGroup.Msg Language)
+    , additionalContent : CheckboxGroup.Model Language (CheckboxGroup.Msg Language)
     }
 
 
 init : Model
 init =
-    { base = CheckboxGroup.init [] validation
-    , noValidation = CheckboxGroup.init [] validation
-    , disabled = CheckboxGroup.init [] validation
-    , additionalContent = CheckboxGroup.init [] validation
+    { base = CheckboxGroup.init []
+    , noValidation = CheckboxGroup.init []
+    , disabled = CheckboxGroup.init []
+    , additionalContent = CheckboxGroup.init []
     }
 
 
@@ -160,8 +152,8 @@ optionsWithDisabled =
 
 type alias StatefulConfig msg =
     { name : String
-    , configModifier : CheckboxGroup.Config Language msg -> CheckboxGroup.Config Language msg
-    , modelPicker : Model -> CheckboxGroup.Model () Language (CheckboxGroup.Msg Language)
+    , configModifier : CheckboxGroup.Config () Language (List Language) msg -> CheckboxGroup.Config () Language (List Language) msg
+    , modelPicker : Model -> CheckboxGroup.Model Language (CheckboxGroup.Msg Language)
     , update : CheckboxGroup.Msg Language -> Model -> ( Model, Cmd (CheckboxGroup.Msg Language) )
     }
 
@@ -170,6 +162,7 @@ statefulComponent : StatefulConfig (CheckboxGroup.Msg Language) -> SharedState x
 statefulComponent { name, configModifier, modelPicker, update } sharedState =
     CheckboxGroup.config name
         |> CheckboxGroup.withOptions options
+        |> CheckboxGroup.withValidationOnBlur validation False
         |> configModifier
         |> CheckboxGroup.render identity () (sharedState.checkbox |> modelPicker)
         |> Html.map

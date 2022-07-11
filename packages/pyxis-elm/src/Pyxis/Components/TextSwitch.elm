@@ -64,6 +64,7 @@ import Html
 import Html.Attributes
 import Html.Events
 import Maybe.Extra
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Properties.Theme as Theme exposing (Theme)
 import Pyxis.Commons.Render as CommonsRender
@@ -80,10 +81,10 @@ type Config value msg
 type alias ConfigData value msg =
     { ariaLabel : Maybe String
     , classList : List ( String, Bool )
-    , id : String
+    , id : CommonsAlias.Id
     , label : Maybe String
     , labelPosition : LabelPosition
-    , name : String
+    , name : CommonsAlias.Name
     , onChange : value -> msg
     , options : List (Option value)
     , optionsWidth : OptionsWidth
@@ -93,7 +94,7 @@ type alias ConfigData value msg =
 
 {-| Initialize the TextSwitch Config.
 -}
-config : String -> (value -> msg) -> Config value msg
+config : CommonsAlias.Name -> (value -> msg) -> Config value msg
 config name onChange =
     Config
         { ariaLabel = Nothing
@@ -139,7 +140,7 @@ equalWidth =
 
 {-| Sets an id to the TextSwitch.
 -}
-withId : String -> Config value msg -> Config value msg
+withId : CommonsAlias.Id -> Config value msg -> Config value msg
 withId id (Config configuration) =
     Config { configuration | id = id }
 
@@ -270,7 +271,7 @@ render selectedValue ((Config { ariaLabel, id, label, classList, labelPosition, 
 
 {-| Internal.
 -}
-renderLabel : String -> String -> Html.Html msg
+renderLabel : CommonsAlias.Id -> String -> Html.Html msg
 renderLabel id label =
     Html.label
         [ Html.Attributes.class "text-switch__label"
@@ -306,7 +307,7 @@ renderOption selectedValue (Config { id, name, onChange }) index (Option { value
 
 {-| Internal.
 -}
-optionId : String -> Int -> String
+optionId : CommonsAlias.Id -> Int -> String
 optionId id index =
     [ id, "option", String.fromInt index ]
         |> String.join "-"
@@ -314,6 +315,6 @@ optionId id index =
 
 {-| Internal.
 -}
-labelId : String -> String
+labelId : CommonsAlias.Id -> String
 labelId id =
     id ++ "-label"

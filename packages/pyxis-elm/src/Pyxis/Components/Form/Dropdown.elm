@@ -32,6 +32,7 @@ module Pyxis.Components.Form.Dropdown exposing
 import Html exposing (Html)
 import Html.Attributes
 import Html.Keyed
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Icon as Icon
 import Pyxis.Components.IconSet as IconSet
@@ -126,7 +127,7 @@ hasHeader content_ =
 
 {-| Renders the Dropdown.
 -}
-render : String -> Size -> Content msg -> Html msg
+render : CommonsAlias.Id -> Size -> Content msg -> Html msg
 render id size content_ =
     Html.div
         [ Html.Attributes.class "form-dropdown-wrapper"

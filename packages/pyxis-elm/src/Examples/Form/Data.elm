@@ -1,10 +1,13 @@
 module Examples.Form.Data exposing
     ( Data(..)
-    , birthValidation
+    , dateValidation
     , initialData
     , isInsuranceTypeHousehold
     , isInsuranceTypeMotor
     , notEmptyStringValidation
+    , privacyValidation
+    , radioValidation
+    , residentialCityValidation
     , updateBirthDate
     , updateClaimDate
     , updateClaimType
@@ -17,6 +20,7 @@ module Examples.Form.Data exposing
     , updateResidentialCityRemoteData
     , updateResidentialProvince
     , updateVehiclesOwn
+    , vehiclesOwn
     )
 
 import Date exposing (Date)
@@ -25,7 +29,6 @@ import Examples.Form.Api.Province as Province
 import Examples.Form.Msg as Msg exposing (Msg)
 import Examples.Form.Types as Types
 import Http
-import PrimaFunction
 import Pyxis.Components.Field.Autocomplete as Autocomplete
 import Pyxis.Components.Field.CheckboxGroup as CheckboxGroup
 import Pyxis.Components.Field.Input as Input
@@ -38,17 +41,17 @@ import RemoteData exposing (RemoteData)
 type Data
     = Data
         { isFormSubmitted : Bool
-        , birth : Input.Model Data Date Msg
-        , claimDate : Input.Model Data Date Msg
-        , claimType : RadioCardGroup.Model Data Types.Claim Msg
-        , dynamic : Textarea.Model Data Msg
-        , insuranceType : RadioCardGroup.Model Data Types.Insurance Msg
-        , peopleInvolved : RadioCardGroup.Model Data Bool Msg
-        , plate : Input.Model Data String Msg
-        , privacyCheck : CheckboxGroup.Model Data Types.Option Msg
-        , residentialCity : Autocomplete.Model Data City Msg
-        , residentialProvince : Select.Model Data String Msg
-        , vehiclesOwn : CheckboxGroup.Model Data Types.Vehicles Msg
+        , birth : Input.Model Msg
+        , claimDate : Input.Model Msg
+        , claimType : RadioCardGroup.Model Types.Claim Msg
+        , dynamic : Textarea.Model Msg
+        , insuranceType : RadioCardGroup.Model Types.Insurance Msg
+        , peopleInvolved : RadioCardGroup.Model Bool Msg
+        , plate : Input.Model Msg
+        , privacyCheck : CheckboxGroup.Model Types.Option Msg
+        , residentialCity : Autocomplete.Model City Msg
+        , residentialProvince : Select.Model Msg
+        , vehiclesOwn : CheckboxGroup.Model Types.Vehicles Msg
         }
 
 
@@ -56,34 +59,21 @@ initialData : Data
 initialData =
     Data
         { isFormSubmitted = False
-        , birth = Input.init "" birthValidation
-        , claimDate = Input.init "" birthValidation
-        , claimType =
-            Result.fromMaybe ""
-                |> always
-                |> RadioCardGroup.init (Just Types.CarAccident)
-        , dynamic = Textarea.init "" notEmptyStringValidation
-        , insuranceType =
-            Types.Motor
-                |> cardValidation
-                |> RadioCardGroup.init Nothing
-        , peopleInvolved =
-            False
-                |> cardValidation
-                |> RadioCardGroup.init Nothing
-        , plate = Input.init "" notEmptyStringValidation
-        , privacyCheck = CheckboxGroup.init [] privacyValidation
+        , birth = Input.init ""
+        , claimDate = Input.init ""
+        , claimType = RadioCardGroup.init (Just Types.CarAccident)
+        , dynamic = Textarea.init ""
+        , insuranceType = RadioCardGroup.init Nothing
+        , peopleInvolved = RadioCardGroup.init Nothing
+        , plate = Input.init ""
+        , privacyCheck = CheckboxGroup.init []
         , residentialCity =
-            Result.fromMaybe ""
-                |> always
-                |> Autocomplete.init Nothing City.getName City.startsWith
+            Autocomplete.init Nothing City.getName City.startsWith
                 |> Autocomplete.setOnInput Msg.PerformCitiesQuery
         , residentialProvince =
-            Result.fromMaybe ""
-                |> always
-                |> Select.init (Just (Province.getName Province.capitalProvince))
+            Select.init (Just (Province.getName Province.capitalProvince))
                 |> Select.setOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
-        , vehiclesOwn = CheckboxGroup.init [] vehiclesOwn
+        , vehiclesOwn = CheckboxGroup.init []
         }
 
 
@@ -199,30 +189,24 @@ updateVehiclesOwn msg (Data d) =
 -- Validations
 
 
-notEmptyStringValidation : Data -> String -> Result String String
-notEmptyStringValidation (Data data) value =
-    if data.isFormSubmitted && String.isEmpty value then
+notEmptyStringValidation : () -> String -> Result String String
+notEmptyStringValidation _ value =
+    if String.isEmpty value then
         Err "This field cannot be empty."
 
     else
         Ok value
 
 
-cardValidation : value -> Data -> Maybe value -> Result String value
-cardValidation default (Data data) value =
-    value
-        |> Maybe.map Ok
-        |> Maybe.withDefault
-            (PrimaFunction.ifThenElse data.isFormSubmitted
-                (Err "Select at least one option.")
-                (Ok default)
-            )
+radioValidation : () -> Maybe option -> Result String option
+radioValidation _ selected =
+    Result.fromMaybe "You must select one option" selected
 
 
-birthValidation : Data -> String -> Result String Date.Date
-birthValidation (Data data) value =
-    case ( data.isFormSubmitted, Date.fromIsoString value ) of
-        ( True, Ok validDate ) ->
+dateValidation : () -> String -> Result String Date
+dateValidation _ value =
+    case Date.fromIsoString value of
+        Ok validDate ->
             Ok validDate
 
         _ ->
@@ -245,6 +229,13 @@ vehiclesOwn (Data data) list =
 
     else
         Ok list
+
+
+residentialCityValidation : () -> Maybe City -> Result String City
+residentialCityValidation _ maybeJob =
+    maybeJob
+        |> Maybe.map Ok
+        |> Maybe.withDefault (Err "Select a city")
 
 
 

@@ -47,6 +47,7 @@ module Pyxis.Components.Badge exposing
 
 import Html exposing (Html)
 import Html.Attributes
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Properties.Theme as Theme exposing (Theme)
 
@@ -55,7 +56,7 @@ import Pyxis.Commons.Properties.Theme as Theme exposing (Theme)
 -}
 type alias ConfigData =
     { classList : List ( String, Bool )
-    , id : Maybe String
+    , id : Maybe CommonsAlias.Id
     , text : String
     , theme : Theme
     , variant : Variant
@@ -167,7 +168,7 @@ withClassList classList (Config configuration) =
 
 {-| Add `id` and `data-test-id` to Badge.
 -}
-withId : String -> Config -> Config
+withId : CommonsAlias.Id -> Config -> Config
 withId id (Config configuration) =
     Config { configuration | id = Just id }
 

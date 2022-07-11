@@ -121,7 +121,7 @@ suite =
 
 
 type alias ComponentModel =
-    TextareaField.Model () TextareaField.Msg
+    TextareaField.Model TextareaField.Msg
 
 
 type alias ComponentMsg =
@@ -140,24 +140,24 @@ findLabel =
 
 fieldModel : ComponentModel
 fieldModel =
-    TextareaField.init "" (always Ok)
+    TextareaField.init ""
 
 
-fieldConfig : TextareaField.Config
+fieldConfig : TextareaField.Config () String
 fieldConfig =
     TextareaField.config "name"
         |> TextareaField.withId "textarea-id"
 
 
-fieldRender : () -> ComponentModel -> TextareaField.Config -> Query.Single TextareaField.Msg
+fieldRender : () -> ComponentModel -> TextareaField.Config () String -> Query.Single TextareaField.Msg
 fieldRender ctx model =
     TextareaField.render identity ctx model >> Query.fromHtml
 
 
-simulation : TextareaField.Config -> Simulation ComponentModel ComponentMsg
+simulation : TextareaField.Config () String -> Simulation ComponentModel ComponentMsg
 simulation config =
     Simulation.fromSandbox
-        { init = TextareaField.init "" (always Ok)
+        { init = TextareaField.init ""
         , update = \subMsg model -> Tuple.first (TextareaField.update subMsg model)
         , view = \model -> TextareaField.render identity () model config
         }

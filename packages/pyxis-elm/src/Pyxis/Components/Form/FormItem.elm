@@ -32,6 +32,8 @@ module Pyxis.Components.Form.FormItem exposing
 
 import Html exposing (Html)
 import Html.Attributes
+import Maybe.Extra
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Field.Error as Error
 import Pyxis.Components.Field.Hint as Hint
@@ -42,7 +44,7 @@ import Pyxis.Components.Field.Label as Label
 -}
 type alias PartialFieldConfig a =
     { a
-        | id : String
+        | id : CommonsAlias.Id
         , hint : Maybe Hint.Config
     }
 
@@ -94,8 +96,8 @@ withAdditionalContent additionalContent (Config configuration) =
 
 {-| FormItem render.
 -}
-render : Result String value -> Config a msg -> Html msg
-render validationResult (Config { label, field, fieldConfig, additionalContent }) =
+render : Maybe (Error.Config value) -> Config a msg -> Html msg
+render error (Config { label, field, fieldConfig, additionalContent }) =
     Html.div
         [ Html.Attributes.class "form-item" ]
         [ label
@@ -104,9 +106,17 @@ render validationResult (Config { label, field, fieldConfig, additionalContent }
         , Html.div
             [ Html.Attributes.class "form-item__wrapper" ]
             [ field
-            , validationResult
-                |> Error.fromResult
-                |> CommonsRender.renderErrorOrHint fieldConfig.id fieldConfig.hint
+            , renderErrorOrHint fieldConfig.id error fieldConfig.hint
             ]
         , CommonsRender.renderMaybe (Maybe.map (Html.map never) additionalContent)
         ]
+
+
+{-| Internal
+-}
+renderErrorOrHint : CommonsAlias.Id -> Maybe (Error.Config value) -> Maybe Hint.Config -> Html msg
+renderErrorOrHint id errorConfig hintConfig =
+    Maybe.Extra.or
+        (Maybe.map Error.render errorConfig)
+        (Maybe.map (Hint.withFieldId id >> Hint.render) hintConfig)
+        |> CommonsRender.renderMaybe

@@ -31,11 +31,15 @@ type Job
     | Designer
     | ProductManager
 
+
 {-| Provide your own filter function.
 -}
 jobMatches : String -> Job -> Bool
 jobMatches searchTerm =
-    jobToLabel >> String.toLower >> String.contains (String.toLower searchTerm)
+    jobToLabel
+        >> String.toLower
+        >> String.contains (String.toLower searchTerm)
+
 
 {-| Provide a way to get a label from your value.
 -}
@@ -56,20 +60,17 @@ type Msg
     = JobFetched (RemoteData () (List Job))
     | AutocompleteMsg (Autocomplete.Msg Job)
 
+
 {-| Define your model.
 -}
 type alias Model = {
-    job : Autocomplete.Model () Job (Autocomplete.Msg Job)
+    job : Autocomplete.Model Job (Autocomplete.Msg Job)
 }
+
 
 initialModel : Model
 initialModel =
-    { job =
-        Autocomplete.init
-            Nothing
-            jobToLabel
-            jobMatches
-            (always (Result.fromMaybe ""))
+    { job = Autocomplete.init Nothing jobToLabel jobMatches
     }
 
 
@@ -90,11 +91,17 @@ update msg model =
             ( { model | job = autocompleteModel }, autocompleteCmd )
 
 
+validation : () -> Maybe Job -> Result String Job
+validation _ =
+    Result.fromMaybe "Required field"
+
+
 {-| Render your autocomplete.
 -}
-view : Model -> Html Msg
-view model =
+view : Bool -> Model -> Html Msg
+view isSubmitted model =
     Autocomplete.config "autocomplete-name"
+        |> Autocomplete.withValidationOnBlur validation isSubmitted
         |> Autocomplete.withPlaceholder "Choose your job role"
         |> Autocomplete.render AutocompleteMsg () model.job
 ```
@@ -207,7 +214,7 @@ type Job
 
 
 type alias Model =
-    Autocomplete.Model () Job Msg
+    Autocomplete.Model Job Msg
 
 
 type alias Models =
@@ -222,8 +229,12 @@ initAutocomplete type_ =
         Nothing
         jobToLabel
         optionsFilter
-        (always (Result.fromMaybe "Required field"))
         |> Autocomplete.setOnSelect (OnSelect type_)
+
+
+required : () -> Maybe Job -> Result String Job
+required _ =
+    Result.fromMaybe "Required field"
 
 
 init : Models
@@ -334,10 +345,6 @@ componentsList =
     ]
 
 
-type alias ConfigMapper =
-    Autocomplete.Config Job Msg -> Autocomplete.Config Job Msg
-
-
 update : Msg -> Models -> ( Models, Cmd Msg )
 update msg model =
     case msg of
@@ -377,12 +384,13 @@ update msg model =
 statefulComponent :
     String
     -> StoryType
-    -> ConfigMapper
+    -> (Autocomplete.Config () Job Job Msg -> Autocomplete.Config () Job Job Msg)
     -> (Models -> Model)
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
 statefulComponent name storyType mapper modelPicker sharedState =
     Autocomplete.config name
+        |> Autocomplete.withValidationOnBlur required False
         |> mapper
         |> Autocomplete.render (AutocompleteMsg storyType) () (sharedState.autocomplete |> modelPicker)
         |> Html.map

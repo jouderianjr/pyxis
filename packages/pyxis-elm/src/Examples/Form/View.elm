@@ -1,8 +1,8 @@
 module Examples.Form.View exposing (view)
 
 import Examples.Form.Data as Data exposing (Data)
-import Examples.Form.Model as Model exposing (Model)
-import Examples.Form.Msg exposing (Msg)
+import Examples.Form.Model exposing (Model)
+import Examples.Form.Msg exposing (Msg(..))
 import Examples.Form.Views.BaseInformation as BaseInformation
 import Examples.Form.Views.ClaimDetail as ClaimDetail
 import Examples.Form.Views.ClaimType as ClaimType
@@ -15,7 +15,6 @@ import Html exposing (Html)
 import Html.Attributes
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Form as Form
-import Result.Extra
 
 
 view : Model -> Html Msg
@@ -28,7 +27,7 @@ view model =
         , Html.div
             [ Html.Attributes.class "container-small padding-v-m margin-v-xl" ]
             [ RequestReceived.view
-                |> CommonsRender.renderIf (Result.Extra.isOk (Model.validate model.data))
+                |> CommonsRender.renderIf model.showSuccess
             , RequestFailed.view
                 |> CommonsRender.renderIf (Data.isInsuranceTypeHousehold model.data)
             ]
@@ -73,4 +72,5 @@ viewForm data =
             , ( ClaimType.view data, Data.isInsuranceTypeMotor data )
             , ( ClaimDetail.view data, Data.isInsuranceTypeMotor data )
             ]
+        |> Form.withOnSubmit Submit
         |> Form.render

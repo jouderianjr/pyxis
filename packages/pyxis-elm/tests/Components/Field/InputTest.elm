@@ -239,12 +239,12 @@ suite =
         ]
 
 
-fieldModel : Input.Model ctx String msg
+fieldModel : Input.Model msg
 fieldModel =
-    Input.init "" (always Ok)
+    Input.init ""
 
 
-fieldConfig : Input.TextConfig
+fieldConfig : Input.TextConfig () String
 fieldConfig =
     Input.text "field"
 

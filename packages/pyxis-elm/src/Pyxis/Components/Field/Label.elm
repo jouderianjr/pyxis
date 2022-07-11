@@ -48,6 +48,7 @@ module Pyxis.Components.Field.Label exposing
 
 import Html exposing (Html)
 import Html.Attributes
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Render as CommonsRender
 
@@ -84,7 +85,7 @@ type Config
 type alias Configuration =
     { classList : List ( String, Bool )
     , for : Maybe String
-    , id : Maybe String
+    , id : Maybe CommonsAlias.Id
     , size : Size
     , subText : Maybe String
     , text : String
@@ -124,7 +125,7 @@ config text =
             |> Label.render
 
 -}
-withFor : String -> Config -> Config
+withFor : CommonsAlias.Id -> Config -> Config
 withFor for (Config configuration) =
     Config { configuration | for = Just for }
 
@@ -140,7 +141,7 @@ withFor for (Config configuration) =
             |> Label.render
 
 -}
-withId : String -> Config -> Config
+withId : CommonsAlias.Id -> Config -> Config
 withId id (Config configuration) =
     Config { configuration | id = Just id }
 

@@ -27,19 +27,19 @@ module Pyxis.Components.Field.Input exposing
     , withDisabled
     , withHint
     , withId
-    , withIsSubmitted
     , withLabel
     , withMax
     , withMin
     , withPlaceholder
     , withStep
-    , withStrategy
+    , withValidationOnBlur
+    , withValidationOnInput
+    , withValidationOnSubmit
     , withValueMapper
     , Msg
     , update
     , updateValue
     , getValue
-    , validate
     , render
     )
 
@@ -92,13 +92,14 @@ module Pyxis.Components.Field.Input exposing
 @docs withDisabled
 @docs withHint
 @docs withId
-@docs withIsSubmitted
 @docs withLabel
 @docs withMax
 @docs withMin
 @docs withPlaceholder
 @docs withStep
-@docs withStrategy
+@docs withValidationOnBlur
+@docs withValidationOnInput
+@docs withValidationOnSubmit
 @docs withValueMapper
 
 
@@ -112,7 +113,6 @@ module Pyxis.Components.Field.Input exposing
 ## Readers
 
 @docs getValue
-@docs validate
 
 
 ## Rendering
@@ -126,16 +126,15 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import PrimaUpdate
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Commands as Commands
 import Pyxis.Commons.Constraints as CommonsConstraints
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Field.Error as Error
-import Pyxis.Components.Field.Error.Strategy as Strategy exposing (Strategy)
-import Pyxis.Components.Field.Error.Strategy.Internal as StrategyInternal
+import Pyxis.Components.Field.FieldStatus as FieldStatus exposing (FieldStatus)
 import Pyxis.Components.Field.Hint as Hint
 import Pyxis.Components.Field.Label as Label
-import Pyxis.Components.Field.Status as FieldStatus
 import Pyxis.Components.Form.FormItem as FormItem
 import Pyxis.Components.Icon as Icon
 import Pyxis.Components.IconSet as IconSet
@@ -152,11 +151,10 @@ type Msg
 
 {-| The Input model.
 -}
-type Model ctx value msg
+type Model msg
     = Model
-        { validation : ctx -> String -> Result String value
-        , value : String
-        , fieldStatus : FieldStatus.Status
+        { value : String
+        , fieldStatus : FieldStatus
         , onFocus : Maybe msg
         , onBlur : Maybe msg
         , onInput : Maybe msg
@@ -165,12 +163,11 @@ type Model ctx value msg
 
 {-| Inits the Input model.
 -}
-init : String -> (ctx -> String -> Result String value) -> Model ctx value msg
-init initialValue validation =
+init : String -> Model msg
+init initialValue =
     Model
-        { validation = validation
-        , value = initialValue
-        , fieldStatus = FieldStatus.Untouched
+        { value = initialValue
+        , fieldStatus = FieldStatus.init
         , onFocus = Nothing
         , onBlur = Nothing
         , onInput = Nothing
@@ -179,26 +176,25 @@ init initialValue validation =
 
 {-| Update the input internal model
 -}
-update : Msg -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+update : Msg -> Model msg -> ( Model msg, Cmd msg )
 update msg ((Model modelData) as model) =
     case msg of
         OnBlur ->
             model
-                |> mapFieldStatus FieldStatus.onBlur
+                |> mapFieldStatus (FieldStatus.setIsBlurred True)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onBlur
                     ]
 
         OnFocus ->
             model
-                |> mapFieldStatus FieldStatus.onFocus
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onFocus
                     ]
 
         OnInput value ->
             Model { modelData | value = value }
-                |> mapFieldStatus FieldStatus.onInput
+                |> mapFieldStatus (FieldStatus.setIsDirty True)
                 |> PrimaUpdate.withCmds
                     [ Commands.dispatchFromMaybe modelData.onInput
                     ]
@@ -206,51 +202,44 @@ update msg ((Model modelData) as model) =
 
 {-| Update the field value.
 -}
-updateValue : String -> Model ctx value msg -> ( Model ctx value msg, Cmd msg )
+updateValue : String -> Model msg -> ( Model msg, Cmd msg )
 updateValue value =
     update (OnInput value)
 
 
 {-| Internal
 -}
-mapFieldStatus : (FieldStatus.Status -> FieldStatus.Status) -> Model ctx value msg -> Model ctx value msg
+mapFieldStatus : (FieldStatus -> FieldStatus) -> Model msg -> Model msg
 mapFieldStatus mapper (Model model) =
     Model { model | fieldStatus = mapper model.fieldStatus }
 
 
 {-| Sets an OnBlur side effect.
 -}
-setOnBlur : msg -> Model ctx value msg -> Model ctx value msg
+setOnBlur : msg -> Model msg -> Model msg
 setOnBlur msg (Model configuration) =
     Model { configuration | onBlur = Just msg }
 
 
 {-| Sets an OnFocus side effect.
 -}
-setOnFocus : msg -> Model ctx value msg -> Model ctx value msg
+setOnFocus : msg -> Model msg -> Model msg
 setOnFocus msg (Model configuration) =
     Model { configuration | onFocus = Just msg }
 
 
 {-| Sets an OnInput side effect.
 -}
-setOnInput : msg -> Model ctx value msg -> Model ctx value msg
+setOnInput : msg -> Model msg -> Model msg
 setOnInput msg (Model configuration) =
     Model { configuration | onInput = Just msg }
 
 
 {-| Return the input value.
 -}
-getValue : Model ctx value msg -> String
+getValue : Model msg -> String
 getValue (Model { value }) =
     value
-
-
-{-| Returns the validated value by running the function you gave to the init.
--}
-validate : ctx -> Model ctx value msg -> Result String value
-validate ctx (Model { value, validation }) =
-    validation ctx value
 
 
 {-| Input size.
@@ -276,25 +265,26 @@ medium =
 
 {-| The view config.
 -}
-type Config constraints
+type Config validationData parsedValue constraints
     = Config
         { additionalContent : Maybe (Html Never)
         , addon : Maybe Addon
         , classList : List ( String, Bool )
         , disabled : Bool
         , hint : Maybe Hint.Config
-        , id : String
-        , isSubmitted : Bool
+        , id : CommonsAlias.Id
+        , isSubmitted : CommonsAlias.IsSubmitted
         , label : Maybe Label.Config
         , min : Maybe String
         , max : Maybe String
-        , name : String
+        , name : CommonsAlias.Name
         , placeholder : Maybe String
         , size : Size
-        , strategy : Strategy
+        , errorShowingStrategy : Maybe Error.ShowingStrategy
         , step : Maybe String
         , type_ : Type
         , valueMapper : String -> String
+        , validation : Maybe (CommonsAlias.Validation validationData String parsedValue)
         }
 
 
@@ -310,7 +300,7 @@ type alias CommonConstraints specificConstraints =
         , isSubmitted : CommonsConstraints.Allowed
         , label : CommonsConstraints.Allowed
         , size : CommonsConstraints.Allowed
-        , strategy : CommonsConstraints.Allowed
+        , validation : CommonsConstraints.Allowed
         , valueMapper : CommonsConstraints.Allowed
     }
 
@@ -366,7 +356,7 @@ type alias TextConstraints =
 
 {-| Internal. Creates an Input field.
 -}
-config : Type -> String -> Config constraints
+config : Type -> CommonsAlias.Name -> Config validationData parsedValue constraints
 config inputType name =
     Config
         { additionalContent = Nothing
@@ -383,9 +373,10 @@ config inputType name =
         , placeholder = Nothing
         , size = Medium
         , step = Nothing
-        , strategy = Strategy.onBlur
+        , errorShowingStrategy = Nothing
         , type_ = inputType
         , valueMapper = identity
+        , validation = Nothing
         }
 
 
@@ -401,65 +392,65 @@ type Type
 
 {-| Date configuration.
 -}
-type alias DateConfig =
-    Config DateConstraints
+type alias DateConfig validationData value =
+    Config validationData value DateConstraints
 
 
 {-| Email configuration.
 -}
-type alias EmailConfig =
-    Config EmailConstraints
+type alias EmailConfig validationData value =
+    Config validationData value EmailConstraints
 
 
 {-| Number configuration.
 -}
-type alias NumberConfig =
-    Config NumberConstraints
+type alias NumberConfig validationData value =
+    Config validationData value NumberConstraints
 
 
 {-| Password configuration.
 -}
-type alias PasswordConfig =
-    Config PasswordConstraints
+type alias PasswordConfig validationData value =
+    Config validationData value PasswordConstraints
 
 
 {-| Text configuration.
 -}
-type alias TextConfig =
-    Config TextConstraints
+type alias TextConfig validationData value =
+    Config validationData value TextConstraints
 
 
 {-| Creates an input with [type="email"].
 -}
-email : String -> EmailConfig
+email : String -> EmailConfig validationData value
 email =
     config Email
 
 
 {-| Creates an input with [type="date"].
 -}
-date : String -> DateConfig
+date : String -> DateConfig validationData value
 date =
     config Date
 
 
 {-| Creates an input with [type="number"].
 -}
-number : String -> NumberConfig
+number : String -> NumberConfig validationData value
 number =
     config Number
 
 
 {-| Creates an input with [type="text"].
 -}
-text : String -> TextConfig
+text : String -> TextConfig validationData value
 text =
     config Text
 
 
 {-| Creates an input with [type="password"].
 -}
-password : String -> PasswordConfig
+password : String -> PasswordConfig validationData value
 password =
     config Password
 
@@ -567,16 +558,6 @@ addonToAttribute { type_, placement } =
         |> Html.Attributes.class
 
 
-{-| Sets the validation strategy (when to show the error, if present)
--}
-withStrategy :
-    Strategy
-    -> Config { c | strategy : CommonsConstraints.Allowed }
-    -> Config { c | strategy : CommonsConstraints.Denied }
-withStrategy strategy (Config configuration) =
-    Config { configuration | strategy = strategy }
-
-
 {-| Maps the inputted string before the update
 
     Text.config "id"
@@ -589,28 +570,18 @@ This applies to both the user UI and the `getValue`/`validate` functions
 -}
 withValueMapper :
     (String -> String)
-    -> Config { c | valueMapper : CommonsConstraints.Allowed }
-    -> Config { c | valueMapper : CommonsConstraints.Denied }
+    -> Config validationData value { c | valueMapper : CommonsConstraints.Allowed }
+    -> Config validationData value { c | valueMapper : CommonsConstraints.Denied }
 withValueMapper mapper (Config configData) =
     Config { configData | valueMapper = mapper }
-
-
-{-| Sets whether the form was submitted
--}
-withIsSubmitted :
-    Bool
-    -> Config { c | isSubmitted : CommonsConstraints.Allowed }
-    -> Config { c | isSubmitted : CommonsConstraints.Denied }
-withIsSubmitted isSubmitted (Config configuration) =
-    Config { configuration | isSubmitted = isSubmitted }
 
 
 {-| Sets a Text Addon prepended to the Input.
 -}
 withTextPrepend :
     String
-    -> Config { c | addon : CommonsConstraints.Allowed }
-    -> Config { c | addon : CommonsConstraints.Denied }
+    -> Config validationData value { c | addon : CommonsConstraints.Allowed }
+    -> Config validationData value { c | addon : CommonsConstraints.Denied }
 withTextPrepend text_ (Config configuration) =
     Config { configuration | addon = Just { placement = Prepend, type_ = TextAddon text_ } }
 
@@ -619,8 +590,8 @@ withTextPrepend text_ (Config configuration) =
 -}
 withTextAppend :
     String
-    -> Config { c | addon : CommonsConstraints.Allowed }
-    -> Config { c | addon : CommonsConstraints.Denied }
+    -> Config validationData value { c | addon : CommonsConstraints.Allowed }
+    -> Config validationData value { c | addon : CommonsConstraints.Denied }
 withTextAppend text_ (Config configuration) =
     Config { configuration | addon = Just { placement = Append, type_ = TextAddon text_ } }
 
@@ -629,8 +600,8 @@ withTextAppend text_ (Config configuration) =
 -}
 withIconPrepend :
     IconSet.Icon
-    -> Config { c | addon : CommonsConstraints.Allowed }
-    -> Config { c | addon : CommonsConstraints.Denied }
+    -> Config validationData value { c | addon : CommonsConstraints.Allowed }
+    -> Config validationData value { c | addon : CommonsConstraints.Denied }
 withIconPrepend icon (Config configuration) =
     Config { configuration | addon = Just { placement = Prepend, type_ = IconAddon icon } }
 
@@ -639,8 +610,8 @@ withIconPrepend icon (Config configuration) =
 -}
 withIconAppend :
     IconSet.Icon
-    -> Config { c | addon : CommonsConstraints.Allowed }
-    -> Config { c | addon : CommonsConstraints.Denied }
+    -> Config validationData value { c | addon : CommonsConstraints.Allowed }
+    -> Config validationData value { c | addon : CommonsConstraints.Denied }
 withIconAppend icon (Config configuration) =
     Config { configuration | addon = Just { placement = Append, type_ = IconAddon icon } }
 
@@ -649,8 +620,8 @@ withIconAppend icon (Config configuration) =
 -}
 withLabel :
     Label.Config
-    -> Config { c | label : CommonsConstraints.Allowed }
-    -> Config { c | label : CommonsConstraints.Denied }
+    -> Config validationData value { c | label : CommonsConstraints.Allowed }
+    -> Config validationData value { c | label : CommonsConstraints.Denied }
 withLabel a (Config configuration) =
     Config { configuration | label = Just a }
 
@@ -659,8 +630,8 @@ withLabel a (Config configuration) =
 -}
 withDisabled :
     Bool
-    -> Config { c | disabled : CommonsConstraints.Allowed }
-    -> Config { c | disabled : CommonsConstraints.Denied }
+    -> Config validationData value { c | disabled : CommonsConstraints.Allowed }
+    -> Config validationData value { c | disabled : CommonsConstraints.Denied }
 withDisabled isDisabled (Config configuration) =
     Config { configuration | disabled = isDisabled }
 
@@ -669,8 +640,8 @@ withDisabled isDisabled (Config configuration) =
 -}
 withHint :
     String
-    -> Config { c | hint : CommonsConstraints.Allowed }
-    -> Config { c | hint : CommonsConstraints.Denied }
+    -> Config validationData value { c | hint : CommonsConstraints.Allowed }
+    -> Config validationData value { c | hint : CommonsConstraints.Denied }
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -685,8 +656,8 @@ withHint hintMessage (Config configuration) =
 -}
 withSize :
     Size
-    -> Config { c | size : CommonsConstraints.Allowed }
-    -> Config { c | size : CommonsConstraints.Denied }
+    -> Config validationData value { c | size : CommonsConstraints.Allowed }
+    -> Config validationData value { c | size : CommonsConstraints.Denied }
 withSize size (Config configuration) =
     Config { configuration | size = size }
 
@@ -695,8 +666,8 @@ withSize size (Config configuration) =
 -}
 withClassList :
     List ( String, Bool )
-    -> Config { c | classList : CommonsConstraints.Allowed }
-    -> Config { c | classList : CommonsConstraints.Denied }
+    -> Config validationData value { c | classList : CommonsConstraints.Allowed }
+    -> Config validationData value { c | classList : CommonsConstraints.Denied }
 withClassList classes (Config configuration) =
     Config { configuration | classList = classes }
 
@@ -705,8 +676,8 @@ withClassList classes (Config configuration) =
 -}
 withMax :
     String
-    -> Config { c | max : CommonsConstraints.Allowed }
-    -> Config { c | max : CommonsConstraints.Denied }
+    -> Config validationData value { c | max : CommonsConstraints.Allowed }
+    -> Config validationData value { c | max : CommonsConstraints.Denied }
 withMax max (Config configuration) =
     Config { configuration | max = Just max }
 
@@ -715,8 +686,8 @@ withMax max (Config configuration) =
 -}
 withMin :
     String
-    -> Config { c | min : CommonsConstraints.Allowed }
-    -> Config { c | min : CommonsConstraints.Denied }
+    -> Config validationData value { c | min : CommonsConstraints.Allowed }
+    -> Config validationData value { c | min : CommonsConstraints.Denied }
 withMin min (Config configuration) =
     Config { configuration | min = Just min }
 
@@ -724,9 +695,9 @@ withMin min (Config configuration) =
 {-| Sets a Name to the Input.
 -}
 withId :
-    String
-    -> Config { c | id : CommonsConstraints.Allowed }
-    -> Config { c | id : CommonsConstraints.Denied }
+    CommonsAlias.Id
+    -> Config validationData value { c | id : CommonsConstraints.Allowed }
+    -> Config validationData value { c | id : CommonsConstraints.Denied }
 withId id (Config configuration) =
     Config { configuration | id = id }
 
@@ -735,8 +706,8 @@ withId id (Config configuration) =
 -}
 withStep :
     String
-    -> Config { c | step : CommonsConstraints.Allowed }
-    -> Config { c | step : CommonsConstraints.Denied }
+    -> Config validationData value { c | step : CommonsConstraints.Allowed }
+    -> Config validationData value { c | step : CommonsConstraints.Denied }
 withStep step (Config configuration) =
     Config { configuration | step = Just step }
 
@@ -745,8 +716,8 @@ withStep step (Config configuration) =
 -}
 withPlaceholder :
     String
-    -> Config { c | placeholder : CommonsConstraints.Allowed }
-    -> Config { c | placeholder : CommonsConstraints.Denied }
+    -> Config validationData value { c | placeholder : CommonsConstraints.Allowed }
+    -> Config validationData value { c | placeholder : CommonsConstraints.Denied }
 withPlaceholder placeholder (Config configuration) =
     Config { configuration | placeholder = Just placeholder }
 
@@ -755,15 +726,63 @@ withPlaceholder placeholder (Config configuration) =
 -}
 withAdditionalContent :
     Html Never
-    -> Config { c | additionalContent : CommonsConstraints.Allowed }
-    -> Config { c | additionalContent : CommonsConstraints.Denied }
+    -> Config validationData value { c | additionalContent : CommonsConstraints.Allowed }
+    -> Config validationData value { c | additionalContent : CommonsConstraints.Denied }
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
 
+{-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
+-}
+withValidationOnSubmit :
+    CommonsAlias.Validation validationData String value
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value { c | validation : CommonsConstraints.Allowed }
+    -> Config validationData value { c | validation : CommonsConstraints.Denied }
+withValidationOnSubmit validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onSubmit |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
+-}
+withValidationOnInput :
+    CommonsAlias.Validation validationData String value
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value { c | validation : CommonsConstraints.Allowed }
+    -> Config validationData value { c | validation : CommonsConstraints.Denied }
+withValidationOnInput validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onInput |> Just
+        }
+
+
+{-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
+-}
+withValidationOnBlur :
+    CommonsAlias.Validation validationData String value
+    -> CommonsAlias.IsSubmitted
+    -> Config validationData value { c | validation : CommonsConstraints.Allowed }
+    -> Config validationData value { c | validation : CommonsConstraints.Denied }
+withValidationOnBlur validation isSubmitted (Config configuration) =
+    Config
+        { configuration
+            | isSubmitted = isSubmitted
+            , validation = Just validation
+            , errorShowingStrategy = Error.onBlur |> Just
+        }
+
+
 {-| Internal
 -}
-addIconCalendarToDateField : Config constraints -> Config constraints
+addIconCalendarToDateField : Config validationData parsedValue constraints -> Config validationData parsedValue constraints
 addIconCalendarToDateField ((Config configData) as config_) =
     case configData.type_ of
         Date ->
@@ -775,53 +794,66 @@ addIconCalendarToDateField ((Config configData) as config_) =
 
 {-| Renders the Input.Stories/Chapters/DateField.elm
 -}
-render : (Msg -> msg) -> ctx -> Model ctx value msg -> Config constraints -> Html msg
-render tagger ctx ((Model modelData) as model) ((Config configData) as config_) =
+render : (Msg -> msg) -> validationData -> Model msg -> Config validationData parsedValue constraints -> Html msg
+render tagger validationData model ((Config configData) as config_) =
     let
-        shownValidation : Result String ()
-        shownValidation =
-            StrategyInternal.getValidationResult
-                modelData.fieldStatus
-                (modelData.validation ctx modelData.value)
-                configData.isSubmitted
-                configData.strategy
+        error : Maybe (Error.Config parsedValue)
+        error =
+            generateErrorConfig validationData model config_
     in
     config_
         |> addIconCalendarToDateField
-        |> renderField shownValidation model
+        |> renderField error model
         |> Html.map tagger
         |> FormItem.config configData
         |> FormItem.withLabel configData.label
         |> FormItem.withAdditionalContent configData.additionalContent
-        |> FormItem.render shownValidation
+        |> FormItem.render error
+
+
+{-| Internal
+-}
+generateErrorConfig : validationData -> Model msg -> Config validationData parsedValue constraints -> Maybe (Error.Config parsedValue)
+generateErrorConfig validationData (Model { fieldStatus, value }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+    let
+        getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
+        getErrorConfig validationResult =
+            Error.config id validationResult
+                >> Error.withIsDirty fieldStatus.isDirty
+                >> Error.withIsBlurred fieldStatus.isBlurred
+                >> Error.withIsSubmitted isSubmitted
+    in
+    Maybe.map2 getErrorConfig
+        (Maybe.map (\v -> v validationData value) validation)
+        errorShowingStrategy
 
 
 {-| Internal.
 -}
-renderField : Result String () -> Model ctx value msg -> Config constraints -> Html Msg
-renderField shownValidation model ((Config { disabled, addon }) as configuration) =
+renderField : Maybe (Error.Config value) -> Model msg -> Config validationData parsedValue constraints -> Html Msg
+renderField error model ((Config { disabled, addon }) as configuration) =
     Html.div
         [ Html.Attributes.classList
             [ ( "form-field", True )
-            , ( "form-field--error", Result.Extra.isErr shownValidation )
+            , ( "form-field--error", Error.isVisible error )
             , ( "form-field--disabled", disabled )
             ]
         , CommonsAttributes.maybe addonToAttribute addon
         ]
         [ addon
-            |> Maybe.map (renderAddon shownValidation model configuration)
-            |> Maybe.withDefault (renderInput shownValidation model configuration)
+            |> Maybe.map (renderAddon error model configuration)
+            |> Maybe.withDefault (renderInput error model configuration)
         ]
 
 
 {-| Internal.
 -}
-renderAddon : Result String () -> Model ctx value msg -> Config constraints -> Addon -> Html Msg
-renderAddon validationResult model configuration addon =
+renderAddon : Maybe (Error.Config value) -> Model msg -> Config validationData parsedValue constraints -> Addon -> Html Msg
+renderAddon error model configuration addon =
     Html.label
         [ Html.Attributes.class "form-field__wrapper" ]
         [ CommonsRender.renderIf (isPrepend addon.placement) (renderAddonByType addon.type_)
-        , renderInput validationResult model configuration
+        , renderInput error model configuration
         , CommonsRender.renderIf (isAppend addon.placement) (renderAddonByType addon.type_)
         ]
 
@@ -847,8 +879,8 @@ renderAddonByType type_ =
 
 {-| Internal.
 -}
-renderInput : Result String () -> Model ctx value msg -> Config constraints -> Html Msg
-renderInput validationResult (Model modelData) (Config configData) =
+renderInput : Maybe (Error.Config value) -> Model msg -> Config validationData parsedValue constraints -> Html Msg
+renderInput error (Model modelData) (Config configData) =
     Html.input
         [ Html.Attributes.id configData.id
         , Html.Attributes.classList
@@ -871,11 +903,9 @@ renderInput validationResult (Model modelData) (Config configData) =
         , CommonsAttributes.maybe Html.Attributes.min configData.min
         , CommonsAttributes.maybe Html.Attributes.max configData.max
         , CommonsAttributes.maybe Html.Attributes.step configData.step
-        , validationResult
-            |> Error.fromResult
-            |> Maybe.map (always (Error.toId configData.id))
-            |> CommonsAttributes.ariaDescribedByErrorOrHint
-                (Maybe.map (always (Hint.toId configData.id)) configData.hint)
+        , CommonsAttributes.ariaDescribedByErrorOrHint
+            (Maybe.map (always (Error.idFromFieldId configData.id)) error)
+            (Maybe.map (always (Hint.toId configData.id)) configData.hint)
         , Html.Events.onInput (configData.valueMapper >> OnInput)
         , Html.Events.onFocus OnFocus
         , Html.Events.onBlur OnBlur

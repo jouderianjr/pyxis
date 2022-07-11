@@ -54,6 +54,7 @@ import Dict exposing (Dict)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Commons.String as CommonsString
@@ -103,7 +104,7 @@ type Config msg
 
 {-| Creates an accordion item
 -}
-config : String -> Config msg
+config : CommonsAlias.Id -> Config msg
 config id =
     Config
         { actionText = Nothing
@@ -161,11 +162,11 @@ withContent content (Config itemConfig) =
 {-| Internal. The internal render data configuration
 -}
 type alias RenderData msg =
-    { onClick : String -> msg
-    , onFocus : String -> msg
+    { onClick : CommonsAlias.Id -> msg
+    , onFocus : CommonsAlias.Id -> msg
     , classList : List ( String, Bool )
-    , isOpen : String -> Bool
-    , itemsHeight : Dict String Float
+    , isOpen : CommonsAlias.Id -> Bool
+    , itemsHeight : Dict CommonsAlias.Id Float
     }
 
 

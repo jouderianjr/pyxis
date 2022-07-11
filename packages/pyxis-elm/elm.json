@@ -15,7 +15,6 @@
         "Pyxis.Components.Field.Autocomplete",
         "Pyxis.Components.Field.CheckboxCardGroup",
         "Pyxis.Components.Field.CheckboxGroup",
-        "Pyxis.Components.Field.Error.Strategy",
         "Pyxis.Components.Field.Input",
         "Pyxis.Components.Field.Label",
         "Pyxis.Components.Field.RadioCardGroup",

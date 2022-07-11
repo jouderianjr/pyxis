@@ -64,6 +64,7 @@ import Dict exposing (Dict)
 import Html
 import Html.Attributes
 import PrimaUpdate
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Properties.Theme as Theme exposing (Theme)
 import Pyxis.Components.Accordion.Item as Item
@@ -73,9 +74,9 @@ import Task
 {-| Represents the Accordion item message.
 -}
 type Msg
-    = OnClick String
-    | OnFocus String
-    | GotElement String (Result Browser.Dom.Error Browser.Dom.Element)
+    = OnClick CommonsAlias.Id
+    | OnFocus CommonsAlias.Id
+    | GotElement CommonsAlias.Id (Result Browser.Dom.Error Browser.Dom.Element)
 
 
 {-| Opening types.
@@ -87,14 +88,14 @@ type OpeningType
 
 {-| Init single Opening types.
 -}
-singleOpening : Maybe String -> OpeningType
+singleOpening : Maybe CommonsAlias.Id -> OpeningType
 singleOpening openedId =
     Single openedId
 
 
 {-| Init multiple Opening types.
 -}
-multipleOpening : List String -> OpeningType
+multipleOpening : List CommonsAlias.Id -> OpeningType
 multipleOpening openedIds =
     Multiple openedIds
 
@@ -103,7 +104,7 @@ multipleOpening openedIds =
 -}
 type Model
     = Model
-        { itemsHeight : Dict String Float
+        { itemsHeight : Dict CommonsAlias.Id Float
         , openingType : OpeningType
         }
 
@@ -143,7 +144,7 @@ light =
 -}
 type alias ConfigData msg =
     { classList : List ( String, Bool )
-    , id : String
+    , id : CommonsAlias.Id
     , items : List (Item.Config msg)
     , theme : Theme
     , variant : Variant
@@ -158,7 +159,7 @@ type Config msg
 
 {-| Creates an accordion
 -}
-config : String -> Config msg
+config : CommonsAlias.Id -> Config msg
 config id =
     Config
         { classList = []
@@ -231,7 +232,7 @@ update msg (Model model) =
 
 {-| Internal. Update OpeningType.
 -}
-updateOpeningType : String -> OpeningType -> OpeningType
+updateOpeningType : CommonsAlias.Id -> OpeningType -> OpeningType
 updateOpeningType clickedId openingType =
     case openingType of
         Multiple openedId ->
@@ -277,7 +278,7 @@ render tagger (Model { itemsHeight, openingType }) (Config { classList, id, item
 
 {-| Internal. Check if item is open.
 -}
-itemIsOpen : OpeningType -> String -> Bool
+itemIsOpen : OpeningType -> CommonsAlias.Id -> Bool
 itemIsOpen openingType id =
     case openingType of
         Multiple openedIds ->

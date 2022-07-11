@@ -1,9 +1,8 @@
 module Examples.Form.Views.InsuranceType exposing (view)
 
-import Examples.Form.Data exposing (Data(..))
+import Examples.Form.Data as Data exposing (Data(..))
 import Examples.Form.Msg as Msg exposing (Msg)
 import Examples.Form.Types as Fields
-import Pyxis.Components.Field.Error.Strategy as Strategy
 import Pyxis.Components.Field.RadioCardGroup as RadioCardGroup
 import Pyxis.Components.Form.FieldSet as FieldSet
 import Pyxis.Components.Form.Grid as Grid
@@ -12,7 +11,7 @@ import Pyxis.Components.Form.Legend as Legend
 
 
 view : Data -> FieldSet.Config Msg
-view ((Data config) as data) =
+view (Data config) =
     FieldSet.config
         |> FieldSet.withHeader
             [ Grid.simpleOneColRow
@@ -27,8 +26,7 @@ view ((Data config) as data) =
                 [ Grid.simpleCol
                     [ "insurance-type"
                         |> RadioCardGroup.config
-                        |> RadioCardGroup.withStrategy Strategy.onSubmit
-                        |> RadioCardGroup.withIsSubmitted config.isFormSubmitted
+                        |> RadioCardGroup.withValidationOnBlur Data.radioValidation config.isFormSubmitted
                         |> RadioCardGroup.withSize RadioCardGroup.large
                         |> RadioCardGroup.withOptions
                             [ RadioCardGroup.option
@@ -44,7 +42,7 @@ view ((Data config) as data) =
                                 , addon = RadioCardGroup.imgAddon "../../../../assets/placeholder.svg"
                                 }
                             ]
-                        |> RadioCardGroup.render Msg.InsuranceTypeChanged data config.insuranceType
+                        |> RadioCardGroup.render Msg.InsuranceTypeChanged () config.insuranceType
                     ]
                 ]
             ]

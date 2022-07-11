@@ -59,6 +59,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Maybe.Extra
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Modal.Footer as Footer
@@ -73,7 +74,7 @@ type alias ConfigData msg =
     , content : List (Html msg)
     , footer : Maybe (Footer.Config msg)
     , header : Maybe (Header.Config msg)
-    , id : String
+    , id : CommonsAlias.Id
     , isCentered : Bool
     , onCloseMsg : Maybe (Header.OnCloseData msg)
     , size : Size
@@ -121,7 +122,7 @@ type Config msg
             |> ModalFooter.withText "Text Footer"
 
 -}
-config : String -> Config msg
+config : CommonsAlias.Id -> Config msg
 config id =
     Config
         { ariaDescribedBy = Nothing
@@ -209,7 +210,7 @@ withCloseMsg msg ariaLabel (Config configData) =
 
 {-| Sets the Modal visibility.
 -}
-withAriaDescribedBy : String -> Config msg -> Config msg
+withAriaDescribedBy : CommonsAlias.Id -> Config msg -> Config msg
 withAriaDescribedBy ariaDescribedBy (Config configData) =
     Config { configData | ariaDescribedBy = Just ariaDescribedBy }
 
@@ -271,14 +272,14 @@ render isOpen (Config { classList, header, content, footer, size, onCloseMsg, ar
 
 {-| Internal. Generate described id from id
 -}
-describedById : String -> String
+describedById : CommonsAlias.Id -> String
 describedById =
     (++) "described-"
 
 
 {-| Internal. Render describedby attribute if exists.
 -}
-describedByAttribute : String -> Maybe String -> Html.Attribute msg
+describedByAttribute : CommonsAlias.Id -> Maybe CommonsAlias.Id -> Html.Attribute msg
 describedByAttribute id ariaDescribedBy =
     id
         |> describedById

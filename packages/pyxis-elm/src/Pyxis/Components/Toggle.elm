@@ -34,6 +34,7 @@ module Pyxis.Components.Toggle exposing
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Commons.String as CommonsString
@@ -46,7 +47,7 @@ type alias ConfigData msg =
     { ariaLabel : Maybe String
     , classList : List ( String, Bool )
     , disabled : Bool
-    , id : String
+    , id : CommonsAlias.Id
     , label : Maybe Label.Config
     , onCheck : Bool -> msg
     }
@@ -69,7 +70,7 @@ type Config msg
                 |> Toggle.render initialState
 
 -}
-config : String -> (Bool -> msg) -> Config msg
+config : CommonsAlias.Id -> (Bool -> msg) -> Config msg
 config id onCheck =
     Config
         { ariaLabel = Nothing
@@ -141,7 +142,7 @@ render value (Config { ariaLabel, classList, disabled, label, onCheck, id }) =
 
 {-| Internal.
 -}
-renderLabel : String -> Label.Config -> Html msg
+renderLabel : CommonsAlias.Id -> Label.Config -> Html msg
 renderLabel id label =
     label
         |> Label.withFor id

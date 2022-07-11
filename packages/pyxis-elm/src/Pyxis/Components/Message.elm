@@ -58,6 +58,7 @@ module Pyxis.Components.Message exposing
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Render as CommonsRender
 import Pyxis.Components.Icon as Icon
@@ -70,7 +71,7 @@ type alias ConfigData msg =
     { classList : List ( String, Bool )
     , content : List (Html msg)
     , icon : IconSet.Icon
-    , id : Maybe String
+    , id : Maybe CommonsAlias.Id
     , onDismiss : Maybe (DismissData msg)
     , title : Maybe String
     , style : Style
@@ -219,7 +220,7 @@ withClassList classList (Config configuration) =
 
 {-| Add `id` and `data-test-id` to Message.
 -}
-withId : String -> Config msg -> Config msg
+withId : CommonsAlias.Id -> Config msg -> Config msg
 withId id (Config configuration) =
     Config { configuration | id = Just id }
 

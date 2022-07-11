@@ -148,7 +148,7 @@ suite =
                         |> Simulation.simulate ( Event.click, [ Selector.class "form-dropdown__item" ] )
                         |> Simulation.expectModel
                             (Expect.all
-                                [ Autocomplete.validate () >> Expect.equal (Ok Developer)
+                                [ Autocomplete.getValue >> validation >> Expect.equal (Ok Developer)
                                 ]
                             )
                         |> Simulation.run
@@ -156,15 +156,15 @@ suite =
         ]
 
 
-config : Autocomplete.Config Job (Autocomplete.Msg Job)
+config : Autocomplete.Config () Job Job (Autocomplete.Msg Job)
 config =
     Autocomplete.config "autocomplete"
         |> Autocomplete.withId "autocomplete-id"
 
 
-init : Autocomplete.Model () Job (Autocomplete.Msg Job)
+init : Autocomplete.Model Job (Autocomplete.Msg Job)
 init =
-    Autocomplete.init Nothing getJobName filterJobs (always validation)
+    Autocomplete.init Nothing getJobName filterJobs
 
 
 findInput : Query.Single msg -> Query.Single msg
@@ -177,7 +177,7 @@ findDropdown =
     Query.find [ Selector.class "form-dropdown" ]
 
 
-render : Autocomplete.Config Job (Autocomplete.Msg Job) -> Query.Single (Autocomplete.Msg Job)
+render : Autocomplete.Config () Job Job (Autocomplete.Msg Job) -> Query.Single (Autocomplete.Msg Job)
 render =
     Autocomplete.render identity () init >> Query.fromHtml
 
@@ -189,11 +189,11 @@ validation maybeJob =
         |> Maybe.withDefault (Err "Select a job.")
 
 
-simulation : Autocomplete.Config Job (Autocomplete.Msg Job) -> Simulation (Autocomplete.Model () Job (Autocomplete.Msg Job)) (Autocomplete.Msg Job)
+simulation : Autocomplete.Config () Job Job (Autocomplete.Msg Job) -> Simulation (Autocomplete.Model Job (Autocomplete.Msg Job)) (Autocomplete.Msg Job)
 simulation config_ =
     Simulation.fromElement
         { init =
-            ( Autocomplete.init Nothing getJobName filterJobs (always validation)
+            ( Autocomplete.init Nothing getJobName filterJobs
                 |> Autocomplete.setOptions (RemoteData.Success [ Developer, Designer, ProductManager ])
             , Cmd.none
             )

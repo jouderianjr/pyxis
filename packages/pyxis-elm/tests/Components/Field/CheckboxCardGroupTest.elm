@@ -21,7 +21,7 @@ type Lang
     | Elixir
 
 
-langsConfig : CheckboxCardGroup.Config Lang
+langsConfig : CheckboxCardGroup.Config () Lang parsedValue
 langsConfig =
     CheckboxCardGroup.config "checkbox"
         |> CheckboxCardGroup.withOptions langsOptions
@@ -146,8 +146,9 @@ suite =
         , Test.describe "Validation"
             [ Test.test "should be applied initially" <|
                 \() ->
-                    CheckboxCardGroup.init [] nonEmptyLangValidation
-                        |> CheckboxCardGroup.validate ()
+                    CheckboxCardGroup.init []
+                        |> CheckboxCardGroup.getValue
+                        |> nonEmptyLangValidation ()
                         |> Expect.err
             , Test.test "should update when selecting items" <|
                 \() ->
@@ -158,7 +159,8 @@ suite =
                         |> Simulation.expectModel
                             (\model ->
                                 model
-                                    |> CheckboxCardGroup.validate ()
+                                    |> CheckboxCardGroup.getValue
+                                    |> nonEmptyLangValidation ()
                                     |> whenOk
                                         (Expect.all
                                             [ List.member Typescript >> Expect.true "`Typescript` option should  be selected"
@@ -178,7 +180,8 @@ suite =
                         |> Simulation.expectModel
                             (\model ->
                                 model
-                                    |> CheckboxCardGroup.validate ()
+                                    |> CheckboxCardGroup.getValue
+                                    |> nonEmptyLangValidation ()
                                     |> Expect.err
                             )
                         |> Simulation.run
@@ -187,7 +190,7 @@ suite =
 
 
 type alias ComponentModel =
-    CheckboxCardGroup.Model () Lang ComponentMsg
+    CheckboxCardGroup.Model Lang ComponentMsg
 
 
 type alias ComponentMsg =
@@ -226,17 +229,21 @@ findInput label =
     Query.find (inputSelectors label)
 
 
-renderCheckboxGroup : CheckboxCardGroup.Config Lang -> Query.Single ComponentMsg
+renderCheckboxGroup : CheckboxCardGroup.Config () Lang parsedValue -> Query.Single ComponentMsg
 renderCheckboxGroup =
-    CheckboxCardGroup.render identity () (CheckboxCardGroup.init [] (always Ok)) >> Query.fromHtml
+    CheckboxCardGroup.render identity () (CheckboxCardGroup.init []) >> Query.fromHtml
 
 
 simulation : Simulation ComponentModel ComponentMsg
 simulation =
     Simulation.fromSandbox
-        { init = CheckboxCardGroup.init [] nonEmptyLangValidation
+        { init = CheckboxCardGroup.init []
         , update = \subMsg model -> Tuple.first (CheckboxCardGroup.update subMsg model)
-        , view = \model -> CheckboxCardGroup.render identity () model langsConfig
+        , view =
+            \model ->
+                langsConfig
+                    |> CheckboxCardGroup.withValidationOnBlur nonEmptyLangValidation False
+                    |> CheckboxCardGroup.render identity () model
         }
 
 
