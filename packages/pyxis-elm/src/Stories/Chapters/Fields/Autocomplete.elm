@@ -70,7 +70,7 @@ type alias Model = {
 
 initialModel : Model
 initialModel =
-    { job = Autocomplete.init Nothing jobToLabel jobMatches
+    { job = Autocomplete.init jobToLabel jobMatches
     }
 
 
@@ -226,7 +226,6 @@ type alias Models =
 initAutocomplete : StoryType -> Model
 initAutocomplete type_ =
     Autocomplete.init
-        Nothing
         jobToLabel
         optionsFilter
         |> Autocomplete.setOnSelect (OnSelect type_)

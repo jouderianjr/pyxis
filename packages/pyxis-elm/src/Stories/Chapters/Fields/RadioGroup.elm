@@ -34,7 +34,7 @@ validation _ selected =
 
 
 radioGroupModel : RadioGroup.Model Product (RadioGroup.Msg Product)
-radioGroupModel = RadioGroup.init (Just Household)
+radioGroupModel = RadioGroup.init |> RadioGroup.setValue Household
 
 
 radioGroupView : Bool -> () -> Html Msg
@@ -109,10 +109,10 @@ type alias Model =
 
 init : Model
 init =
-    { base = RadioGroup.init (Just Household)
-    , vertical = RadioGroup.init (Just Motor)
-    , disabled = RadioGroup.init (Just Household)
-    , additionalContent = RadioGroup.init (Just Household)
+    { base = RadioGroup.init |> RadioGroup.setValue Household
+    , vertical = RadioGroup.init |> RadioGroup.setValue Motor
+    , disabled = RadioGroup.init |> RadioGroup.setValue Household
+    , additionalContent = RadioGroup.init |> RadioGroup.setValue Household
     }
 
 

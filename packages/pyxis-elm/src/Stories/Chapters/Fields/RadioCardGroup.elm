@@ -32,7 +32,7 @@ validation _ selected =
 
 
 radioCardGroupModel : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
-radioCardGroupModel = RadioCardGroup.init Nothing
+radioCardGroupModel = RadioCardGroup.init
 
 
 radioCardGroupView : Bool -> () -> Html Msg
@@ -184,13 +184,13 @@ type alias Model =
 
 init : Model
 init =
-    { base = RadioCardGroup.init Nothing
-    , vertical = RadioCardGroup.init (Just Motor)
-    , disabled = RadioCardGroup.init (Just Motor)
-    , large = RadioCardGroup.init (Just Motor)
-    , icon = RadioCardGroup.init (Just Motor)
-    , text = RadioCardGroup.init (Just Motor)
-    , additionalContent = RadioCardGroup.init (Just Motor)
+    { base = RadioCardGroup.init
+    , vertical = RadioCardGroup.init |> RadioCardGroup.setValue Motor
+    , disabled = RadioCardGroup.init |> RadioCardGroup.setValue Motor
+    , large = RadioCardGroup.init |> RadioCardGroup.setValue Motor
+    , icon = RadioCardGroup.init |> RadioCardGroup.setValue Motor
+    , text = RadioCardGroup.init |> RadioCardGroup.setValue Motor
+    , additionalContent = RadioCardGroup.init |> RadioCardGroup.setValue Motor
     }
 
 

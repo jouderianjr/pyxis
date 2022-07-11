@@ -1,9 +1,11 @@
 module Pyxis.Components.Field.RadioCardGroup exposing
     ( Model
     , init
+    , resetValue
     , setOnBlur
-    , setOnFocus
     , setOnCheck
+    , setOnFocus
+    , setValue
     , Config
     , config
     , Addon
@@ -43,9 +45,11 @@ module Pyxis.Components.Field.RadioCardGroup exposing
 
 @docs Model
 @docs init
+@docs resetValue
 @docs setOnBlur
-@docs setOnFocus
 @docs setOnCheck
+@docs setOnFocus
+@docs setValue
 
 
 ## Config
@@ -141,10 +145,10 @@ type Model value msg
 
 {-| Initialize the RadioCardGroup Model.
 -}
-init : Maybe value -> Model value msg
-init initialValue =
+init : Model value msg
+init =
     Model
-        { selectedValue = initialValue
+        { selectedValue = Nothing
         , fieldStatus = FieldStatus.init
         , onBlur = Nothing
         , onFocus = Nothing
@@ -496,6 +500,20 @@ setOnFocus msg (Model configuration) =
 setOnCheck : msg -> Model value msg -> Model value msg
 setOnCheck msg (Model configuration) =
     Model { configuration | onCheck = Just msg }
+
+
+{-| Set the field value
+-}
+setValue : value -> Model value msg -> Model value msg
+setValue selectedValue (Model modelData) =
+    Model { modelData | selectedValue = Just selectedValue }
+
+
+{-| Reset the field value
+-}
+resetValue : Model value msg -> Model value msg
+resetValue (Model modelData) =
+    Model { modelData | selectedValue = Nothing }
 
 
 {-| Return the selected value.

@@ -241,7 +241,7 @@ suite =
 
 fieldModel : Input.Model msg
 fieldModel =
-    Input.init ""
+    Input.init
 
 
 fieldConfig : Input.TextConfig () String

@@ -61,7 +61,7 @@ suite =
                 radioCardGroupConfig noAddonOptions
                     |> RadioCardGroup.render identity
                         ()
-                        (RadioCardGroup.init (Just Home))
+                        (RadioCardGroup.init |> RadioCardGroup.setValue Home)
                     |> Query.fromHtml
                     |> Query.find [ Selector.containing [ Selector.id "area-home---title-option" ] ]
                     |> Query.has [ Selector.class "form-card--checked" ]
@@ -263,14 +263,14 @@ radioCardGroupConfig options =
 
 renderRadioCardGroup : RadioCardGroup.Config () Option Option -> Query.Single ComponentMsg
 renderRadioCardGroup =
-    RadioCardGroup.render identity () (RadioCardGroup.init Nothing)
+    RadioCardGroup.render identity () RadioCardGroup.init
         >> Query.fromHtml
 
 
 simulationWithValidation : Simulation.Simulation ComponentModel ComponentMsg
 simulationWithValidation =
     Simulation.fromSandbox
-        { init = RadioCardGroup.init Nothing
+        { init = RadioCardGroup.init
         , update = \subMsg model -> Tuple.first (RadioCardGroup.update subMsg model)
         , view = \model -> RadioCardGroup.render identity () model (radioCardGroupConfig noAddonOptions)
         }

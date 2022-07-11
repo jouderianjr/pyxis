@@ -49,7 +49,7 @@ toJob rawValue =
 
 selectModel : Select.Model Job
 selectModel =
-    Select.init Nothing
+    Select.init
         |> Select.setOptions options
 
 
@@ -164,11 +164,11 @@ toJob rawValue =
 
 init : Model
 init =
-    { base = Select.init Nothing |> Select.setOptions options
-    , mobile = Select.init Nothing |> Select.setOptions options
-    , disabled = Select.init Nothing |> Select.setOptions options
-    , small = Select.init Nothing |> Select.setOptions options
-    , additionalContent = Select.init Nothing |> Select.setOptions options
+    { base = Select.init |> Select.setOptions options
+    , mobile = Select.init |> Select.setOptions options
+    , disabled = Select.init |> Select.setOptions options
+    , small = Select.init |> Select.setOptions options
+    , additionalContent = Select.init |> Select.setOptions options
     }
 
 

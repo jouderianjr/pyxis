@@ -39,7 +39,7 @@ validation _ value =
 
 textFieldModel : Input.Model Msg
 textFieldModel =
-    Input.init ""
+    Input.init 
 
 
 textField : Bool -> FormData -> Html Msg
@@ -202,14 +202,14 @@ type alias Model =
 
 init : Model
 init =
-    { base = Input.init ""
-    , date = Input.init ""
-    , email = Input.init ""
-    , number = Input.init ""
-    , password = Input.init ""
-    , text = Input.init ""
-    , additionalContent = Input.init ""
-    , withValidation = Input.init ""
+    { base = Input.init
+    , date = Input.init
+    , email = Input.init
+    , number = Input.init
+    , password = Input.init
+    , text = Input.init
+    , additionalContent = Input.init
+    , withValidation = Input.init
     }
 
 

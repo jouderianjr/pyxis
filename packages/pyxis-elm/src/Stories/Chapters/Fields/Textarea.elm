@@ -24,7 +24,7 @@ type Msg
 
 textareaModel : Textarea.Model Textarea.Msg
 textareaModel =
-    Textarea.init ""
+    Textarea.init 
 
 
 validation : () -> String -> Result String String
@@ -100,8 +100,8 @@ type alias Model =
 
 init : Model
 init =
-    { base = Textarea.init ""
-    , withValidation = Textarea.init ""
+    { base = Textarea.init
+    , withValidation = Textarea.init
     }
 
 

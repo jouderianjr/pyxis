@@ -1,9 +1,11 @@
 module Pyxis.Components.Field.Input exposing
     ( Model
     , init
+    , resetValue
     , setOnBlur
     , setOnFocus
     , setOnInput
+    , setValue
     , date
     , DateConfig
     , email
@@ -50,9 +52,11 @@ module Pyxis.Components.Field.Input exposing
 
 @docs Model
 @docs init
+@docs resetValue
 @docs setOnBlur
 @docs setOnFocus
 @docs setOnInput
+@docs setValue
 
 
 ## Config
@@ -163,10 +167,10 @@ type Model msg
 
 {-| Inits the Input model.
 -}
-init : String -> Model msg
-init initialValue =
+init : Model msg
+init =
     Model
-        { value = initialValue
+        { value = ""
         , fieldStatus = FieldStatus.init
         , onFocus = Nothing
         , onBlur = Nothing
@@ -233,6 +237,20 @@ setOnFocus msg (Model configuration) =
 setOnInput : msg -> Model msg -> Model msg
 setOnInput msg (Model configuration) =
     Model { configuration | onInput = Just msg }
+
+
+{-| Set the field value
+-}
+setValue : String -> Model msg -> Model msg
+setValue value (Model modelData) =
+    Model { modelData | value = value }
+
+
+{-| Reset the field value
+-}
+resetValue : Model msg -> Model msg
+resetValue (Model modelData) =
+    Model { modelData | value = "" }
 
 
 {-| Return the input value.

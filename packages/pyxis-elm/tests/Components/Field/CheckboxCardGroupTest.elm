@@ -146,7 +146,7 @@ suite =
         , Test.describe "Validation"
             [ Test.test "should be applied initially" <|
                 \() ->
-                    CheckboxCardGroup.init []
+                    CheckboxCardGroup.init
                         |> CheckboxCardGroup.getValue
                         |> nonEmptyLangValidation ()
                         |> Expect.err
@@ -231,13 +231,13 @@ findInput label =
 
 renderCheckboxGroup : CheckboxCardGroup.Config () Lang parsedValue -> Query.Single ComponentMsg
 renderCheckboxGroup =
-    CheckboxCardGroup.render identity () (CheckboxCardGroup.init []) >> Query.fromHtml
+    CheckboxCardGroup.render identity () CheckboxCardGroup.init >> Query.fromHtml
 
 
 simulation : Simulation ComponentModel ComponentMsg
 simulation =
     Simulation.fromSandbox
-        { init = CheckboxCardGroup.init []
+        { init = CheckboxCardGroup.init
         , update = \subMsg model -> Tuple.first (CheckboxCardGroup.update subMsg model)
         , view =
             \model ->

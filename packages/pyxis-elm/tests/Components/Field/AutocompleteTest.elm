@@ -164,7 +164,7 @@ config =
 
 init : Autocomplete.Model Job (Autocomplete.Msg Job)
 init =
-    Autocomplete.init Nothing getJobName filterJobs
+    Autocomplete.init getJobName filterJobs
 
 
 findInput : Query.Single msg -> Query.Single msg
@@ -193,7 +193,7 @@ simulation : Autocomplete.Config () Job Job (Autocomplete.Msg Job) -> Simulation
 simulation config_ =
     Simulation.fromElement
         { init =
-            ( Autocomplete.init Nothing getJobName filterJobs
+            ( Autocomplete.init getJobName filterJobs
                 |> Autocomplete.setOptions (RemoteData.Success [ Developer, Designer, ProductManager ])
             , Cmd.none
             )

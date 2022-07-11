@@ -140,14 +140,14 @@ radioGroupConfig =
 
 renderRadioGroup : RadioGroup.Config () Option Option -> Query.Single ComponentMsg
 renderRadioGroup =
-    RadioGroup.render identity () (RadioGroup.init Nothing)
+    RadioGroup.render identity () RadioGroup.init
         >> Query.fromHtml
 
 
 simulationWithValidation : Simulation.Simulation ComponentModel ComponentMsg
 simulationWithValidation =
     Simulation.fromSandbox
-        { init = RadioGroup.init Nothing
+        { init = RadioGroup.init
         , update = \subMsg model -> Tuple.first (RadioGroup.update subMsg model)
         , view = \model -> radioGroupConfig |> RadioGroup.withValidationOnBlur validation False |> RadioGroup.render identity () model
         }

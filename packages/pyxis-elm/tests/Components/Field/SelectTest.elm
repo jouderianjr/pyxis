@@ -127,7 +127,7 @@ findSelect =
 
 renderSelect : Select.Config () Job -> Query.Single Select.Msg
 renderSelect =
-    Select.render identity () (Select.init Nothing) >> Query.fromHtml
+    Select.render identity () Select.init >> Query.fromHtml
 
 
 requiredFieldValidation : Maybe a -> Result String a
@@ -160,7 +160,7 @@ simulationDesktop : Simulation (Select.Model Select.Msg) Select.Msg
 simulationDesktop =
     Simulation.fromElement
         { init =
-            ( Select.init Nothing
+            ( Select.init
                 |> Select.setOptions
                     [ Select.option { value = "DEVELOPER", label = "Developer" }
                     , Select.option { value = "DESIGNER", label = "Designer" }

@@ -1,9 +1,11 @@
 module Pyxis.Components.Field.CheckboxGroup exposing
     ( Model
     , init
+    , resetValue
     , setOnBlur
-    , setOnFocus
     , setOnCheck
+    , setOnFocus
+    , setValue
     , Config
     , config
     , Layout(..)
@@ -35,9 +37,11 @@ module Pyxis.Components.Field.CheckboxGroup exposing
 
 @docs Model
 @docs init
+@docs resetValue
 @docs setOnBlur
-@docs setOnFocus
 @docs setOnCheck
+@docs setOnFocus
+@docs setValue
 
 
 ## Config
@@ -121,10 +125,10 @@ type Model value msg
 {-| Initialize the CheckboxGroup internal state.
 Takes a validation function as argument
 -}
-init : List value -> Model value msg
-init initialValues =
+init : Model value msg
+init =
     Model
-        { checkedValues = initialValues
+        { checkedValues = []
         , fieldStatus = FieldStatus.init
         , onBlur = Nothing
         , onFocus = Nothing
@@ -206,6 +210,20 @@ setOnFocus msg (Model configuration) =
 setOnCheck : msg -> Model value msg -> Model value msg
 setOnCheck msg (Model configuration) =
     Model { configuration | onCheck = Just msg }
+
+
+{-| Set the field value
+-}
+setValue : List value -> Model value msg -> Model value msg
+setValue checkedValues (Model modelData) =
+    Model { modelData | checkedValues = checkedValues }
+
+
+{-| Reset the field value
+-}
+resetValue : Model value msg -> Model value msg
+resetValue (Model modelData) =
+    Model { modelData | checkedValues = [] }
 
 
 {-| A type representing a single checkbox option

@@ -1,11 +1,13 @@
 module Pyxis.Components.Field.Autocomplete exposing
     ( Model
     , init
+    , resetValue
     , setOnBlur
     , setOnFocus
-    , setOnReset
     , setOnInput
+    , setOnReset
     , setOnSelect
+    , setValue
     , Config
     , config
     , withAdditionalContent
@@ -41,11 +43,13 @@ module Pyxis.Components.Field.Autocomplete exposing
 
 @docs Model
 @docs init
+@docs resetValue
 @docs setOnBlur
 @docs setOnFocus
-@docs setOnReset
 @docs setOnInput
+@docs setOnReset
 @docs setOnSelect
+@docs setValue
 
 
 ## Configuration
@@ -151,11 +155,10 @@ type Model value msg
 {-| Initializes the Autocomplete state.
 -}
 init :
-    Maybe value
-    -> (value -> String)
+    (value -> String)
     -> (String -> value -> Bool)
     -> Model value msg
-init value valueToString optionsFilter =
+init valueToString optionsFilter =
     Model
         { activeOption = Nothing
         , isDropdownOpen = False
@@ -165,7 +168,7 @@ init value valueToString optionsFilter =
         , hasFocus = False
         , optionsFilter = optionsFilter
         , values = RemoteData.NotAsked
-        , value = value
+        , value = Nothing
         , valueToString = valueToString
         , onBlur = Nothing
         , onFocus = Nothing
@@ -321,6 +324,20 @@ setDropdownClosed (Model modelData) =
 setHasFocus : Bool -> Model value msg -> Model value msg
 setHasFocus hasFocus (Model modelData) =
     Model { modelData | hasFocus = hasFocus }
+
+
+{-| Set the field value
+-}
+setValue : value -> Model value msg -> Model value msg
+setValue value (Model modelData) =
+    Model { modelData | value = Just value }
+
+
+{-| Reset the field value
+-}
+resetValue : Model value msg -> Model value msg
+resetValue (Model modelData) =
+    Model { modelData | value = Nothing }
 
 
 {-| Internal.

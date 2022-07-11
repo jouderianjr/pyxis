@@ -59,21 +59,22 @@ initialData : Data
 initialData =
     Data
         { isFormSubmitted = False
-        , birth = Input.init ""
-        , claimDate = Input.init ""
-        , claimType = RadioCardGroup.init (Just Types.CarAccident)
-        , dynamic = Textarea.init ""
-        , insuranceType = RadioCardGroup.init Nothing
-        , peopleInvolved = RadioCardGroup.init Nothing
-        , plate = Input.init ""
-        , privacyCheck = CheckboxGroup.init []
+        , birth = Input.init
+        , claimDate = Input.init
+        , claimType = RadioCardGroup.init |> RadioCardGroup.setValue Types.CarAccident
+        , dynamic = Textarea.init
+        , insuranceType = RadioCardGroup.init
+        , peopleInvolved = RadioCardGroup.init
+        , plate = Input.init
+        , privacyCheck = CheckboxGroup.init
         , residentialCity =
-            Autocomplete.init Nothing City.getName City.startsWith
+            Autocomplete.init City.getName City.startsWith
                 |> Autocomplete.setOnInput Msg.PerformCitiesQuery
         , residentialProvince =
-            Select.init (Just (Province.getName Province.capitalProvince))
+            Select.init
+                |> Select.setValue (Province.getName Province.capitalProvince)
                 |> Select.setOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
-        , vehiclesOwn = CheckboxGroup.init []
+        , vehiclesOwn = CheckboxGroup.init
         }
 
 

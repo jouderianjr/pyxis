@@ -1,11 +1,12 @@
 module Pyxis.Components.Field.Select exposing
     ( Model
-    , init
     , getValue
+    , init
+    , resetValue
     , setDropdownClosed
     , setOnFocus
-    , setOnReset
     , setOnInput
+    , setOnReset
     , setOnSelect
     , setValue
     , Config
@@ -37,12 +38,13 @@ module Pyxis.Components.Field.Select exposing
 # Select component
 
 @docs Model
-@docs init
 @docs getValue
+@docs init
+@docs resetValue
 @docs setDropdownClosed
 @docs setOnFocus
-@docs setOnReset
 @docs setOnInput
+@docs setOnReset
 @docs setOnSelect
 @docs setValue
 
@@ -153,8 +155,8 @@ type Model msg
 
 {-| Initialize the select internal state. This belongs to your app's `Model`.
 -}
-init : Maybe String -> Model msg
-init initialValue =
+init : Model msg
+init =
     Model
         { activeOption = Nothing
         , fieldStatus = FieldStatus.init
@@ -165,7 +167,7 @@ init initialValue =
         , onInput = Nothing
         , onReset = Nothing
         , onSelect = Nothing
-        , selectedValue = initialValue
+        , selectedValue = Nothing
         }
 
 
@@ -723,13 +725,6 @@ setOptions options (Model modelData) =
         }
 
 
-{-| Internal.
--}
-setValue : String -> Model msg -> Model msg
-setValue selectedValue (Model model) =
-    Model { model | selectedValue = Just selectedValue }
-
-
 {-| Sets an OnFocus side effect.
 -}
 setOnFocus : msg -> Model msg -> Model msg
@@ -756,6 +751,20 @@ setOnInput msg (Model configuration) =
 setOnSelect : msg -> Model msg -> Model msg
 setOnSelect msg (Model configuration) =
     Model { configuration | onSelect = Just msg }
+
+
+{-| Set the field value
+-}
+setValue : String -> Model msg -> Model msg
+setValue selectedValue (Model modelData) =
+    Model { modelData | selectedValue = Just selectedValue }
+
+
+{-| Reset the field value
+-}
+resetValue : Model msg -> Model msg
+resetValue (Model modelData) =
+    Model { modelData | selectedValue = Nothing }
 
 
 {-| Returns the current native value of the Select

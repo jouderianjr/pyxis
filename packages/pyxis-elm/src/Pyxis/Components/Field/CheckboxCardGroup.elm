@@ -1,9 +1,11 @@
 module Pyxis.Components.Field.CheckboxCardGroup exposing
     ( Model
     , init
+    , resetValue
     , setOnBlur
-    , setOnFocus
     , setOnCheck
+    , setOnFocus
+    , setValue
     , Config
     , config
     , Addon
@@ -43,9 +45,11 @@ module Pyxis.Components.Field.CheckboxCardGroup exposing
 
 @docs Model
 @docs init
+@docs resetValue
 @docs setOnBlur
-@docs setOnFocus
 @docs setOnCheck
+@docs setOnFocus
+@docs setValue
 
 
 ## Config
@@ -142,10 +146,10 @@ type Model value msg
 
 {-| Initialize the CheckboxCardGroup Model.
 -}
-init : List value -> Model value msg
-init initialValues =
+init : Model value msg
+init =
     Model
-        { checkedValues = initialValues
+        { checkedValues = []
         , fieldStatus = FieldStatus.init
         , onBlur = Nothing
         , onFocus = Nothing
@@ -268,6 +272,20 @@ setOnFocus msg (Model configuration) =
 setOnCheck : msg -> Model value msg -> Model value msg
 setOnCheck msg (Model configuration) =
     Model { configuration | onCheck = Just msg }
+
+
+{-| Set the field value
+-}
+setValue : List value -> Model value msg -> Model value msg
+setValue checkedValues (Model modelData) =
+    Model { modelData | checkedValues = checkedValues }
+
+
+{-| Reset the field value
+-}
+resetValue : Model value msg -> Model value msg
+resetValue (Model modelData) =
+    Model { modelData | checkedValues = [] }
 
 
 {-| Return the selected value.

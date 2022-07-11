@@ -41,7 +41,7 @@ validation _ selected =
 
 checkboxGroupModel : CheckboxGroup.Model Option (CheckboxGroup.Msg Option)
 checkboxGroupModel =
-    CheckboxGroup.init []
+    CheckboxGroup.init 
 
 
 checkboxGroup : Bool -> () -> Html Msg
@@ -114,10 +114,10 @@ type alias Model =
 
 init : Model
 init =
-    { base = CheckboxGroup.init []
-    , noValidation = CheckboxGroup.init []
-    , disabled = CheckboxGroup.init []
-    , additionalContent = CheckboxGroup.init []
+    { base = CheckboxGroup.init
+    , noValidation = CheckboxGroup.init
+    , disabled = CheckboxGroup.init
+    , additionalContent = CheckboxGroup.init
     }
 
 

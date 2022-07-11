@@ -42,7 +42,7 @@ validation _ selected =
 
 checkboxCardGroupModel : CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
 checkboxCardGroupModel =
-    CheckboxCardGroup.init []
+    CheckboxCardGroup.init 
 
 
 checkboxCardGroupView : Bool -> () -> Html Msg
@@ -180,13 +180,13 @@ type alias Model =
 
 init : Model
 init =
-    { base = CheckboxCardGroup.init []
-    , vertical = CheckboxCardGroup.init []
-    , disabled = CheckboxCardGroup.init []
-    , large = CheckboxCardGroup.init []
-    , icon = CheckboxCardGroup.init []
-    , text = CheckboxCardGroup.init []
-    , additionalContent = CheckboxCardGroup.init []
+    { base = CheckboxCardGroup.init
+    , vertical = CheckboxCardGroup.init
+    , disabled = CheckboxCardGroup.init
+    , large = CheckboxCardGroup.init
+    , icon = CheckboxCardGroup.init
+    , text = CheckboxCardGroup.init
+    , additionalContent = CheckboxCardGroup.init
     }
 
 

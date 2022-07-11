@@ -140,7 +140,7 @@ findLabel =
 
 fieldModel : ComponentModel
 fieldModel =
-    TextareaField.init ""
+    TextareaField.init
 
 
 fieldConfig : TextareaField.Config () String
@@ -157,7 +157,7 @@ fieldRender ctx model =
 simulation : TextareaField.Config () String -> Simulation ComponentModel ComponentMsg
 simulation config =
     Simulation.fromSandbox
-        { init = TextareaField.init ""
+        { init = TextareaField.init
         , update = \subMsg model -> Tuple.first (TextareaField.update subMsg model)
         , view = \model -> TextareaField.render identity () model config
         }
