@@ -153,7 +153,7 @@ medium =
 
 {-| The view configuration.
 -}
-type Config validationData parsedValue
+type Config parsedValue
     = Config
         { additionalContent : Maybe (Html Never)
         , classList : List ( String, Bool )
@@ -165,7 +165,7 @@ type Config validationData parsedValue
         , size : Size
         , label : Maybe Label.Config
         , errorShowingStrategy : Maybe Error.ShowingStrategy
-        , validation : Maybe (CommonsAlias.Validation validationData String parsedValue)
+        , validation : Maybe (CommonsAlias.Validation String parsedValue)
         , isSubmitted : CommonsAlias.IsSubmitted
         , valueMapper : String -> String
         }
@@ -173,7 +173,7 @@ type Config validationData parsedValue
 
 {-| Creates a Textarea.
 -}
-config : CommonsAlias.Name -> Config validationData parsedValue
+config : CommonsAlias.Name -> Config parsedValue
 config name =
     Config
         { additionalContent = Nothing
@@ -194,21 +194,21 @@ config name =
 
 {-| Adds a Label to the Textarea.
 -}
-withLabel : Label.Config -> Config validationData parsedValue -> Config validationData parsedValue
+withLabel : Label.Config -> Config parsedValue -> Config parsedValue
 withLabel label (Config configuration) =
     Config { configuration | label = Just label }
 
 
 {-| Sets the Textarea as disabled
 -}
-withDisabled : Bool -> Config validationData parsedValue -> Config validationData parsedValue
+withDisabled : Bool -> Config parsedValue -> Config parsedValue
 withDisabled isDisabled (Config configuration) =
     Config { configuration | disabled = isDisabled }
 
 
 {-| Adds the hint to the TextArea.
 -}
-withHint : String -> Config validationData parsedValue -> Config validationData parsedValue
+withHint : String -> Config parsedValue -> Config parsedValue
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -222,10 +222,10 @@ withHint hintMessage (Config configuration) =
 {-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
 withValidationOnSubmit :
-    CommonsAlias.Validation validationData String parsedValue
+    CommonsAlias.Validation String parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData parsedValue
-    -> Config validationData parsedValue
+    -> Config parsedValue
+    -> Config parsedValue
 withValidationOnSubmit validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -238,10 +238,10 @@ withValidationOnSubmit validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
 -}
 withValidationOnInput :
-    CommonsAlias.Validation validationData String parsedValue
+    CommonsAlias.Validation String parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData parsedValue
-    -> Config validationData parsedValue
+    -> Config parsedValue
+    -> Config parsedValue
 withValidationOnInput validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -254,10 +254,10 @@ withValidationOnInput validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
 -}
 withValidationOnBlur :
-    CommonsAlias.Validation validationData String parsedValue
+    CommonsAlias.Validation String parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData parsedValue
-    -> Config validationData parsedValue
+    -> Config parsedValue
+    -> Config parsedValue
 withValidationOnBlur validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -277,42 +277,42 @@ In this example, if the user inputs "abc", the actual inputted text is "ABC".
 This applies to both the user UI and the `getValue`/`validate` functions
 
 -}
-withValueMapper : (String -> String) -> Config validationData parsedValue -> Config validationData parsedValue
+withValueMapper : (String -> String) -> Config parsedValue -> Config parsedValue
 withValueMapper mapper (Config configData) =
     Config { configData | valueMapper = mapper }
 
 
 {-| Sets a Size to the Textarea
 -}
-withSize : Size -> Config validationData parsedValue -> Config validationData parsedValue
+withSize : Size -> Config parsedValue -> Config parsedValue
 withSize size (Config configuration) =
     Config { configuration | size = size }
 
 
 {-| Sets a ClassList to the Textarea
 -}
-withClassList : List ( String, Bool ) -> Config validationData parsedValue -> Config validationData parsedValue
+withClassList : List ( String, Bool ) -> Config parsedValue -> Config parsedValue
 withClassList classes (Config configuration) =
     Config { configuration | classList = classes }
 
 
 {-| Sets a id to the Textarea
 -}
-withId : CommonsAlias.Id -> Config validationData parsedValue -> Config validationData parsedValue
+withId : CommonsAlias.Id -> Config parsedValue -> Config parsedValue
 withId id (Config configuration) =
     Config { configuration | id = id }
 
 
 {-| Sets a Placeholder to the Textarea
 -}
-withPlaceholder : String -> Config validationData parsedValue -> Config validationData parsedValue
+withPlaceholder : String -> Config parsedValue -> Config parsedValue
 withPlaceholder placeholder (Config configuration) =
     Config { configuration | placeholder = Just placeholder }
 
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config validationData parsedValue -> Config validationData parsedValue
+withAdditionalContent : Html Never -> Config parsedValue -> Config parsedValue
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
@@ -399,8 +399,8 @@ getValue (Model { value }) =
 
 {-| Renders the Textarea.
 -}
-render : (Msg -> msg) -> validationData -> Model msg -> Config validationData parsedValue -> Html msg
-render tagger validationData model ((Config configData) as config_) =
+render : (Msg -> msg) -> Model msg -> Config parsedValue -> Html msg
+render tagger model ((Config configData) as config_) =
     let
         customizedLabel : Maybe Label.Config
         customizedLabel =
@@ -408,7 +408,7 @@ render tagger validationData model ((Config configData) as config_) =
 
         error : Maybe (Error.Config parsedValue)
         error =
-            generateErrorConfig validationData model config_
+            generateErrorConfig model config_
     in
     config_
         |> renderTextarea error model
@@ -421,8 +421,8 @@ render tagger validationData model ((Config configData) as config_) =
 
 {-| Internal
 -}
-generateErrorConfig : validationData -> Model msg -> Config validationData parsedValue -> Maybe (Error.Config parsedValue)
-generateErrorConfig validationData (Model { fieldStatus, value }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+generateErrorConfig : Model msg -> Config parsedValue -> Maybe (Error.Config parsedValue)
+generateErrorConfig (Model { fieldStatus, value }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
     let
         getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
         getErrorConfig validationResult =
@@ -432,13 +432,13 @@ generateErrorConfig validationData (Model { fieldStatus, value }) (Config { id, 
                 >> Error.withIsSubmitted isSubmitted
     in
     Maybe.map2 getErrorConfig
-        (Maybe.map (\v -> v validationData value) validation)
+        (Maybe.map (\v -> v value) validation)
         errorShowingStrategy
 
 
 {-| Internal.
 -}
-renderTextarea : Maybe (Error.Config parsedValue) -> Model msg -> Config validationData parsedValue -> Html Msg
+renderTextarea : Maybe (Error.Config parsedValue) -> Model msg -> Config parsedValue -> Html Msg
 renderTextarea error (Model modelData) (Config configData) =
     Html.div
         [ Html.Attributes.classList

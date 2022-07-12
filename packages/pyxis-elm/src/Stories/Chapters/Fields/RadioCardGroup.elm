@@ -26,8 +26,8 @@ type Msg
     = OnRadioCardFieldMsg (RadioCardGroup.Msg Product)
 
 
-validation : () -> Maybe Product -> Result String Product
-validation _ selected =
+validation : Maybe Product -> Result String Product
+validation selected =
     Result.fromMaybe "You must select one option" selected
 
 
@@ -35,8 +35,8 @@ radioCardGroupModel : RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
 radioCardGroupModel = RadioCardGroup.init
 
 
-radioCardGroupView : Bool -> () -> Html Msg
-radioCardGroupView isSubmitted formData =
+radioCardGroupView : Bool -> Html Msg
+radioCardGroupView isSubmitted =
     RadioCardGroup.config "radioCard-name"
         |> RadioCardGroup.withLabel (Label.config "Choose the insurance type")
         |> RadioCardGroup.withValidationOnBlur validation isSubmitted
@@ -54,7 +54,7 @@ radioCardGroupView isSubmitted formData =
                 , addon = Nothing
                 }
             ]
-        |> RadioCardGroup.render OnRadioCardFieldMsg formData radioCardGroupModel
+        |> RadioCardGroup.render OnRadioCardFieldMsg radioCardGroupModel
 
 ```
 ## Vertical Layout
@@ -264,7 +264,7 @@ optionsWithTextAddon =
 
 type alias StatefulConfig =
     { name : String
-    , configModifier : RadioCardGroup.Config () Product Product -> RadioCardGroup.Config () Product Product
+    , configModifier : RadioCardGroup.Config Product Product -> RadioCardGroup.Config Product Product
     , modelPicker : Model -> RadioCardGroup.Model Product (RadioCardGroup.Msg Product)
     , update : RadioCardGroup.Msg Product -> Model -> ( Model, Cmd (RadioCardGroup.Msg Product) )
     }
@@ -276,7 +276,7 @@ statefulComponent { name, configModifier, modelPicker, update } sharedState =
         |> RadioCardGroup.withOptions options
         |> RadioCardGroup.withValidationOnBlur validation False
         |> configModifier
-        |> RadioCardGroup.render identity () (sharedState.radioCard |> modelPicker)
+        |> RadioCardGroup.render identity (sharedState.radioCard |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \sharedState_ models -> { sharedState_ | radioCard = models }
@@ -389,6 +389,6 @@ componentsList =
     ]
 
 
-validation : () -> Maybe Product -> Result String Product
-validation _ selected =
+validation : Maybe Product -> Result String Product
+validation selected =
     Result.fromMaybe "You must select one option" selected

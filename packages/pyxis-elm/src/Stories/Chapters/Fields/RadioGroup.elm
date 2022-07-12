@@ -28,8 +28,8 @@ type Msg
     = OnRadioFieldMsg (RadioGroup.Msg Product)
 
 
-validation : () -> Maybe Product -> Result String Product
-validation _ selected =
+validation : Maybe Product -> Result String Product
+validation selected =
     Result.fromMaybe "You must select one option" selected
 
 
@@ -37,8 +37,8 @@ radioGroupModel : RadioGroup.Model Product (RadioGroup.Msg Product)
 radioGroupModel = RadioGroup.init |> RadioGroup.setValue Household
 
 
-radioGroupView : Bool -> () -> Html Msg
-radioGroupView isSubmitted formData =
+radioGroupView : Bool -> Html Msg
+radioGroupView isSubmitted =
     RadioGroup.config "radio-name"
         |> RadioGroup.withLabel (Label.config "Choose the insurance type")
         |> RadioGroup.withValidationOnBlur validation isSubmitted
@@ -46,7 +46,7 @@ radioGroupView isSubmitted formData =
             [ RadioGroup.option { value = Household, label = "Home" }
             , RadioGroup.option { value = Motor, label = "Motor" }
             ]
-        |> RadioGroup.render OnRadioFieldMsg formData radioGroupModel
+        |> RadioGroup.render OnRadioFieldMsg radioGroupModel
 ```
 
 # Vertical Layout
@@ -180,7 +180,7 @@ options =
 
 type alias StatefulConfig =
     { name : String
-    , configModifier : RadioGroup.Config () Product Product -> RadioGroup.Config () Product Product
+    , configModifier : RadioGroup.Config Product Product -> RadioGroup.Config Product Product
     , modelPicker : Model -> RadioGroup.Model Product (RadioGroup.Msg Product)
     , update : RadioGroup.Msg Product -> Model -> ( Model, Cmd (RadioGroup.Msg Product) )
     }
@@ -192,7 +192,7 @@ statefulComponent { name, configModifier, modelPicker, update } sharedState =
         |> RadioGroup.withOptions options
         |> RadioGroup.withValidationOnBlur validation False
         |> configModifier
-        |> RadioGroup.render identity () (sharedState.radio |> modelPicker)
+        |> RadioGroup.render identity (sharedState.radio |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \sharedState_ model -> { sharedState_ | radio = model }
@@ -202,6 +202,6 @@ statefulComponent { name, configModifier, modelPicker, update } sharedState =
             )
 
 
-validation : () -> Maybe Product -> Result String Product
-validation _ selected =
+validation : Maybe Product -> Result String Product
+validation selected =
     Result.fromMaybe "You must select one option" selected

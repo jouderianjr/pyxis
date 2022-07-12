@@ -249,7 +249,7 @@ option { label, value } =
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withAdditionalContent : Html Never -> Config value parsedValue msg -> Config value parsedValue msg
 withAdditionalContent additionalContent (Config configData) =
     Config { configData | additionalContent = Just additionalContent }
 
@@ -263,28 +263,28 @@ withDisabledOption disabled (Option optionData) =
 
 {-| Set the CheckboxGroup checkboxes options
 -}
-withOptions : List (Option value msg) -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withOptions : List (Option value msg) -> Config value parsedValue msg -> Config value parsedValue msg
 withOptions options (Config configData) =
     Config { configData | options = options }
 
 
 {-| Sets the label attribute
 -}
-withLabel : Label.Config -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withLabel : Label.Config -> Config value parsedValue msg -> Config value parsedValue msg
 withLabel label (Config configData) =
     Config { configData | label = Just label }
 
 
 {-| Sets the classList attribute
 -}
-withClassList : List ( String, Bool ) -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withClassList : List ( String, Bool ) -> Config value parsedValue msg -> Config value parsedValue msg
 withClassList classList (Config configData) =
     Config { configData | classList = classList }
 
 
 {-| Sets the id attribute
 -}
-withId : CommonsAlias.Id -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withId : CommonsAlias.Id -> Config value parsedValue msg -> Config value parsedValue msg
 withId id (Config configData) =
     Config { configData | id = id }
 
@@ -298,7 +298,7 @@ type Layout
 
 {-| Sets the CheckboxGroup layout
 -}
-withLayout : Layout -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withLayout : Layout -> Config value parsedValue msg -> Config value parsedValue msg
 withLayout layout (Config configData) =
     Config { configData | layout = layout }
 
@@ -320,10 +320,10 @@ vertical =
 {-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
 withValidationOnSubmit :
-    CommonsAlias.Validation validationData (List value) parsedValue
+    CommonsAlias.Validation (List value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withValidationOnSubmit validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -336,10 +336,10 @@ withValidationOnSubmit validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
 -}
 withValidationOnInput :
-    CommonsAlias.Validation validationData (List value) parsedValue
+    CommonsAlias.Validation (List value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withValidationOnInput validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -352,10 +352,10 @@ withValidationOnInput validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
 -}
 withValidationOnBlur :
-    CommonsAlias.Validation validationData (List value) parsedValue
+    CommonsAlias.Validation (List value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withValidationOnBlur validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -367,7 +367,7 @@ withValidationOnBlur validation isSubmitted (Config configuration) =
 
 {-| Internal
 -}
-type alias ConfigData validationData value parsedValue msg =
+type alias ConfigData value parsedValue msg =
     { additionalContent : Maybe (Html Never)
     , ariaLabelledBy : Maybe String
     , classList : List ( String, Bool )
@@ -379,20 +379,20 @@ type alias ConfigData validationData value parsedValue msg =
     , options : List (Option value msg)
     , errorShowingStrategy : Maybe Error.ShowingStrategy
     , isSubmitted : CommonsAlias.IsSubmitted
-    , validation : Maybe (CommonsAlias.Validation validationData (List value) parsedValue)
+    , validation : Maybe (CommonsAlias.Validation (List value) parsedValue)
     }
 
 
 {-| A type representing the select rendering options.
 This should not belong to the app `Model`
 -}
-type Config validationData value parsedValue msg
-    = Config (ConfigData validationData value parsedValue msg)
+type Config value parsedValue msg
+    = Config (ConfigData value parsedValue msg)
 
 
 {-| Create a default [`CheckboxGroup.Config`](CheckboxGroup#Config)
 -}
-config : CommonsAlias.Name -> Config validationData value parsedValue msg
+config : CommonsAlias.Name -> Config value parsedValue msg
 config name =
     Config
         { additionalContent = Nothing
@@ -412,12 +412,12 @@ config name =
 
 {-| Render the CheckboxGroup
 -}
-render : (Msg value -> msg) -> validationData -> Model value msg -> Config validationData value parsedValue msg -> Html msg
-render tagger validationData ((Model { checkedValues }) as model) ((Config configData) as config_) =
+render : (Msg value -> msg) -> Model value msg -> Config value parsedValue msg -> Html msg
+render tagger ((Model { checkedValues }) as model) ((Config configData) as config_) =
     let
         error : Maybe (Error.Config parsedValue)
         error =
-            generateErrorConfig validationData model config_
+            generateErrorConfig model config_
 
         renderCheckbox_ : Option value msg -> Html msg
         renderCheckbox_ =
@@ -439,11 +439,10 @@ render tagger validationData ((Model { checkedValues }) as model) ((Config confi
 {-| Internal
 -}
 generateErrorConfig :
-    validationData
-    -> Model value msg
-    -> Config validationData value parsedValue msg
+    Model value msg
+    -> Config value parsedValue msg
     -> Maybe (Error.Config parsedValue)
-generateErrorConfig validationData (Model { fieldStatus, checkedValues }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+generateErrorConfig (Model { fieldStatus, checkedValues }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
     let
         getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
         getErrorConfig validationResult =
@@ -453,14 +452,14 @@ generateErrorConfig validationData (Model { fieldStatus, checkedValues }) (Confi
                 >> Error.withIsSubmitted isSubmitted
     in
     Maybe.map2 getErrorConfig
-        (Maybe.map (\v -> v validationData checkedValues) validation)
+        (Maybe.map (\v -> v checkedValues) validation)
         errorShowingStrategy
 
 
 {-| Internal.
 Handles the single input / input group markup difference
 -}
-renderControlGroup : ConfigData validationData value parsedValue msg -> List (Html msg) -> Html msg
+renderControlGroup : ConfigData value parsedValue msg -> List (Html msg) -> Html msg
 renderControlGroup configData children =
     case children of
         [ child ] ->

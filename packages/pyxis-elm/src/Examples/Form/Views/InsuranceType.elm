@@ -42,7 +42,7 @@ view (Data config) =
                                 , addon = RadioCardGroup.imgAddon "../../../../assets/placeholder.svg"
                                 }
                             ]
-                        |> RadioCardGroup.render Msg.InsuranceTypeChanged () config.insuranceType
+                        |> RadioCardGroup.render Msg.InsuranceTypeChanged config.insuranceType
                     ]
                 ]
             ]

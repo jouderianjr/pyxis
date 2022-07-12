@@ -207,7 +207,7 @@ optionId label index =
 
 {-| Represents the Select view configuration.
 -}
-type Config validationData parsedValue
+type Config parsedValue
     = Config
         { additionalContent : Maybe (Html Never)
         , classList : List ( String, Bool )
@@ -221,13 +221,13 @@ type Config validationData parsedValue
         , placeholder : Maybe String
         , size : Size
         , errorShowingStrategy : Maybe Error.ShowingStrategy
-        , validation : Maybe (CommonsAlias.Validation validationData (Maybe String) parsedValue)
+        , validation : Maybe (CommonsAlias.Validation (Maybe String) parsedValue)
         }
 
 
 {-| Creates the Select view configuration.
 -}
-config : CommonsAlias.Name -> Bool -> Config validationData parsedValue
+config : CommonsAlias.Name -> Bool -> Config parsedValue
 config name isMobile =
     Config
         { additionalContent = Nothing
@@ -269,7 +269,7 @@ medium =
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config validationData parsedValue -> Config validationData parsedValue
+withAdditionalContent : Html Never -> Config parsedValue -> Config parsedValue
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
@@ -286,28 +286,28 @@ Only has the "b" class
 _WARNING_: this function is considered unstable and should be used only as an emergency escape hatch
 
 -}
-withClassList : List ( String, Bool ) -> Config validationData parsedValue -> Config validationData parsedValue
+withClassList : List ( String, Bool ) -> Config parsedValue -> Config parsedValue
 withClassList classList (Config select) =
     Config { select | classList = classList }
 
 
 {-| Set the disabled attribute
 -}
-withDisabled : Bool -> Config validationData parsedValue -> Config validationData parsedValue
+withDisabled : Bool -> Config parsedValue -> Config parsedValue
 withDisabled isDisabled (Config select) =
     Config { select | isDisabled = isDisabled }
 
 
 {-| Sets the component label
 -}
-withLabel : Label.Config -> Config validationData parsedValue -> Config validationData parsedValue
+withLabel : Label.Config -> Config parsedValue -> Config parsedValue
 withLabel label (Config configData) =
     Config { configData | label = Just label }
 
 
 {-| Adds the hint to the Select.
 -}
-withHint : String -> Config validationData parsedValue -> Config validationData parsedValue
+withHint : String -> Config parsedValue -> Config parsedValue
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -320,14 +320,14 @@ withHint hintMessage (Config configuration) =
 {-| Set the text visible when no option is selected
 Note: this is not a native placeholder attribute
 -}
-withPlaceholder : String -> Config validationData parsedValue -> Config validationData parsedValue
+withPlaceholder : String -> Config parsedValue -> Config parsedValue
 withPlaceholder placeholder (Config select) =
     Config { select | placeholder = Just placeholder }
 
 
 {-| Set the select size
 -}
-withSize : Size -> Config validationData parsedValue -> Config validationData parsedValue
+withSize : Size -> Config parsedValue -> Config parsedValue
 withSize size (Config select) =
     Config { select | size = size }
 
@@ -335,10 +335,10 @@ withSize size (Config select) =
 {-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
 withValidationOnSubmit :
-    CommonsAlias.Validation validationData (Maybe String) parsedValue
+    CommonsAlias.Validation (Maybe String) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData parsedValue
-    -> Config validationData parsedValue
+    -> Config parsedValue
+    -> Config parsedValue
 withValidationOnSubmit validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -351,10 +351,10 @@ withValidationOnSubmit validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
 -}
 withValidationOnInput :
-    CommonsAlias.Validation validationData (Maybe String) parsedValue
+    CommonsAlias.Validation (Maybe String) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData parsedValue
-    -> Config validationData parsedValue
+    -> Config parsedValue
+    -> Config parsedValue
 withValidationOnInput validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -367,10 +367,10 @@ withValidationOnInput validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
 -}
 withValidationOnBlur :
-    CommonsAlias.Validation validationData (Maybe String) parsedValue
+    CommonsAlias.Validation (Maybe String) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData parsedValue
-    -> Config validationData parsedValue
+    -> Config parsedValue
+    -> Config parsedValue
 withValidationOnBlur validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -410,7 +410,7 @@ renderOptions (Model { selectedValue, activeOption, options }) =
             )
 
 
-renderNativeOptions : Config validationData parsedValue -> Model msg -> List (Html Msg)
+renderNativeOptions : Config parsedValue -> Model msg -> List (Html Msg)
 renderNativeOptions (Config { placeholder }) (Model { selectedValue, options }) =
     options
         |> List.map
@@ -445,12 +445,12 @@ renderAddon =
 
 {-| Render the html
 -}
-render : (Msg -> msg) -> validationData -> Model msg -> Config validationData parsedValue -> Html.Html msg
-render tagger validationData ((Model modelData) as model) ((Config configData) as config_) =
+render : (Msg -> msg) -> Model msg -> Config parsedValue -> Html.Html msg
+render tagger ((Model modelData) as model) ((Config configData) as config_) =
     let
         error : Maybe (Error.Config parsedValue)
         error =
-            generateErrorConfig validationData model config_
+            generateErrorConfig model config_
     in
     Html.div
         [ Html.Attributes.classList
@@ -511,8 +511,8 @@ render tagger validationData ((Model modelData) as model) ((Config configData) a
 
 {-| Internal
 -}
-generateErrorConfig : validationData -> Model msg -> Config validationData parsedValue -> Maybe (Error.Config parsedValue)
-generateErrorConfig validationData (Model { fieldStatus, selectedValue }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+generateErrorConfig : Model msg -> Config parsedValue -> Maybe (Error.Config parsedValue)
+generateErrorConfig (Model { fieldStatus, selectedValue }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
     let
         getErrorConfig : Result CommonsAlias.ErrorMessage value -> Error.ShowingStrategy -> Error.Config value
         getErrorConfig validationResult =
@@ -522,11 +522,11 @@ generateErrorConfig validationData (Model { fieldStatus, selectedValue }) (Confi
                 >> Error.withIsSubmitted isSubmitted
     in
     Maybe.map2 getErrorConfig
-        (Maybe.map (\v -> v validationData selectedValue) validation)
+        (Maybe.map (\v -> v selectedValue) validation)
         errorShowingStrategy
 
 
-getLabelConfig : Config validationData parsedValue -> Maybe Label.Config
+getLabelConfig : Config parsedValue -> Maybe Label.Config
 getLabelConfig (Config configData) =
     configData.label
         |> Maybe.map (configData.size |> mapLabelSize |> Label.withSize)

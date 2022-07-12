@@ -32,8 +32,8 @@ type Msg
     = OnSelectMsg (Select.Msg)
 
 
-validation : formData -> Maybe String -> Result String Job
-validation _ maybeValue =
+validation : Maybe String -> Result String Job
+validation maybeValue =
     maybeValue
         |> Maybe.andThen toJob
         |> Result.fromMaybe "Required field"
@@ -67,12 +67,12 @@ isMobile =
     False
 
 
-select : Bool -> formData -> Html Msg
-select isSubmitted formData =
+select : Bool -> Html Msg
+select isSubmitted =
     Select.config "fuzz" isMobile
         |> Select.withValidationOnBlur validation isSubmitted
         |> Select.withPlaceholder "Select your role..."
-        |> Select.render OnSelectMsg formData selectModel
+        |> Select.render OnSelectMsg selectModel
 ```
 
 And the native `<select>` on mobile:
@@ -80,7 +80,7 @@ And the native `<select>` on mobile:
 <component with-label="Select (mobile)" />
 ```
 Select.config "fuzz" True
-    |> Select.render OnSelectMsg formData selectModel
+    |> Select.render OnSelectMsg selectModel
 ```
 
 ### Disabled
@@ -89,7 +89,7 @@ Select.config "fuzz" True
 ```
 Select.config "fuzz" False
     |> Select.withDisabled True
-    |> Select.render OnSelectMsg formData selectModel
+    |> Select.render OnSelectMsg selectModel
 ```
 
 ### Size
@@ -99,7 +99,7 @@ Select can have two size: default or small.
 ```
 Select.config "fuzz" False
     |> Select.withSize Select.small
-    |> Select.render OnSelectMsg formData selectModel
+    |> Select.render OnSelectMsg selectModel
 ```
 
 ### With Additional Content
@@ -108,7 +108,7 @@ Select.config "fuzz" False
 ```
 Select.config "fuzz" False
     |> Select.withAdditionalContent (Html.text "Additional Content")
-    |> Select.render OnSelectMsg formData selectModel
+    |> Select.render OnSelectMsg selectModel
 ```
 """
 
@@ -128,8 +128,8 @@ type alias Model =
     }
 
 
-required : formData -> Maybe String -> Result String Job
-required _ maybeValue =
+required : Maybe String -> Result String Job
+required maybeValue =
     maybeValue
         |> Maybe.andThen toJob
         |> Result.fromMaybe "Required field"
@@ -237,7 +237,7 @@ componentsList =
 
 type alias StatelessConfig =
     { isMobile : Bool
-    , configModifier : Select.Config () Job -> Select.Config () Job
+    , configModifier : Select.Config Job -> Select.Config Job
     }
 
 
@@ -252,7 +252,7 @@ statefulComponent { isMobile, configModifier } modelPicker internalUpdate shared
         |> Select.withPlaceholder "Select your role..."
         |> Select.withValidationOnBlur required False
         |> configModifier
-        |> Select.render identity () (sharedState.select |> modelPicker)
+        |> Select.render identity (sharedState.select |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \state model -> { state | select = model }

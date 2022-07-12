@@ -159,7 +159,7 @@ init =
 
 {-| The CheckboxCardGroup configuration.
 -}
-type Config validationData value parsedValue
+type Config value parsedValue
     = Config
         { additionalContent : Maybe (Html Never)
         , classList : List ( String, Bool )
@@ -173,13 +173,13 @@ type Config validationData value parsedValue
         , size : CardGroup.Size
         , errorShowingStrategy : Maybe Error.ShowingStrategy
         , isSubmitted : CommonsAlias.IsSubmitted
-        , validation : Maybe (CommonsAlias.Validation validationData (List value) parsedValue)
+        , validation : Maybe (CommonsAlias.Validation (List value) parsedValue)
         }
 
 
 {-| Initialize the CheckboxCardGroup Config.
 -}
-config : CommonsAlias.Name -> Config validationData value parsedValue
+config : CommonsAlias.Name -> Config value parsedValue
 config name =
     Config
         { additionalContent = Nothing
@@ -382,21 +382,21 @@ vertical =
 
 {-| Change the visual layout. The default one is horizontal.
 -}
-withLayout : Layout -> Config validationData value parsedValue -> Config validationData value parsedValue
+withLayout : Layout -> Config value parsedValue -> Config value parsedValue
 withLayout (Layout layout) (Config configuration) =
     Config { configuration | layout = layout }
 
 
 {-| Add the classes to the card group wrapper.
 -}
-withClassList : List ( String, Bool ) -> Config validationData value parsedValue -> Config validationData value parsedValue
+withClassList : List ( String, Bool ) -> Config value parsedValue -> Config value parsedValue
 withClassList classList (Config configuration) =
     Config { configuration | classList = classList }
 
 
 {-| Adds the hint to the CheckboxCardGroup.
 -}
-withHint : String -> Config validationData value parsedValue -> Config validationData value parsedValue
+withHint : String -> Config value parsedValue -> Config value parsedValue
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -409,21 +409,21 @@ withHint hintMessage (Config configuration) =
 
 {-| Add an ID to the inputs.
 -}
-withId : CommonsAlias.Id -> Config validationData value parsedValue -> Config validationData value parsedValue
+withId : CommonsAlias.Id -> Config value parsedValue -> Config value parsedValue
 withId id (Config configuration) =
     Config { configuration | id = id }
 
 
 {-| Add a label to the card group.
 -}
-withLabel : Label.Config -> Config validationData value parsedValue -> Config validationData value parsedValue
+withLabel : Label.Config -> Config value parsedValue -> Config value parsedValue
 withLabel label (Config configuration) =
     Config { configuration | label = Just label }
 
 
 {-| Define the visible options in the checkbox group.
 -}
-withOptions : List (Option value) -> Config validationData value parsedValue -> Config validationData value parsedValue
+withOptions : List (Option value) -> Config value parsedValue -> Config value parsedValue
 withOptions options (Config configuration) =
     Config { configuration | options = options }
 
@@ -444,14 +444,14 @@ large =
 
 {-| Define the size of cards.
 -}
-withSize : CardGroup.Size -> Config validationData value parsedValue -> Config validationData value parsedValue
+withSize : CardGroup.Size -> Config value parsedValue -> Config value parsedValue
 withSize size (Config configuration) =
     Config { configuration | size = size }
 
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config validationData value parsedValue -> Config validationData value parsedValue
+withAdditionalContent : Html Never -> Config value parsedValue -> Config value parsedValue
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
@@ -459,10 +459,10 @@ withAdditionalContent additionalContent (Config configuration) =
 {-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
 withValidationOnSubmit :
-    CommonsAlias.Validation validationData (List value) parsedValue
+    CommonsAlias.Validation (List value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue
-    -> Config validationData value parsedValue
+    -> Config value parsedValue
+    -> Config value parsedValue
 withValidationOnSubmit validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -475,10 +475,10 @@ withValidationOnSubmit validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
 -}
 withValidationOnInput :
-    CommonsAlias.Validation validationData (List value) parsedValue
+    CommonsAlias.Validation (List value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue
-    -> Config validationData value parsedValue
+    -> Config value parsedValue
+    -> Config value parsedValue
 withValidationOnInput validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -491,10 +491,10 @@ withValidationOnInput validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
 -}
 withValidationOnBlur :
-    CommonsAlias.Validation validationData (List value) parsedValue
+    CommonsAlias.Validation (List value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue
-    -> Config validationData value parsedValue
+    -> Config value parsedValue
+    -> Config value parsedValue
 withValidationOnBlur validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -506,18 +506,18 @@ withValidationOnBlur validation isSubmitted (Config configuration) =
 
 {-| Render the checkboxCardGroup
 -}
-render : (Msg value -> msg) -> validationData -> Model value msg -> Config validationData value parsedValue -> Html msg
-render tagger validationData ((Model { checkedValues }) as model) ((Config configData) as config_) =
+render : (Msg value -> msg) -> Model value msg -> Config value parsedValue -> Html msg
+render tagger ((Model { checkedValues }) as model) ((Config configData) as config_) =
     CardGroup.renderCheckbox
-        (generateErrorConfig validationData model config_)
+        (generateErrorConfig model config_)
         configData
         (List.map (mapOption tagger checkedValues) configData.options)
 
 
 {-| Internal
 -}
-generateErrorConfig : validationData -> Model value msg -> Config validationData value parsedValue -> Maybe (Error.Config parsedValue)
-generateErrorConfig validationData (Model { fieldStatus, checkedValues }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+generateErrorConfig : Model value msg -> Config value parsedValue -> Maybe (Error.Config parsedValue)
+generateErrorConfig (Model { fieldStatus, checkedValues }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
     let
         getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
         getErrorConfig validationResult =
@@ -527,7 +527,7 @@ generateErrorConfig validationData (Model { fieldStatus, checkedValues }) (Confi
                 >> Error.withIsSubmitted isSubmitted
     in
     Maybe.map2 getErrorConfig
-        (Maybe.map (\v -> v validationData checkedValues) validation)
+        (Maybe.map (\v -> v checkedValues) validation)
         errorShowingStrategy
 
 

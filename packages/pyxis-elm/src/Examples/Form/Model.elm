@@ -107,14 +107,14 @@ submit model =
 validate : Data -> Result String Response
 validate (Data config) =
     Ok Response
-        |> parseAndThen (Data.dateValidation () (Input.getValue config.birth))
-        |> parseAndThen (Data.dateValidation () (Input.getValue config.claimDate))
-        |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.claimType))
-        |> parseAndThen (Data.notEmptyStringValidation () (Textarea.getValue config.dynamic))
-        |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.insuranceType))
-        |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.peopleInvolved))
-        |> parseAndThen (Data.notEmptyStringValidation () (Input.getValue config.plate))
-        |> parseAndThen (Data.residentialCityValidation () (Autocomplete.getValue config.residentialCity))
+        |> parseAndThen (Data.dateValidation (Input.getValue config.birth))
+        |> parseAndThen (Data.dateValidation (Input.getValue config.claimDate))
+        |> parseAndThen (Data.radioValidation (RadioCardGroup.getValue config.claimType))
+        |> parseAndThen (Data.notEmptyStringValidation (Textarea.getValue config.dynamic))
+        |> parseAndThen (Data.radioValidation (RadioCardGroup.getValue config.insuranceType))
+        |> parseAndThen (Data.radioValidation (RadioCardGroup.getValue config.peopleInvolved))
+        |> parseAndThen (Data.notEmptyStringValidation (Input.getValue config.plate))
+        |> parseAndThen (Data.residentialCityValidation (Autocomplete.getValue config.residentialCity))
 
 
 parseAndThen : Result x a -> Result x (a -> b) -> Result x b

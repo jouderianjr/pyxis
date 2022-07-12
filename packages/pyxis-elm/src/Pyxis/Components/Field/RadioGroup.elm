@@ -142,7 +142,7 @@ init =
 
 {-| The RadioGroup configuration.
 -}
-type Config validationData value parsedValue
+type Config value parsedValue
     = Config
         { additionalContent : Maybe (Html Never)
         , classList : List ( String, Bool )
@@ -155,13 +155,13 @@ type Config validationData value parsedValue
         , name : CommonsAlias.Name
         , options : List (Option value)
         , errorShowingStrategy : Maybe Error.ShowingStrategy
-        , validation : Maybe (CommonsAlias.Validation validationData (Maybe value) parsedValue)
+        , validation : Maybe (CommonsAlias.Validation (Maybe value) parsedValue)
         }
 
 
 {-| Initialize the RadioGroup Config.
 -}
-config : CommonsAlias.Name -> Config validationData value parsedValue
+config : CommonsAlias.Name -> Config value parsedValue
 config name =
     Config
         { additionalContent = Nothing
@@ -224,21 +224,21 @@ vertical =
 
 {-| Add the classes to the group wrapper.
 -}
-withClassList : List ( String, Bool ) -> Config validationData value parsedValue -> Config validationData value parsedValue
+withClassList : List ( String, Bool ) -> Config value parsedValue -> Config value parsedValue
 withClassList classList (Config configuration) =
     Config { configuration | classList = classList }
 
 
 {-| Define if the group is disabled or not.
 -}
-withDisabled : Bool -> Config validationData value parsedValue -> Config validationData value parsedValue
+withDisabled : Bool -> Config value parsedValue -> Config value parsedValue
 withDisabled isDisabled (Config configuration) =
     Config { configuration | isDisabled = isDisabled }
 
 
 {-| Adds the hint to the RadioGroup.
 -}
-withHint : String -> Config validationData value parsedValue -> Config validationData value parsedValue
+withHint : String -> Config value parsedValue -> Config value parsedValue
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -251,35 +251,35 @@ withHint hintMessage (Config configuration) =
 
 {-| Add an id to the inputs.
 -}
-withId : CommonsAlias.Id -> Config validationData value parsedValue -> Config validationData value parsedValue
+withId : CommonsAlias.Id -> Config value parsedValue -> Config value parsedValue
 withId id (Config configuration) =
     Config { configuration | id = id }
 
 
 {-| Add a label to the inputs.
 -}
-withLabel : Label.Config -> Config validationData value parsedValue -> Config validationData value parsedValue
+withLabel : Label.Config -> Config value parsedValue -> Config value parsedValue
 withLabel label (Config configuration) =
     Config { configuration | label = Just label }
 
 
 {-| Define the visible options in the radio group.
 -}
-withOptions : List (Option value) -> Config validationData value parsedValue -> Config validationData value parsedValue
+withOptions : List (Option value) -> Config value parsedValue -> Config value parsedValue
 withOptions options (Config configuration) =
     Config { configuration | options = options }
 
 
 {-| Change the visual layout. The default one is horizontal.
 -}
-withLayout : Layout -> Config validationData value parsedValue -> Config validationData value parsedValue
+withLayout : Layout -> Config value parsedValue -> Config value parsedValue
 withLayout layout (Config configuration) =
     Config { configuration | layout = layout }
 
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config validationData value parsedValue -> Config validationData value parsedValue
+withAdditionalContent : Html Never -> Config value parsedValue -> Config value parsedValue
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
@@ -287,10 +287,10 @@ withAdditionalContent additionalContent (Config configuration) =
 {-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
 withValidationOnSubmit :
-    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    CommonsAlias.Validation (Maybe value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue
-    -> Config validationData value parsedValue
+    -> Config value parsedValue
+    -> Config value parsedValue
 withValidationOnSubmit validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -303,10 +303,10 @@ withValidationOnSubmit validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
 -}
 withValidationOnInput :
-    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    CommonsAlias.Validation (Maybe value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue
-    -> Config validationData value parsedValue
+    -> Config value parsedValue
+    -> Config value parsedValue
 withValidationOnInput validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -319,10 +319,10 @@ withValidationOnInput validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
 -}
 withValidationOnBlur :
-    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    CommonsAlias.Validation (Maybe value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue
-    -> Config validationData value parsedValue
+    -> Config value parsedValue
+    -> Config value parsedValue
 withValidationOnBlur validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -341,12 +341,12 @@ option =
 
 {-| Render the RadioGroup.
 -}
-render : (Msg value -> msg) -> validationData -> Model value msg -> Config validationData value parsedValue -> Html.Html msg
-render tagger validationData model ((Config configData) as config_) =
+render : (Msg value -> msg) -> Model value msg -> Config value parsedValue -> Html.Html msg
+render tagger model ((Config configData) as config_) =
     let
         error : Maybe (Error.Config parsedValue)
         error =
-            generateErrorConfig validationData model config_
+            generateErrorConfig model config_
     in
     renderField error model config_
         |> Html.map tagger
@@ -358,8 +358,8 @@ render tagger validationData model ((Config configData) as config_) =
 
 {-| Internal
 -}
-generateErrorConfig : validationData -> Model value msg -> Config validationData value parsedValue -> Maybe (Error.Config parsedValue)
-generateErrorConfig validationData (Model { fieldStatus, selectedValue }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+generateErrorConfig : Model value msg -> Config value parsedValue -> Maybe (Error.Config parsedValue)
+generateErrorConfig (Model { fieldStatus, selectedValue }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
     let
         getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
         getErrorConfig validationResult =
@@ -369,11 +369,11 @@ generateErrorConfig validationData (Model { fieldStatus, selectedValue }) (Confi
                 >> Error.withIsSubmitted isSubmitted
     in
     Maybe.map2 getErrorConfig
-        (Maybe.map (\v -> v validationData selectedValue) validation)
+        (Maybe.map (\v -> v selectedValue) validation)
         errorShowingStrategy
 
 
-renderField : Maybe (Error.Config parsedValue) -> Model value msg -> Config validationData value parsedValue -> Html (Msg value)
+renderField : Maybe (Error.Config parsedValue) -> Model value msg -> Config value parsedValue -> Html (Msg value)
 renderField error model ((Config configData) as configuration) =
     Html.div
         [ Html.Attributes.classList
@@ -400,7 +400,7 @@ labelId id =
 
 {-| Internal.
 -}
-renderRadio : Maybe (Error.Config parsedValue) -> Model value msg -> Config validationData value parsedValue -> Option value -> Html.Html (Msg value)
+renderRadio : Maybe (Error.Config parsedValue) -> Model value msg -> Config value parsedValue -> Option value -> Html.Html (Msg value)
 renderRadio error (Model { selectedValue }) (Config { id, name, isDisabled }) (Option { value, label }) =
     Html.label
         [ Html.Attributes.classList

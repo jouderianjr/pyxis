@@ -46,7 +46,7 @@ view (Data config) =
                                 , addon = RadioCardGroup.iconAddon IconSet.VehicleFullKasko
                                 }
                             ]
-                        |> RadioCardGroup.render Msg.ClaimTypeChanged () config.claimType
+                        |> RadioCardGroup.render Msg.ClaimTypeChanged config.claimType
                     ]
                 ]
             ]

@@ -35,7 +35,7 @@ view (Data config) =
                             [ RadioCardGroup.option { value = True, title = Nothing, text = Just "Yes", addon = Nothing }
                             , RadioCardGroup.option { value = False, title = Nothing, text = Just "No", addon = Nothing }
                             ]
-                        |> RadioCardGroup.render Msg.PeopleInvolvedChanged () config.peopleInvolved
+                        |> RadioCardGroup.render Msg.PeopleInvolvedChanged config.peopleInvolved
                     ]
                 ]
             , Grid.row
@@ -47,7 +47,7 @@ view (Data config) =
                         |> Textarea.withLabel (Label.config "Dynamic")
                         |> Textarea.withPlaceholder "Briefly describe the dynamics of the accident."
                         |> Textarea.withHint "Max. 300 words."
-                        |> Textarea.render Msg.DynamicsChanged () config.dynamic
+                        |> Textarea.render Msg.DynamicsChanged config.dynamic
                     ]
                 ]
             ]

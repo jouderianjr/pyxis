@@ -438,7 +438,7 @@ medium =
 
 {-| Represents the Autocomplete view configuration.
 -}
-type Config validationData value parsedValue msg
+type Config value parsedValue msg
     = Config
         { additionalContent : Maybe (Html Never)
         , disabled : Bool
@@ -454,13 +454,13 @@ type Config validationData value parsedValue msg
         , size : Size
         , errorShowingStrategy : Maybe Error.ShowingStrategy
         , suggestion : Maybe FormDropdown.SuggestionData
-        , validation : Maybe (CommonsAlias.Validation validationData (Maybe value) parsedValue)
+        , validation : Maybe (CommonsAlias.Validation (Maybe value) parsedValue)
         }
 
 
 {-| Creates the Autocomplete view configuration.
 -}
-config : CommonsAlias.Name -> Config validationData value parsedValue msg
+config : CommonsAlias.Name -> Config value parsedValue msg
 config name =
     Config
         { additionalContent = Nothing
@@ -486,8 +486,8 @@ Will be prepended to options.
 -}
 withHeaderText :
     String
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withHeaderText text (Config configData) =
     Config { configData | headerText = Just text }
 
@@ -496,8 +496,8 @@ withHeaderText text (Config configData) =
 -}
 withNoResultFoundAction :
     Html msg
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withNoResultFoundAction action (Config configData) =
     Config { configData | footerAction = Just action }
 
@@ -507,8 +507,8 @@ Will be appended to options.
 -}
 withSuggestion :
     FormDropdown.SuggestionData
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withSuggestion suggestion (Config configData) =
     Config { configData | suggestion = Just suggestion }
 
@@ -517,22 +517,22 @@ withSuggestion suggestion (Config configData) =
 -}
 withAdditionalContent :
     Html Never
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
 
 {-| Sets whether the Autocomplete is disabled.
 -}
-withDisabled : Bool -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withDisabled : Bool -> Config value parsedValue msg -> Config value parsedValue msg
 withDisabled disabled (Config configuration) =
     Config { configuration | disabled = disabled }
 
 
 {-| Sets the Autocomplete hint.
 -}
-withHint : String -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withHint : String -> Config value parsedValue msg -> Config value parsedValue msg
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -548,15 +548,15 @@ withHint hintMessage (Config configuration) =
 -}
 withLabel :
     Label.Config
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withLabel label (Config configData) =
     Config { configData | label = Just label }
 
 
 {-| Adds an id to the Autocomplete.
 -}
-withId : CommonsAlias.Id -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withId : CommonsAlias.Id -> Config value parsedValue msg -> Config value parsedValue msg
 withId id (Config configData) =
     Config { configData | id = id }
 
@@ -565,8 +565,8 @@ withId id (Config configData) =
 -}
 withNoResultsFoundMessage :
     String
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withNoResultsFoundMessage message (Config configuration) =
     Config { configuration | noResultsFoundMessage = message }
 
@@ -575,15 +575,15 @@ withNoResultsFoundMessage message (Config configuration) =
 -}
 withPlaceholder :
     String
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withPlaceholder placeholder (Config configuration) =
     Config { configuration | placeholder = placeholder }
 
 
 {-| Sets the Autocomplete size.
 -}
-withSize : Size -> Config validationData value parsedValue msg -> Config validationData value parsedValue msg
+withSize : Size -> Config value parsedValue msg -> Config value parsedValue msg
 withSize size (Config configuration) =
     Config { configuration | size = size }
 
@@ -591,10 +591,10 @@ withSize size (Config configuration) =
 {-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
 withValidationOnSubmit :
-    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    CommonsAlias.Validation (Maybe value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withValidationOnSubmit validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -607,10 +607,10 @@ withValidationOnSubmit validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
 -}
 withValidationOnInput :
-    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    CommonsAlias.Validation (Maybe value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withValidationOnInput validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -623,10 +623,10 @@ withValidationOnInput validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
 -}
 withValidationOnBlur :
-    CommonsAlias.Validation validationData (Maybe value) parsedValue
+    CommonsAlias.Validation (Maybe value) parsedValue
     -> CommonsAlias.IsSubmitted
-    -> Config validationData value parsedValue msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
+    -> Config value parsedValue msg
 withValidationOnBlur validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -640,11 +640,10 @@ withValidationOnBlur validation isSubmitted (Config configuration) =
 -}
 render :
     (Msg value -> msg)
-    -> validationData
     -> Model value msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
     -> Html msg
-render msgMapper validationData ((Model modelData) as model) ((Config configData) as config_) =
+render msgMapper ((Model modelData) as model) ((Config configData) as config_) =
     let
         dropdown : Maybe (Html msg)
         dropdown =
@@ -652,7 +651,7 @@ render msgMapper validationData ((Model modelData) as model) ((Config configData
 
         error : Maybe (Error.Config parsedValue)
         error =
-            generateErrorConfig validationData model config_
+            generateErrorConfig model config_
     in
     Html.div
         [ Html.Attributes.classList
@@ -673,8 +672,8 @@ render msgMapper validationData ((Model modelData) as model) ((Config configData
 
 {-| Internal
 -}
-generateErrorConfig : validationData -> Model value msg -> Config validationData value parsedValue msg -> Maybe (Error.Config parsedValue)
-generateErrorConfig validationData (Model { fieldStatus, value }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+generateErrorConfig : Model value msg -> Config value parsedValue msg -> Maybe (Error.Config parsedValue)
+generateErrorConfig (Model { fieldStatus, value }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
     let
         getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
         getErrorConfig validationResult =
@@ -684,7 +683,7 @@ generateErrorConfig validationData (Model { fieldStatus, value }) (Config { id, 
                 >> Error.withIsSubmitted isSubmitted
     in
     Maybe.map2 getErrorConfig
-        (Maybe.map (\v -> v validationData value) validation)
+        (Maybe.map (\v -> v value) validation)
         errorShowingStrategy
 
 
@@ -705,7 +704,7 @@ renderField :
     Maybe (Error.Config parsedValue)
     -> (Msg value -> msg)
     -> Model value msg
-    -> Config validationData value parsedValue msg
+    -> Config value parsedValue msg
     -> Html msg
 renderField error msgMapper ((Model modelData) as model) (Config configData) =
     let
@@ -809,7 +808,7 @@ getFieldAddonIcon (Model modelData) =
 
 {-| Internal.
 -}
-renderDropdown : (Msg value -> msg) -> Model value msg -> Config validationData value parsedValue msg -> Maybe (Html msg)
+renderDropdown : (Msg value -> msg) -> Model value msg -> Config value parsedValue msg -> Maybe (Html msg)
 renderDropdown msgMapper ((Model modelData) as model) (Config configData) =
     let
         renderedOptions : List (Html msg)

@@ -190,8 +190,8 @@ updateVehiclesOwn msg (Data d) =
 -- Validations
 
 
-notEmptyStringValidation : () -> String -> Result String String
-notEmptyStringValidation _ value =
+notEmptyStringValidation : String -> Result String String
+notEmptyStringValidation value =
     if String.isEmpty value then
         Err "This field cannot be empty."
 
@@ -199,13 +199,13 @@ notEmptyStringValidation _ value =
         Ok value
 
 
-radioValidation : () -> Maybe option -> Result String option
-radioValidation _ selected =
+radioValidation : Maybe option -> Result String option
+radioValidation selected =
     Result.fromMaybe "You must select one option" selected
 
 
-dateValidation : () -> String -> Result String Date
-dateValidation _ value =
+dateValidation : String -> Result String Date
+dateValidation value =
     case Date.fromIsoString value of
         Ok validDate ->
             Ok validDate
@@ -232,8 +232,8 @@ vehiclesOwn (Data data) list =
         Ok list
 
 
-residentialCityValidation : () -> Maybe City -> Result String City
-residentialCityValidation _ maybeJob =
+residentialCityValidation : Maybe City -> Result String City
+residentialCityValidation maybeJob =
     maybeJob
         |> Maybe.map Ok
         |> Maybe.withDefault (Err "Select a city")

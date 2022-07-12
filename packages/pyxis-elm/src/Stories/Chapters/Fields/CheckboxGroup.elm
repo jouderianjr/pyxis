@@ -29,8 +29,8 @@ type Msg
     = OnCheckboxGroupMsg (CheckboxGroup.Msg Option)
 
 
-validation : () -> List Option -> Result String (List Option)
-validation _ selected =
+validation : List Option -> Result String (List Option)
+validation selected =
     case selected of
         [] ->
             Err "You must select at least one option"
@@ -44,8 +44,8 @@ checkboxGroupModel =
     CheckboxGroup.init 
 
 
-checkboxGroup : Bool -> () -> Html Msg
-checkboxGroup isSubmitted formData =
+checkboxGroup : Bool -> Html Msg
+checkboxGroup isSubmitted =
     CheckboxGroup.config "checkbox-name"
         |> CheckboxGroup.withValidationOnBlur validation isSubmitted
         |> CheckboxGroup.withOptions
@@ -54,7 +54,7 @@ checkboxGroup isSubmitted formData =
             , CheckboxGroup.option { value = Rust, label = Html.text "Rust" }
             , CheckboxGroup.option { value = Elixir, label = Html.text "Elixir" }
             ]
-        |> CheckboxGroup.render OnCheckboxGroupMsg formData checkboxGroupModel
+        |> CheckboxGroup.render OnCheckboxGroupMsg checkboxGroupModel
 ```
 
 # Vertical Layout
@@ -63,7 +63,7 @@ checkboxGroup isSubmitted formData =
 ```
 CheckboxGroup.config "checkbox-name"
     |> CheckboxGroup.withLayout CheckboxGroup.vertical
-    |> CheckboxGroup.render OnCheckboxGroupMsg formData checkboxGroupModel
+    |> CheckboxGroup.render OnCheckboxGroupMsg checkboxGroupModel
 ```
 # With an option disabled
 
@@ -80,7 +80,7 @@ options =
 
 CheckboxGroup.config "checkbox-name"
     |> CheckboxGroup.withOptions options
-    |> CheckboxGroup.render OnCheckboxGroupMsg formData checkboxGroupModel
+    |> CheckboxGroup.render OnCheckboxGroupMsg checkboxGroupModel
 ```
 
 # With Additional Content
@@ -89,7 +89,7 @@ CheckboxGroup.config "checkbox-name"
 ```
 CheckboxGroup.config "checkbox-name"
     |> CheckboxGroup.withAdditionalContent (Html.text "Additional Content")
-    |> CheckboxGroup.render OnCheckboxGroupMsg formData checkboxGroupModel
+    |> CheckboxGroup.render OnCheckboxGroupMsg checkboxGroupModel
 """
 
 
@@ -121,8 +121,8 @@ init =
     }
 
 
-validation : () -> List Language -> Result String (List Language)
-validation _ selected =
+validation : List Language -> Result String (List Language)
+validation selected =
     case selected of
         [] ->
             Err "You must select at least one option"
@@ -152,7 +152,7 @@ optionsWithDisabled =
 
 type alias StatefulConfig msg =
     { name : String
-    , configModifier : CheckboxGroup.Config () Language (List Language) msg -> CheckboxGroup.Config () Language (List Language) msg
+    , configModifier : CheckboxGroup.Config Language (List Language) msg -> CheckboxGroup.Config Language (List Language) msg
     , modelPicker : Model -> CheckboxGroup.Model Language (CheckboxGroup.Msg Language)
     , update : CheckboxGroup.Msg Language -> Model -> ( Model, Cmd (CheckboxGroup.Msg Language) )
     }
@@ -164,7 +164,7 @@ statefulComponent { name, configModifier, modelPicker, update } sharedState =
         |> CheckboxGroup.withOptions options
         |> CheckboxGroup.withValidationOnBlur validation False
         |> configModifier
-        |> CheckboxGroup.render identity () (sharedState.checkbox |> modelPicker)
+        |> CheckboxGroup.render identity (sharedState.checkbox |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \sharedState_ models -> { sharedState_ | checkbox = models }

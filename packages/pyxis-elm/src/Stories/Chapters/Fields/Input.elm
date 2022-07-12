@@ -23,13 +23,8 @@ type Msg
     = OnInputFieldMsg Input.Msg
 
 
-type alias FormData =
-    { name : String
-    }
-
-
-validation : FormData -> String -> Result String String
-validation _ value =
+validation : String -> Result String String
+validation value =
     if String.isEmpty value then
         Err "Required field"
 
@@ -42,12 +37,12 @@ textFieldModel =
     Input.init 
 
 
-textField : Bool -> FormData -> Html Msg
-textField isSubmitted formData =
+textField : Bool -> Html Msg
+textField isSubmitted =
     Input.text "text-name"
         |> Input.withLabel (Label.config "Name")
         |> Input.withValidationOnBlur validation isSubmitted
-        |> Input.render OnInputFieldMsg formData textFieldModel
+        |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 ## Types
@@ -58,35 +53,35 @@ Input field can have several types such as `text`, `number`, `date`, `password` 
 <component with-label="Input with type text" />
 ```
 Input.text "input-text-name"
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 ### Type: Number
 <component with-label="Input with type number" />
 ```
 Input.number "input-number-id"
-    |> Input.render OnInputFieldMsg formData numberFieldModel
+    |> Input.render OnInputFieldMsg numberFieldModel
 ```
 
 ### Type: Date
 <component with-label="Input with type date" />
 ```
 Input.date "input-date-id"
-    |> Input.render OnInputFieldMsg formData dateFieldModel
+    |> Input.render OnInputFieldMsg dateFieldModel
 ```
 
 ### Type: Password
 <component with-label="Input with type password" />
 ```
 Input.password "input-password-id"
-    |> Input.render OnInputFieldMsg formData passwordFieldModel
+    |> Input.render OnInputFieldMsg passwordFieldModel
 ```
 
 ### Type: Email
 <component with-label="Input with type email" />
 ```
 Input.email "input-email-id"
-    |> Input.render OnInputFieldMsg formData emailFieldModel
+    |> Input.render OnInputFieldMsg emailFieldModel
 ```
 
 
@@ -101,7 +96,7 @@ Input field can have several addons, such as icons or texts. They are used to ma
 ```
 Input.text "text-name"
     |> Input.withTextPrepend "mq"
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 ### Addon: Append text
@@ -110,7 +105,7 @@ Input.text "text-name"
 ```
 Input.text "text-name"
     |> Input.withTextAppend "€"
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 ### Addon: Prepend Icon
@@ -119,7 +114,7 @@ Input.text "text-name"
 ```
 Input.text "text-name"
     |> Input.withIconPrepend IconSet.AccessKey
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 ### Addon: Append Icon
@@ -128,7 +123,7 @@ Input.text "text-name"
 ```
 Input.text "text-name"
     |> Input.withIconAppend IconSet.Bell
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 ## Size
@@ -142,7 +137,7 @@ You can set your InputField with a _size_ of default or small.
 ```
 Input.text "text-name"
     |> Input.withSize Input.small
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 ## Others
@@ -151,14 +146,14 @@ Input.text "text-name"
 ```
 Input.text "text-name"
     |> Input.withPlaceholder "Custom placeholder"
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 <component with-label="Input withDisabled" />
 ```
 Input.text "text-name"
     |> Input.withDisabled True
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 
@@ -166,7 +161,7 @@ Input.text "text-name"
 ```
 Input.text "text-name"
     |> Input.withAdditionalContent (Html.text "Additional Content")
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 
 <component with-label="Input date withStep, withMin and withMax" />
@@ -175,7 +170,7 @@ Input.date "date-id"
     |> Input.withMin "2020-01-01"
     |> Input.withMax "2022-12-31"
     |> Input.withStep "1"
-    |> Input.render OnInputFieldMsg formData textFieldModel
+    |> Input.render OnInputFieldMsg textFieldModel
 ```
 """
 
@@ -213,18 +208,18 @@ init =
     }
 
 
-floatValidation : () -> String -> Result String Float
+floatValidation : String -> Result String Float
 floatValidation =
-    always (String.toFloat >> Result.fromMaybe "Invalid number")
+    String.toFloat >> Result.fromMaybe "Invalid number"
 
 
-dateValidation : () -> String -> Result String Date
-dateValidation _ =
+dateValidation : String -> Result String Date
+dateValidation =
     Date.fromIsoString
 
 
-validation : () -> String -> Result String String
-validation _ value =
+validation : String -> Result String String
+validation value =
     if String.isEmpty value then
         Err "Required field"
 
@@ -238,14 +233,14 @@ componentsList =
       , \sharedState ->
             Input.text "input"
                 |> Input.withValidationOnBlur validation False
-                |> Input.render identity () sharedState.input.withValidation
+                |> Input.render identity sharedState.input.withValidation
                 |> statefulComponent updateWithValidation
       )
     , ( "Input with type text"
       , \sharedState ->
             Input.text "text"
                 |> Input.withPlaceholder "Name"
-                |> Input.render identity () sharedState.input.text
+                |> Input.render identity sharedState.input.text
                 |> statefulComponent updateText
       )
     , ( "Input with type number"
@@ -253,84 +248,84 @@ componentsList =
             Input.number "number"
                 |> Input.withPlaceholder "Age"
                 |> Input.withValidationOnBlur floatValidation False
-                |> Input.render identity () sharedState.input.number
+                |> Input.render identity sharedState.input.number
                 |> statefulComponent updateNumber
       )
     , ( "Input with type date"
       , \sharedState ->
             Input.date "date"
                 |> Input.withValidationOnBlur dateValidation False
-                |> Input.render identity () sharedState.input.date
+                |> Input.render identity sharedState.input.date
                 |> statefulComponent updateDate
       )
     , ( "Input with type password"
       , \sharedState ->
             Input.password "password"
                 |> Input.withPlaceholder "Password"
-                |> Input.render identity () sharedState.input.password
+                |> Input.render identity sharedState.input.password
                 |> statefulComponent updatePassword
       )
     , ( "Input with type email"
       , \sharedState ->
             Input.email "email"
                 |> Input.withPlaceholder "Email"
-                |> Input.render identity () sharedState.input.email
+                |> Input.render identity sharedState.input.email
                 |> statefulComponent updateEmail
       )
     , ( "Input withAddon prepend text"
       , \sharedState ->
             Input.text "with-addon-prepend-text"
                 |> Input.withTextPrepend "mq"
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withAddon append text"
       , \sharedState ->
             Input.text "with-addon-append-text"
                 |> Input.withTextAppend "€"
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withAddon prepend icon"
       , \sharedState ->
             Input.text "with-addon-prepend-icon"
                 |> Input.withIconPrepend IconSet.AccessKey
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withAddon append icon"
       , \sharedState ->
             Input.text "with-addon-append-icon"
                 |> Input.withIconAppend IconSet.Bell
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withSize small"
       , \sharedState ->
             Input.text "small"
                 |> Input.withSize Input.small
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withDisabled"
       , \sharedState ->
             Input.text "disabled"
                 |> Input.withDisabled True
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withPlaceholder"
       , \sharedState ->
             Input.text "placeholder"
                 |> Input.withPlaceholder "Custom placeholder"
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input withAdditionalContent"
       , \sharedState ->
             Input.text "additional-content"
                 |> Input.withAdditionalContent (Html.text "Additional Content")
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     , ( "Input date withStep, withMin and withMax"
@@ -339,7 +334,7 @@ componentsList =
                 |> Input.withMin "2020-01-01"
                 |> Input.withMax "2022-12-31"
                 |> Input.withStep "1"
-                |> Input.render identity () sharedState.input.base
+                |> Input.render identity sharedState.input.base
                 |> statelessComponent
       )
     ]

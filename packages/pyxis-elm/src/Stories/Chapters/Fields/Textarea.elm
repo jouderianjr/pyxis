@@ -27,8 +27,8 @@ textareaModel =
     Textarea.init 
 
 
-validation : () -> String -> Result String String
-validation _ value =
+validation : String -> Result String String
+validation value =
     if String.isEmpty value then
         Err "Required"
 
@@ -36,12 +36,12 @@ validation _ value =
         Ok value
 
 
-textareaField : String -> Bool -> () -> Html Msg
-textareaField name isSubmitted formData =
+textareaField : String -> Bool -> Html Msg
+textareaField name isSubmitted =
     Textarea.config name
         |> Textarea.withLabel (Label.config "Textarea")
         |> Textarea.withValidationOnBlur validation isSubmitted
-        |> Textarea.render OnTextareaMsg formData textareaModel
+        |> Textarea.render OnTextareaMsg textareaModel
 ```
 
 ## Size
@@ -55,7 +55,7 @@ You can set your TextField with a _size_ of default or small.
 ```
 Textarea.config name
     |> Textarea.withSize Textarea.small
-    |> Textarea.render OnTextareaMsg formData textareaModel
+    |> Textarea.render OnTextareaMsg textareaModel
 ```
 
 ## Others
@@ -64,21 +64,21 @@ Textarea.config name
 ```
 Textarea.config name
     |> Textarea.withPlaceholder "Custom placeholder"
-    |> Textarea.render OnTextareaMsg formData textareaModel
+    |> Textarea.render OnTextareaMsg textareaModel
 ```
 
 <component with-label="Textarea withDisabled" />
 ```
 Textarea.config name
     |> Textarea.withDisabled True
-    |> Textarea.render OnTextareaMsg formData textareaModel
+    |> Textarea.render OnTextareaMsg textareaModel
 ```
 
 <component with-label="Textarea withAdditionalContent" />
 ```
 Textarea.config name
     |> Textarea.withAdditionalContent (Html.text "Additional Content")
-    |> Textarea.render OnTextareaMsg formData textareaModel
+    |> Textarea.render OnTextareaMsg textareaModel
 ```
 
 ---
@@ -105,8 +105,8 @@ init =
     }
 
 
-validation : formData -> String -> Result String String
-validation _ value =
+validation : String -> Result String String
+validation value =
     if String.isEmpty value then
         Err "Required"
 
@@ -142,11 +142,11 @@ componentsList =
     ]
 
 
-statelessComponent : String -> (Textarea.Config () String -> Textarea.Config () String) -> SharedState x -> Html (ElmBook.Msg (SharedState x))
+statelessComponent : String -> (Textarea.Config String -> Textarea.Config String) -> SharedState x -> Html (ElmBook.Msg (SharedState x))
 statelessComponent name configModifier { textarea } =
     Textarea.config name
         |> configModifier
-        |> Textarea.render identity () textarea.base
+        |> Textarea.render identity textarea.base
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \state model -> { state | textarea = model }
@@ -172,7 +172,7 @@ statefulComponent name modelPicker update sharedState =
     Textarea.config name
         |> Textarea.withLabel (Label.config name)
         |> Textarea.withValidationOnBlur validation False
-        |> Textarea.render identity () (sharedState.textarea |> modelPicker)
+        |> Textarea.render identity (sharedState.textarea |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \state model -> { state | textarea = model }

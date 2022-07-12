@@ -30,8 +30,8 @@ type Msg
     = OnCheckboxFieldMsg (CheckboxCardGroup.Msg Product)
 
 
-validation : () -> List Product -> Result String (List Product)
-validation _ selected =
+validation : List Product -> Result String (List Product)
+validation selected =
     case selected of
         [] ->
             Err "You must select at least one option"
@@ -45,8 +45,8 @@ checkboxCardGroupModel =
     CheckboxCardGroup.init 
 
 
-checkboxCardGroupView : Bool -> () -> Html Msg
-checkboxCardGroupView isSubmitted formData =
+checkboxCardGroupView : Bool -> Html Msg
+checkboxCardGroupView isSubmitted =
     CheckboxCardGroup.config "checkboxCard-name"
         |> CheckboxCardGroup.withLabel (Label.config "Choose the area")
         |> CheckboxCardGroup.withValidationOnBlur validation isSubmitted
@@ -64,14 +64,14 @@ checkboxCardGroupView isSubmitted formData =
                 , addon = Nothing
                 }
             ]
-        |> CheckboxCardGroup.render OnCheckboxFieldMsg formData checkboxCardGroupModel
+        |> CheckboxCardGroup.render OnCheckboxFieldMsg checkboxCardGroupModel
 ```
 ## Vertical
 <component with-label="CheckboxCardGroup vertical" />
 ```
 CheckboxGroup.config "checkboxgroup-name"
     |> CheckboxCardGroup.withLayout CheckboxCardGroup.vertical
-    |> CheckboxCardGroup.render OnCheckboxFieldMsg formData checkboxCardModel
+    |> CheckboxCardGroup.render OnCheckboxFieldMsg checkboxCardModel
 ```
 ## Large Size
 Please note that with large layout you need to configure an image addon.
@@ -96,7 +96,7 @@ optionsWithImage =
 CheckboxGroup.config "checkbox-id"
     |> CheckboxCardGroup.withSize CheckboxCardGroup.large
     |> CheckboxCardGroup.withOptions optionsWithImage
-    |> CheckboxCardGroup.render OnCheckboxFieldMsg formData checkboxCardModel
+    |> CheckboxCardGroup.render OnCheckboxFieldMsg checkboxCardModel
 ```
 ## Icon addon
 <component with-label="CheckboxCardGroup with icon" />
@@ -119,7 +119,7 @@ optionsWithIcon =
 
 CheckboxGroup.config "checkboxgroup-name"
     |> CheckboxCardGroup.withOptions optionsWithIcon
-    |> CheckboxCardGroup.render OnCheckboxFieldMsg formData checkboxCardModel
+    |> CheckboxCardGroup.render OnCheckboxFieldMsg checkboxCardModel
 ```
 ## Text addon
 <component with-label="CheckboxCardGroup with text" />
@@ -142,14 +142,14 @@ optionsWithTextAddon =
 
 CheckboxGroup.config "checkboxgroup-name"
     |> CheckboxCardGroup.withOptions optionsWithTextAddon
-    |> CheckboxCardGroup.render OnCheckboxFieldMsg formData checkboxCardModel
+    |> CheckboxCardGroup.render OnCheckboxFieldMsg checkboxCardModel
 ```
 ## With Additional Content
 <component with-label="CheckboxCardGroup with additional content" />
 ```
 CheckboxGroup.config "checkboxgroup-name"
     |> CheckboxCardGroup.withAdditionalContent (Html.text "Additional Content")
-    |> CheckboxCardGroup.render OnCheckboxFieldMsg formData checkboxCardModel
+    |> CheckboxCardGroup.render OnCheckboxFieldMsg checkboxCardModel
 ```
 """
 
@@ -190,8 +190,8 @@ init =
     }
 
 
-required : () -> List Product -> Result String (List Product)
-required () langs =
+required : List Product -> Result String (List Product)
+required langs =
     case langs of
         [] ->
             Err "You must select at least one option"
@@ -253,7 +253,7 @@ optionsWithTextAddon =
 
 type alias StatefulConfig =
     { name : String
-    , configModifier : CheckboxCardGroup.Config () Product (List Product) -> CheckboxCardGroup.Config () Product (List Product)
+    , configModifier : CheckboxCardGroup.Config Product (List Product) -> CheckboxCardGroup.Config Product (List Product)
     , modelPicker : Model -> CheckboxCardGroup.Model Product (CheckboxCardGroup.Msg Product)
     , update : CheckboxCardGroup.Msg Product -> Model -> ( Model, Cmd (CheckboxCardGroup.Msg Product) )
     }
@@ -278,7 +278,7 @@ statefulComponent { name, configModifier, modelPicker, update } sharedState =
             ]
         |> CheckboxCardGroup.withValidationOnBlur required False
         |> configModifier
-        |> CheckboxCardGroup.render identity () (sharedState.checkboxCard |> modelPicker)
+        |> CheckboxCardGroup.render identity (sharedState.checkboxCard |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \sharedState_ models -> { sharedState_ | checkboxCard = models }

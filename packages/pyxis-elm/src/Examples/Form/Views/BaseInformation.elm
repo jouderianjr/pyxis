@@ -39,7 +39,7 @@ view ((Data config) as data) =
                                 |> Label.config
                                 |> Label.withSubText "(Vehicle A)"
                             )
-                        |> Input.render Msg.PlateChanged () config.plate
+                        |> Input.render Msg.PlateChanged config.plate
                     ]
                 ]
             , Grid.row
@@ -49,7 +49,7 @@ view ((Data config) as data) =
                         |> Input.date
                         |> Input.withValidationOnBlur Data.dateValidation config.isFormSubmitted
                         |> Input.withLabel (Label.config "Owner birth date")
-                        |> Input.render Msg.BirthDateChanged () config.birth
+                        |> Input.render Msg.BirthDateChanged config.birth
                     ]
                 ]
             , Grid.row
@@ -67,7 +67,7 @@ view ((Data config) as data) =
                             , title = "Lorem ipsum"
                             , subtitle = Just "Lorem ipsum dolor sit amet."
                             }
-                        |> Autocomplete.render Msg.ResidentialCityChanged () config.residentialCity
+                        |> Autocomplete.render Msg.ResidentialCityChanged config.residentialCity
                     ]
                 ]
             , Grid.row
@@ -101,7 +101,7 @@ view ((Data config) as data) =
                         |> Input.date
                         |> Input.withValidationOnBlur Data.dateValidation config.isFormSubmitted
                         |> Input.withLabel (Label.config "Claim date")
-                        |> Input.render Msg.ClaimDateChanged () config.claimDate
+                        |> Input.render Msg.ClaimDateChanged config.claimDate
                     ]
                 ]
             , Grid.row

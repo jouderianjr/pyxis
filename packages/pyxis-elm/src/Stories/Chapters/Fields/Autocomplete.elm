@@ -91,8 +91,8 @@ update msg model =
             ( { model | job = autocompleteModel }, autocompleteCmd )
 
 
-validation : () -> Maybe Job -> Result String Job
-validation _ =
+validation : Maybe Job -> Result String Job
+validation =
     Result.fromMaybe "Required field"
 
 
@@ -103,7 +103,7 @@ view isSubmitted model =
     Autocomplete.config "autocomplete-name"
         |> Autocomplete.withValidationOnBlur validation isSubmitted
         |> Autocomplete.withPlaceholder "Choose your job role"
-        |> Autocomplete.render AutocompleteMsg () model.job
+        |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 ## Generics
@@ -112,49 +112,49 @@ view isSubmitted model =
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withAdditionalContent (Html.text "Additional content to the Autocomplete")
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 <component with-label="Hint" />
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withHint "This is an hint for the autocomplete"
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 <component with-label="Disabled" />
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withDisabled True
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 <component with-label="Label" />
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withLabel (Label.config "Label")
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 <component with-label="No Results Found Message" />
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withNoResultsFoundMessage "No result for this search!"
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 <component with-label="Placeholder" />
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withPlaceholder "Placeholder"
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 <component with-label="Size small" />
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withSize Autocomplete.small
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 ## Addon
@@ -170,7 +170,7 @@ Autocomplete.config "autocomplete-name"
             |> Button.withType (Button.link "https://www.google.com")
             |> Button.render
         )
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 ### Header Text
@@ -179,7 +179,7 @@ A text that appears at the begging of the list of options.
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withHeaderText "Choose a role:"
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 
 ### Suggestion
@@ -188,7 +188,7 @@ A hint composed by title and subtitle that appears in the dropdown before starti
 ```
 Autocomplete.config "autocomplete-name"
     |> Autocomplete.withSuggestion { title = "Suggestion", subtitle = Just "Subtitle", icon = IconSet.Search }
-    |> Autocomplete.render AutocompleteMsg () model.job
+    |> Autocomplete.render AutocompleteMsg model.job
 ```
 """
 
@@ -231,8 +231,8 @@ initAutocomplete type_ =
         |> Autocomplete.setOnSelect (OnSelect type_)
 
 
-required : () -> Maybe Job -> Result String Job
-required _ =
+required : Maybe Job -> Result String Job
+required =
     Result.fromMaybe "Required field"
 
 
@@ -383,7 +383,7 @@ update msg model =
 statefulComponent :
     String
     -> StoryType
-    -> (Autocomplete.Config () Job Job Msg -> Autocomplete.Config () Job Job Msg)
+    -> (Autocomplete.Config Job Job Msg -> Autocomplete.Config Job Job Msg)
     -> (Models -> Model)
     -> SharedState x
     -> Html (ElmBook.Msg (SharedState x))
@@ -391,7 +391,7 @@ statefulComponent name storyType mapper modelPicker sharedState =
     Autocomplete.config name
         |> Autocomplete.withValidationOnBlur required False
         |> mapper
-        |> Autocomplete.render (AutocompleteMsg storyType) () (sharedState.autocomplete |> modelPicker)
+        |> Autocomplete.render (AutocompleteMsg storyType) (sharedState.autocomplete |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd
                 { toState = \state model -> { state | autocomplete = model }

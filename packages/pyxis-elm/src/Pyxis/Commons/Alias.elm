@@ -5,8 +5,8 @@ type alias IsSubmitted =
     Bool
 
 
-type alias Validation validationData value parsedValue =
-    validationData -> value -> Result ErrorMessage parsedValue
+type alias Validation value parsedValue =
+    value -> Result ErrorMessage parsedValue
 
 
 type alias Name =
