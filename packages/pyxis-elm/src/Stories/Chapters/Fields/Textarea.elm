@@ -4,6 +4,8 @@ import ElmBook
 import ElmBook.Actions
 import ElmBook.Chapter
 import Html exposing (Html)
+import Pyxis.Commons.Alias as CommonsAlias
+import Pyxis.Commons.ValidationResult as ValidationResult exposing (ValidationResult)
 import Pyxis.Components.Field.Label as Label
 import Pyxis.Components.Field.Textarea as Textarea
 
@@ -142,7 +144,7 @@ componentsList =
     ]
 
 
-statelessComponent : String -> (Textarea.Config String -> Textarea.Config String) -> SharedState x -> Html (ElmBook.Msg (SharedState x))
+statelessComponent : String -> (Textarea.Config -> Textarea.Config) -> SharedState x -> Html (ElmBook.Msg (SharedState x))
 statelessComponent name configModifier { textarea } =
     Textarea.config name
         |> configModifier
@@ -171,7 +173,7 @@ statefulComponent :
 statefulComponent name modelPicker update sharedState =
     Textarea.config name
         |> Textarea.withLabel (Label.config name)
-        |> Textarea.withValidationOnBlur validation False
+        |> Textarea.withValidationOnBlur validationResult False
         |> Textarea.render identity (sharedState.textarea |> modelPicker)
         |> Html.map
             (ElmBook.Actions.mapUpdateWithCmd

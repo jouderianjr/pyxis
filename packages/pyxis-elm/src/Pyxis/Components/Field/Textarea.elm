@@ -98,6 +98,7 @@ import PrimaUpdate
 import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Attributes as CommonsAttributes
 import Pyxis.Commons.Commands as Commands
+import Pyxis.Commons.ValidationResult as ValidationResult exposing (ValidationResult)
 import Pyxis.Components.Field.Error as Error
 import Pyxis.Components.Field.FieldStatus as FieldStatus exposing (FieldStatus)
 import Pyxis.Components.Field.Hint as Hint
@@ -153,7 +154,7 @@ medium =
 
 {-| The view configuration.
 -}
-type Config parsedValue
+type Config
     = Config
         { additionalContent : Maybe (Html Never)
         , classList : List ( String, Bool )
@@ -165,7 +166,7 @@ type Config parsedValue
         , size : Size
         , label : Maybe Label.Config
         , errorShowingStrategy : Maybe Error.ShowingStrategy
-        , validation : Maybe (CommonsAlias.Validation String parsedValue)
+        , validation : Maybe (String -> ValidationResult)
         , isSubmitted : CommonsAlias.IsSubmitted
         , valueMapper : String -> String
         }
@@ -173,7 +174,7 @@ type Config parsedValue
 
 {-| Creates a Textarea.
 -}
-config : CommonsAlias.Name -> Config parsedValue
+config : CommonsAlias.Name -> Config
 config name =
     Config
         { additionalContent = Nothing
@@ -186,7 +187,7 @@ config name =
         , size = Medium
         , label = Nothing
         , errorShowingStrategy = Nothing
-        , validation = Nothing
+        , validationResult = Nothing
         , isSubmitted = False
         , valueMapper = identity
         }
@@ -194,21 +195,21 @@ config name =
 
 {-| Adds a Label to the Textarea.
 -}
-withLabel : Label.Config -> Config parsedValue -> Config parsedValue
+withLabel : Label.Config -> Config -> Config
 withLabel label (Config configuration) =
     Config { configuration | label = Just label }
 
 
 {-| Sets the Textarea as disabled
 -}
-withDisabled : Bool -> Config parsedValue -> Config parsedValue
+withDisabled : Bool -> Config -> Config
 withDisabled isDisabled (Config configuration) =
     Config { configuration | disabled = isDisabled }
 
 
 {-| Adds the hint to the TextArea.
 -}
-withHint : String -> Config parsedValue -> Config parsedValue
+withHint : String -> Config -> Config
 withHint hintMessage (Config configuration) =
     Config
         { configuration
@@ -222,10 +223,10 @@ withHint hintMessage (Config configuration) =
 {-| Sets the showing error strategy to `OnSubmit` (The error will be shown only after the form submission)
 -}
 withValidationOnSubmit :
-    CommonsAlias.Validation String parsedValue
+    (String -> ValidationResult)
     -> CommonsAlias.IsSubmitted
-    -> Config parsedValue
-    -> Config parsedValue
+    -> Config
+    -> Config
 withValidationOnSubmit validation isSubmitted (Config configuration) =
     Config
         { configuration
@@ -238,15 +239,15 @@ withValidationOnSubmit validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnInput` (The error will be shown after inputting a value in the field or after the form submission)
 -}
 withValidationOnInput :
-    CommonsAlias.Validation String parsedValue
+    ValidationResult
     -> CommonsAlias.IsSubmitted
-    -> Config parsedValue
-    -> Config parsedValue
-withValidationOnInput validation isSubmitted (Config configuration) =
+    -> Config
+    -> Config
+withValidationOnInput result isSubmitted (Config configuration) =
     Config
         { configuration
             | isSubmitted = isSubmitted
-            , validation = Just validation
+            , validation = result
             , errorShowingStrategy = Error.onInput |> Just
         }
 
@@ -254,15 +255,15 @@ withValidationOnInput validation isSubmitted (Config configuration) =
 {-| Sets the showing error strategy to `OnBlur` (The error will be shown after the user leave the field or after the form submission)
 -}
 withValidationOnBlur :
-    CommonsAlias.Validation String parsedValue
+    ValidationResult
     -> CommonsAlias.IsSubmitted
-    -> Config parsedValue
-    -> Config parsedValue
-withValidationOnBlur validation isSubmitted (Config configuration) =
+    -> Config
+    -> Config
+withValidationOnBlur result isSubmitted (Config configuration) =
     Config
         { configuration
             | isSubmitted = isSubmitted
-            , validation = Just validation
+            , validationResult = result
             , errorShowingStrategy = Error.onBlur |> Just
         }
 
@@ -277,42 +278,42 @@ In this example, if the user inputs "abc", the actual inputted text is "ABC".
 This applies to both the user UI and the `getValue`/`validate` functions
 
 -}
-withValueMapper : (String -> String) -> Config parsedValue -> Config parsedValue
+withValueMapper : (String -> String) -> Config -> Config
 withValueMapper mapper (Config configData) =
     Config { configData | valueMapper = mapper }
 
 
 {-| Sets a Size to the Textarea
 -}
-withSize : Size -> Config parsedValue -> Config parsedValue
+withSize : Size -> Config -> Config
 withSize size (Config configuration) =
     Config { configuration | size = size }
 
 
 {-| Sets a ClassList to the Textarea
 -}
-withClassList : List ( String, Bool ) -> Config parsedValue -> Config parsedValue
+withClassList : List ( String, Bool ) -> Config -> Config
 withClassList classes (Config configuration) =
     Config { configuration | classList = classes }
 
 
 {-| Sets a id to the Textarea
 -}
-withId : CommonsAlias.Id -> Config parsedValue -> Config parsedValue
+withId : CommonsAlias.Id -> Config -> Config
 withId id (Config configuration) =
     Config { configuration | id = id }
 
 
 {-| Sets a Placeholder to the Textarea
 -}
-withPlaceholder : String -> Config parsedValue -> Config parsedValue
+withPlaceholder : String -> Config -> Config
 withPlaceholder placeholder (Config configuration) =
     Config { configuration | placeholder = Just placeholder }
 
 
 {-| Append an additional custom html.
 -}
-withAdditionalContent : Html Never -> Config parsedValue -> Config parsedValue
+withAdditionalContent : Html Never -> Config -> Config
 withAdditionalContent additionalContent (Config configuration) =
     Config { configuration | additionalContent = Just additionalContent }
 
@@ -399,14 +400,14 @@ getValue (Model { value }) =
 
 {-| Renders the Textarea.
 -}
-render : (Msg -> msg) -> Model msg -> Config parsedValue -> Html msg
+render : (Msg -> msg) -> Model msg -> Config -> Html msg
 render tagger model ((Config configData) as config_) =
     let
         customizedLabel : Maybe Label.Config
         customizedLabel =
             Maybe.map (configData.size |> mapLabelSize |> Label.withSize) configData.label
 
-        error : Maybe (Error.Config parsedValue)
+        error : Maybe Error.Config
         error =
             generateErrorConfig model config_
     in
@@ -421,24 +422,22 @@ render tagger model ((Config configData) as config_) =
 
 {-| Internal
 -}
-generateErrorConfig : Model msg -> Config parsedValue -> Maybe (Error.Config parsedValue)
-generateErrorConfig (Model { fieldStatus, value }) (Config { id, isSubmitted, validation, errorShowingStrategy }) =
+generateErrorConfig : Model msg -> Config -> Maybe Error.Config
+generateErrorConfig (Model { fieldStatus, value }) (Config { id, isSubmitted, validationResult, errorShowingStrategy }) =
     let
-        getErrorConfig : Result CommonsAlias.ErrorMessage parsedValue -> Error.ShowingStrategy -> Error.Config parsedValue
-        getErrorConfig validationResult =
+        getErrorConfig : Error.ShowingStrategy -> Error.Config
+        getErrorConfig =
             Error.config id validationResult
                 >> Error.withIsDirty fieldStatus.isDirty
                 >> Error.withIsBlurred fieldStatus.isBlurred
                 >> Error.withIsSubmitted isSubmitted
     in
-    Maybe.map2 getErrorConfig
-        (Maybe.map (\v -> v value) validation)
-        errorShowingStrategy
+    Maybe.map getErrorConfig errorShowingStrategy
 
 
 {-| Internal.
 -}
-renderTextarea : Maybe (Error.Config parsedValue) -> Model msg -> Config parsedValue -> Html Msg
+renderTextarea : Maybe Error.Config -> Model msg -> Config -> Html Msg
 renderTextarea error (Model modelData) (Config configData) =
     Html.div
         [ Html.Attributes.classList

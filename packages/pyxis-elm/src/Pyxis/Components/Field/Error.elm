@@ -55,25 +55,26 @@ import Html.Attributes
 import Maybe.Extra
 import Pyxis.Commons.Alias as CommonsAlias
 import Pyxis.Commons.Render as CommonsRender
+import Pyxis.Commons.ValidationResult as ValidationResult exposing (ValidationResult)
 import Result.Extra
 
 
 {-| Represent a form field error configuration.
 -}
-type Config parsedValue
+type Config
     = Config
         { id : CommonsAlias.Id
         , isBlurred : Bool
         , isDirty : Bool
         , isSubmitted : CommonsAlias.IsSubmitted
         , showingStrategy : ShowingStrategy
-        , validationResult : Result CommonsAlias.ErrorMessage parsedValue
+        , validationResult : ValidationResult
         }
 
 
 {-| Creates a form field error.
 -}
-config : CommonsAlias.Id -> Result CommonsAlias.ErrorMessage parsedValue -> ShowingStrategy -> Config parsedValue
+config : CommonsAlias.Id -> ValidationResult -> ShowingStrategy -> Config
 config id validationResult showingStrategy =
     Config
         { id = idFromFieldId id
@@ -87,21 +88,21 @@ config id validationResult showingStrategy =
 
 {-| Define if the form is submitted.
 -}
-withIsSubmitted : CommonsAlias.IsSubmitted -> Config parsedValue -> Config parsedValue
+withIsSubmitted : CommonsAlias.IsSubmitted -> Config -> Config
 withIsSubmitted isSubmitted (Config configuration) =
     Config { configuration | isSubmitted = isSubmitted }
 
 
 {-| Define if the field is dirty.
 -}
-withIsDirty : Bool -> Config parsedValue -> Config parsedValue
+withIsDirty : Bool -> Config -> Config
 withIsDirty isDirty (Config configuration) =
     Config { configuration | isDirty = isDirty }
 
 
 {-| Define if the field has been blurred.
 -}
-withIsBlurred : Bool -> Config parsedValue -> Config parsedValue
+withIsBlurred : Bool -> Config -> Config
 withIsBlurred isBlurred (Config configuration) =
     Config { configuration | isBlurred = isBlurred }
 
@@ -115,7 +116,7 @@ idFromFieldId fieldId =
 
 {-| View the error message
 -}
-render : Config parsedValue -> Html.Html msg
+render : Config -> Html.Html msg
 render ((Config { id, validationResult }) as config_) =
     validationResult
         |> getErrorMessage config_
@@ -165,7 +166,7 @@ onSubmit =
 
 {-| Internal.
 -}
-getErrorMessage : Config parsedValue -> Result CommonsAlias.ErrorMessage parsedValue -> Maybe String
+getErrorMessage : Config -> ValidationResult -> Maybe String
 getErrorMessage (Config { showingStrategy, isSubmitted, isDirty, isBlurred }) validationResult =
     case showingStrategy of
         OnInput ->
@@ -180,7 +181,7 @@ getErrorMessage (Config { showingStrategy, isSubmitted, isDirty, isBlurred }) va
 
 {-| Return a boolean based on if the error message is visible under the field or not.
 -}
-isVisible : Maybe (Config parsedValue) -> Bool
+isVisible : Maybe Config -> Bool
 isVisible maybeConfig =
     maybeConfig
         |> Maybe.andThen (\((Config { validationResult }) as config_) -> getErrorMessage config_ validationResult)
@@ -189,10 +190,10 @@ isVisible maybeConfig =
 
 {-| Internal.
 -}
-getErrorIf : Bool -> Result CommonsAlias.ErrorMessage parsedValue -> Maybe String
+getErrorIf : Bool -> ValidationResult -> Maybe CommonsAlias.ErrorMessage
 getErrorIf condition validationResult =
     if condition then
-        Result.Extra.error validationResult
+        ValidationResult.getErrorMessage validationResult
 
     else
         Nothing
