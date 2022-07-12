@@ -59,7 +59,8 @@ update msg model =
 -}
 accordion : Html msg
 accordion =
-    Accordion.config accordionItems
+    Accordion.config "my-accordion"
+        |> Accordion.withItems accordionItems
         |> Accordion.render Model.AccordionChanged model.accordion
 
 
@@ -133,7 +134,8 @@ The variants allow you to change the color scheme of the accordion.
 ```
 accordion : Html msg
 accordion =
-    Accordion.config accordionItems
+    Accordion.config "light-accordion"
+        |> Accordion.withItems accordionItems
         |> Accordion.withLightVariant
         |> Accordion.render Model.AccordionChanged model.accordion
 ```
@@ -146,7 +148,8 @@ You can set your Accordion with a default _theme_ or alternative. Alt theme is m
 ```
 accordion : Html msg
 accordion =
-    Accordion.config accordionItems
+    Accordion.config "alternative-theme-accordion"
+        |> Accordion.withItems accordionItems
         |> Accordion.withTheme Theme.alternative
         |> Accordion.render Model.AccordionChanged model.accordion
 ```
