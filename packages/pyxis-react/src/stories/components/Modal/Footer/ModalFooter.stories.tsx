@@ -29,16 +29,16 @@ const Template:ComponentStory<typeof Footer> = (args:FooterProps) => <Footer {..
 export const FooterDefault = Template.bind({})
 FooterDefault.args = {
   buttons: <>
-    <Button variant={"secondary"}>Secondary</Button>
-    <Button variant={"primary"}>Primary</Button>
+    <Button variant="secondary" size="large" contentWidth>Secondary</Button>
+    <Button variant="primary" size="large" contentWidth>Primary</Button>
   </>,
 }
 
 export const WithText = Template.bind({})
 WithText.args = {
   buttons: <>
-    <Button variant={"secondary"}>Secondary</Button>
-    <Button variant={"primary"}>Primary</Button>
+    <Button variant="secondary" size="large" contentWidth>Secondary</Button>
+    <Button variant="primary" size="large" contentWidth>Primary</Button>
   </>,
   text: "Custom additional text"
 }
@@ -46,8 +46,8 @@ WithText.args = {
 export const WithFullWidthButtons = Template.bind({})
 WithFullWidthButtons.args = {
   buttons: <>
-    <Button variant={"secondary"}>Secondary</Button>
-    <Button variant={"primary"}>Primary</Button>
+    <Button variant="secondary" size="large" contentWidth>Secondary</Button>
+    <Button variant="primary" size="large" contentWidth>Primary</Button>
   </>,
   hasFullWidthButtons: true
 }
@@ -58,17 +58,17 @@ WithFullWidthButtons.parameters = {
 export const StickyFooter = Template.bind({})
 StickyFooter.args = {
   buttons: <>
-    <Button variant={"secondary"}>Secondary</Button>
-    <Button variant={"primary"}>Primary</Button>
+    <Button variant="secondary" size="large" contentWidth>Secondary</Button>
+    <Button variant="primary" size="large" contentWidth>Primary</Button>
   </>,
-  isSticky: true
+  isSticky: true,
 }
 
 export const AltFooter = Template.bind({})
 AltFooter.args = {
   buttons: <>
-    <Button variant={"secondary"} alt>Secondary</Button>
-    <Button variant={"primary"} alt>Primary</Button>
+    <Button variant="secondary" size="large" contentWidth alt>Secondary</Button>
+    <Button variant="primary" size="large" contentWidth alt>Primary</Button>
   </>,
   alt: true
 }

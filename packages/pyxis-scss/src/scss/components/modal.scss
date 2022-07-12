@@ -34,7 +34,7 @@ $_sizesOnBp: (
 }
 
 .modal {
-  $minHeight: foundations.rem(200px);
+  $minHeight: foundations.rem(140px);
   $offset: foundations.rem(80px);
 
   display: grid;
@@ -90,9 +90,9 @@ $_sizesOnBp: (
 
 .modal__header {
   @include foundations.radius(xl, top);
-  @include foundations.responsiveSpacing("padding", m m xs, $fromXSmall: 2xl 2xl s);
+  @include foundations.responsiveSpacing("column-gap", xs, $fromXSmall: s);
+  @include foundations.responsiveSpacing("padding", m m xs, $fromXSmall: xl xl s);
   background: foundations.color(neutralLight);
-  column-gap: foundations.spacing(xs);
   display: grid;
   grid-template-columns: auto max-content;
   height: fit-content;
@@ -122,11 +122,15 @@ $_sizesOnBp: (
 }
 
 .modal__content {
-  @include foundations.responsiveSpacing("padding", 3xs m xs, $fromXSmall: 0 2xl);
+  @include foundations.responsiveSpacing("padding", 3xs m xs, $fromXSmall: 3xs xl xs);
+
+  &:last-child {
+    @include foundations.responsiveSpacing("padding-bottom", m, $fromXSmall: xl);
+  }
 }
 
 .modal__footer {
-  @include foundations.responsiveSpacing("padding", m, $fromXSmall: m 2xl);
+  @include foundations.responsiveSpacing("padding", m, $fromXSmall: m xl xl);
   @include foundations.responsiveSpacing("gap", xs, $fromXSmall: s);
   align-items: center;
   background: foundations.color(neutralLight);
@@ -146,7 +150,6 @@ $_sizesOnBp: (
 .modal__footer--alt {
   background-color: foundations.color(neutralBase);
   color: foundations.color(neutralLight);
-  margin-top: foundations.spacing(l);
 }
 
 .modal__footer__text {
@@ -179,7 +182,12 @@ $_sizesOnBp: (
 
 .modal__header--sticky,
 .modal__footer--sticky {
-  @include foundations.sticky;
+  @include foundations.mq(xsmall) {
+    @include foundations.sticky(
+      $top: -#{foundations.spacing(xs)},
+      $bottom: -#{foundations.spacing(xs)}
+    );
+  }
 }
 
 .modal__header__wrapper--custom,
