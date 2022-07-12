@@ -40,6 +40,12 @@ update msg model =
         PlateChanged subMsg ->
             Model.updateDataAndDispatch (Data.updatePlate subMsg) model
 
+        NameChanged subMsg ->
+            Model.updateDataAndDispatch (Data.updateName subMsg) model
+
+        SurnameChanged subMsg ->
+            Model.updateDataAndDispatch (Data.updateSurname subMsg) model
+
         PrivacyChanged subMsg ->
             Model.updateDataAndDispatch (Data.updatePrivacyChanged subMsg) model
 

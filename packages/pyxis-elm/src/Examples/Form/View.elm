@@ -20,7 +20,7 @@ import Pyxis.Components.Form as Form
 view : Model -> Html Msg
 view model =
     Html.div
-        [ Html.Attributes.class "container padding-v-xl margin-v-xl" ]
+        [ Html.Attributes.class "container-responsive padding-v-3xl" ]
         [ pyxisCSS
         , viewport
         , viewForm model.data
@@ -33,7 +33,7 @@ view model =
             ]
         , Modal.view model.showModal
         , Html.div
-            [ Html.Attributes.class "container-responsive padding-v-m margin-v-xl" ]
+            [ Html.Attributes.class "container-medium padding-v-m margin-v-xl" ]
             [ Html.text "Any question? Check out our FAQs:"
             , Faqs.view model
             ]

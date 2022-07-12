@@ -5,11 +5,11 @@ module Pyxis.Components.Form.Grid exposing
     , largeGap
     , Row
     , row
-    , simpleRow
-    , simpleOneColRow
+    , oneColRowSmall
+    , oneColRowMedium
+    , oneColRowFullWidth
     , Col
     , col
-    , simpleCol
     , render
     )
 
@@ -31,15 +31,15 @@ module Pyxis.Components.Form.Grid exposing
 
 @docs Row
 @docs row
-@docs simpleRow
-@docs simpleOneColRow
+@docs oneColRowSmall
+@docs oneColRowMedium
+@docs oneColRowFullWidth
 
 
 ## Columns
 
 @docs Col
 @docs col
-@docs simpleCol
 
 
 ## Rendering
@@ -135,18 +135,25 @@ row options children =
         }
 
 
-{-| Convenient function to create a Row with default options.
+{-| Convenient function to create a Row with small size and one column inside.
 -}
-simpleRow : List (Col msg) -> Row msg
-simpleRow =
-    row []
+oneColRowSmall : List (Html msg) -> Row msg
+oneColRowSmall =
+    col [] >> List.singleton >> row [ Row.smallSize ]
+
+
+{-| Convenient function to create a Row with medium size and one column inside.
+-}
+oneColRowMedium : List (Html msg) -> Row msg
+oneColRowMedium =
+    col [] >> List.singleton >> row [ Row.mediumSize ]
 
 
 {-| Convenient function to create a Row with default options and a single Col inside it.
 -}
-simpleOneColRow : List (Html msg) -> Row msg
-simpleOneColRow =
-    simpleCol >> List.singleton >> row []
+oneColRowFullWidth : List (Html msg) -> Row msg
+oneColRowFullWidth =
+    col [] >> List.singleton >> row []
 
 
 {-| Represents a Col(umn) which belongs to the Row.
@@ -185,13 +192,6 @@ col options children =
         { span = configuration.span
         , children = children
         }
-
-
-{-| Convenient function to create a Col with default options.
--}
-simpleCol : List (Html msg) -> Col msg
-simpleCol =
-    col []
 
 
 {-| Renders the Grid.

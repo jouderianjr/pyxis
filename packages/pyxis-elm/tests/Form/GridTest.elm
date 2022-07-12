@@ -25,6 +25,32 @@ suite =
                     Grid.render [ Grid.largeGap ] []
                         |> Query.fromHtml
                         |> Query.has [ Selector.classes [ "form-grid", "form-grid--gap-large" ] ]
+            , Test.test "with one column and a small row" <|
+                \_ ->
+                    Grid.render []
+                        [ Grid.oneColRowSmall [] ]
+                        |> Query.fromHtml
+                        |> Query.contains
+                            [ Html.div
+                                [ Html.Attributes.class "form-grid__row form-grid__row--small" ]
+                                [ Html.div
+                                    [ Html.Attributes.class "form-grid__row__column" ]
+                                    []
+                                ]
+                            ]
+            , Test.test "with one column and a medium row" <|
+                \_ ->
+                    Grid.render []
+                        [ Grid.oneColRowMedium [] ]
+                        |> Query.fromHtml
+                        |> Query.contains
+                            [ Html.div
+                                [ Html.Attributes.class "form-grid__row form-grid__row--medium" ]
+                                [ Html.div
+                                    [ Html.Attributes.class "form-grid__row__column" ]
+                                    []
+                                ]
+                            ]
             ]
         , Test.describe "Row"
             [ Test.test "has valid markup" <|

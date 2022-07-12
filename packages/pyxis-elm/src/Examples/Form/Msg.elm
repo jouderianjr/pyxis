@@ -20,6 +20,8 @@ type Msg
     | ResidentialCityChanged (Autocomplete.Msg City)
     | ResidentialProvinceChanged Select.Msg
     | PlateChanged Input.Msg
+    | NameChanged Input.Msg
+    | SurnameChanged Input.Msg
     | DynamicsChanged Textarea.Msg
     | BirthDateChanged Input.Msg
     | ClaimDateChanged Input.Msg

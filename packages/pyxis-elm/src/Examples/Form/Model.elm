@@ -40,9 +40,11 @@ type alias Response =
     , claimType : Fields.Claim
     , dynamic : String
     , insuranceType : Fields.Insurance
+    , name : String
     , peopleInvolved : Bool
     , plate : String
     , residentialCity : City
+    , surname : String
     }
 
 
@@ -112,9 +114,11 @@ validate (Data config) =
         |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.claimType))
         |> parseAndThen (Data.notEmptyStringValidation () (Textarea.getValue config.dynamic))
         |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.insuranceType))
+        |> parseAndThen (Data.notEmptyStringValidation () (Input.getValue config.name))
         |> parseAndThen (Data.radioValidation () (RadioCardGroup.getValue config.peopleInvolved))
         |> parseAndThen (Data.notEmptyStringValidation () (Input.getValue config.plate))
         |> parseAndThen (Data.residentialCityValidation () (Autocomplete.getValue config.residentialCity))
+        |> parseAndThen (Data.notEmptyStringValidation () (Input.getValue config.surname))
 
 
 parseAndThen : Result x a -> Result x (a -> b) -> Result x b

@@ -13,12 +13,14 @@ module Examples.Form.Data exposing
     , updateClaimType
     , updateDynamic
     , updateInsuranceType
+    , updateName
     , updatePeopleInvolved
     , updatePlate
     , updatePrivacyChanged
     , updateResidentialCity
     , updateResidentialCityRemoteData
     , updateResidentialProvince
+    , updateSurname
     , updateVehiclesOwn
     , vehiclesOwn
     )
@@ -46,11 +48,13 @@ type Data
         , claimType : RadioCardGroup.Model Types.Claim Msg
         , dynamic : Textarea.Model Msg
         , insuranceType : RadioCardGroup.Model Types.Insurance Msg
+        , name : Input.Model Msg
         , peopleInvolved : RadioCardGroup.Model Bool Msg
         , plate : Input.Model Msg
         , privacyCheck : CheckboxGroup.Model Types.Option Msg
         , residentialCity : Autocomplete.Model City Msg
         , residentialProvince : Select.Model Msg
+        , surname : Input.Model Msg
         , vehiclesOwn : CheckboxGroup.Model Types.Vehicles Msg
         }
 
@@ -64,6 +68,7 @@ initialData =
         , claimType = RadioCardGroup.init |> RadioCardGroup.setValue Types.CarAccident
         , dynamic = Textarea.init
         , insuranceType = RadioCardGroup.init
+        , name = Input.init
         , peopleInvolved = RadioCardGroup.init
         , plate = Input.init
         , privacyCheck = CheckboxGroup.init
@@ -74,6 +79,7 @@ initialData =
             Select.init
                 |> Select.setValue (Province.getName Province.capitalProvince)
                 |> Select.setOptions (List.map (\p -> Select.option { label = Province.getName p, value = Province.getName p }) Province.list)
+        , surname = Input.init
         , vehiclesOwn = CheckboxGroup.init
         }
 
@@ -116,6 +122,24 @@ updatePlate msg (Data d) =
             Input.update msg d.plate
     in
     ( Data { d | plate = componentModel }, componentCmd )
+
+
+updateName : Input.Msg -> Data -> ( Data, Cmd Msg )
+updateName msg (Data d) =
+    let
+        ( componentModel, componentCmd ) =
+            Input.update msg d.name
+    in
+    ( Data { d | name = componentModel }, componentCmd )
+
+
+updateSurname : Input.Msg -> Data -> ( Data, Cmd Msg )
+updateSurname msg (Data d) =
+    let
+        ( componentModel, componentCmd ) =
+            Input.update msg d.surname
+    in
+    ( Data { d | surname = componentModel }, componentCmd )
 
 
 updateResidentialCity : Autocomplete.Msg City -> Data -> ( Data, Cmd Msg )

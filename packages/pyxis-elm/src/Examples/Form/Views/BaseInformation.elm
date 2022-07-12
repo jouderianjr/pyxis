@@ -21,100 +21,97 @@ view : Data -> FieldSet.Config Msg
 view ((Data config) as data) =
     FieldSet.config
         |> FieldSet.withHeader
-            [ Grid.simpleOneColRow
+            [ Grid.oneColRowFullWidth
                 [ Legend.config "Vehicle & owner"
                     |> Legend.render
                 ]
             ]
         |> FieldSet.withContent
-            [ Grid.row
-                [ Row.smallSize ]
-                [ Grid.simpleCol
-                    [ "plate"
+            [ Grid.row [ Row.smallSize ]
+                [ Grid.col []
+                    [ "name"
                         |> Input.text
-                        |> Input.withPlaceholder "AA123BC"
-                        |> Input.withValidationOnBlur Data.notEmptyStringValidation config.isFormSubmitted
-                        |> Input.withLabel
-                            ("Vehicle plate"
-                                |> Label.config
-                                |> Label.withSubText "(Vehicle A)"
-                            )
-                        |> Input.render Msg.PlateChanged () config.plate
+                        |> Input.withPlaceholder "John"
+                        |> Input.withValidationOnSubmit Data.notEmptyStringValidation config.isFormSubmitted
+                        |> Input.withLabel (Label.config "Name")
+                        |> Input.render Msg.NameChanged () config.name
+                    ]
+                , Grid.col []
+                    [ "surname"
+                        |> Input.text
+                        |> Input.withPlaceholder "Doe"
+                        |> Input.withValidationOnSubmit Data.notEmptyStringValidation config.isFormSubmitted
+                        |> Input.withLabel (Label.config "Surname")
+                        |> Input.render Msg.SurnameChanged () config.surname
                     ]
                 ]
-            , Grid.row
-                [ Row.smallSize ]
-                [ Grid.simpleCol
-                    [ "birth_date"
-                        |> Input.date
-                        |> Input.withValidationOnBlur Data.dateValidation config.isFormSubmitted
-                        |> Input.withLabel (Label.config "Owner birth date")
-                        |> Input.render Msg.BirthDateChanged () config.birth
-                    ]
+            , Grid.oneColRowSmall
+                [ "plate"
+                    |> Input.text
+                    |> Input.withPlaceholder "AA123BC"
+                    |> Input.withValidationOnSubmit Data.notEmptyStringValidation config.isFormSubmitted
+                    |> Input.withLabel
+                        ("Vehicle plate"
+                            |> Label.config
+                            |> Label.withSubText "(Vehicle A)"
+                        )
+                    |> Input.render Msg.PlateChanged () config.plate
                 ]
-            , Grid.row
-                [ Row.smallSize ]
-                [ Grid.simpleCol
-                    [ "residential_city"
-                        |> Autocomplete.config
-                        |> Autocomplete.withNoResultsFoundMessage "No results were found."
-                        |> Autocomplete.withValidationOnBlur Data.residentialCityValidation config.isFormSubmitted
-                        |> Autocomplete.withLabel (Label.config "Residential city")
-                        |> Autocomplete.withHint "Type at least 3 chars to start searching."
-                        |> Autocomplete.withPlaceholder "Milano"
-                        |> Autocomplete.withSuggestion
-                            { icon = IconSet.InfoCircle
-                            , title = "Lorem ipsum"
-                            , subtitle = Just "Lorem ipsum dolor sit amet."
-                            }
-                        |> Autocomplete.render Msg.ResidentialCityChanged () config.residentialCity
-                    ]
+            , Grid.oneColRowSmall
+                [ "birth_date"
+                    |> Input.date
+                    |> Input.withValidationOnSubmit Data.dateValidation config.isFormSubmitted
+                    |> Input.withLabel (Label.config "Owner birth date")
+                    |> Input.render Msg.BirthDateChanged () config.birth
                 ]
-            , Grid.row
-                [ Row.smallSize ]
-                [ Grid.simpleCol
-                    [ Select.config "residential_province" False
-                        |> Select.withLabel (Label.config "Provincia di residenza")
-                        |> Select.render Msg.ResidentialProvinceChanged data config.residentialProvince
-                    ]
+            , Grid.oneColRowSmall
+                [ "residential_city"
+                    |> Autocomplete.config
+                    |> Autocomplete.withValidationOnSubmit Data.residentialCityValidation config.isFormSubmitted
+                    |> Autocomplete.withNoResultsFoundMessage "No results were found."
+                    |> Autocomplete.withLabel (Label.config "Residential city")
+                    |> Autocomplete.withHint "Type at least 3 chars to start searching."
+                    |> Autocomplete.withPlaceholder "Milano"
+                    |> Autocomplete.withSuggestion
+                        { icon = IconSet.InfoCircle
+                        , title = "Lorem ipsum"
+                        , subtitle = Just "Lorem ipsum dolor sit amet."
+                        }
+                    |> Autocomplete.render Msg.ResidentialCityChanged () config.residentialCity
                 ]
-            , Grid.row
-                [ Row.smallSize ]
-                [ Grid.simpleCol
-                    [ "vehicles-own"
-                        |> CheckboxGroup.config
-                        |> CheckboxGroup.withOptions
-                            [ CheckboxGroup.option { value = Types.Car, label = Html.text "Car" }
-                            , CheckboxGroup.option { value = Types.Motorcycle, label = Html.text "Motorcycle" }
-                            , CheckboxGroup.option { value = Types.Van, label = Html.text "Van" }
-                            ]
-                        |> CheckboxGroup.withLabel (Label.config "Kind of vehicles involved in the accident")
-                        |> CheckboxGroup.withValidationOnBlur Data.vehiclesOwn config.isFormSubmitted
-                        |> CheckboxGroup.withLayout CheckboxGroup.vertical
-                        |> CheckboxGroup.render Msg.VehiclesOwnChanged data config.vehiclesOwn
-                    ]
+            , Grid.oneColRowSmall
+                [ Select.config "residential_province" False
+                    |> Select.withLabel (Label.config "Provincia di residenza")
+                    |> Select.render Msg.ResidentialProvinceChanged data config.residentialProvince
                 ]
-            , Grid.row
-                [ Row.smallSize ]
-                [ Grid.simpleCol
-                    [ "claim_date"
-                        |> Input.date
-                        |> Input.withValidationOnBlur Data.dateValidation config.isFormSubmitted
-                        |> Input.withLabel (Label.config "Claim date")
-                        |> Input.render Msg.ClaimDateChanged () config.claimDate
-                    ]
+            , Grid.oneColRowSmall
+                [ "vehicles-own"
+                    |> CheckboxGroup.config
+                    |> CheckboxGroup.withOptions
+                        [ CheckboxGroup.option { value = Types.Car, label = Html.text "Car" }
+                        , CheckboxGroup.option { value = Types.Motorcycle, label = Html.text "Motorcycle" }
+                        , CheckboxGroup.option { value = Types.Van, label = Html.text "Van" }
+                        ]
+                    |> CheckboxGroup.withLabel (Label.config "Kind of vehicles involved in the accident")
+                    |> CheckboxGroup.withValidationOnSubmit Data.vehiclesOwn config.isFormSubmitted
+                    |> CheckboxGroup.withLayout CheckboxGroup.vertical
+                    |> CheckboxGroup.render Msg.VehiclesOwnChanged data config.vehiclesOwn
                 ]
-            , Grid.row
-                [ Row.smallSize ]
-                [ Grid.simpleCol
-                    [ "checkbox-id"
-                        |> CheckboxGroup.config
-                        |> CheckboxGroup.withOptions
-                            [ CheckboxGroup.option { value = Types.AcceptPrivacy, label = viewPrivacy } ]
-                        |> CheckboxGroup.withValidationOnBlur Data.privacyValidation config.isFormSubmitted
-                        |> CheckboxGroup.withId "checkbox-group-single"
-                        |> CheckboxGroup.render Msg.PrivacyChanged data config.privacyCheck
-                    ]
+            , Grid.oneColRowSmall
+                [ "claim_date"
+                    |> Input.date
+                    |> Input.withValidationOnSubmit Data.dateValidation config.isFormSubmitted
+                    |> Input.withLabel (Label.config "Claim date")
+                    |> Input.render Msg.ClaimDateChanged () config.claimDate
+                ]
+            , Grid.oneColRowSmall
+                [ "checkbox-id"
+                    |> CheckboxGroup.config
+                    |> CheckboxGroup.withOptions
+                        [ CheckboxGroup.option { value = Types.AcceptPrivacy, label = viewPrivacy } ]
+                    |> CheckboxGroup.withValidationOnSubmit Data.privacyValidation config.isFormSubmitted
+                    |> CheckboxGroup.withId "checkbox-group-single"
+                    |> CheckboxGroup.render Msg.PrivacyChanged data config.privacyCheck
                 ]
             ]
 

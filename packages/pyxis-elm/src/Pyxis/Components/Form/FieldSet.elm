@@ -97,7 +97,7 @@ render (Config configuration) =
 -}
 renderContent : ConfigData msg -> List (Grid.Row msg)
 renderContent configuration =
-    [ Grid.simpleOneColRow
+    [ Grid.oneColRowFullWidth
         [ Grid.render
             [ Grid.smallGap ]
             configuration.content

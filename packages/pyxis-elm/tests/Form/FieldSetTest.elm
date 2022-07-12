@@ -17,7 +17,7 @@ suite =
                 \s ->
                     FieldSet.config
                         |> FieldSet.withHeader
-                            [ Grid.simpleOneColRow [ Html.text s ]
+                            [ Grid.oneColRowFullWidth [ Html.text s ]
                             ]
                         |> FieldSet.render
                         |> Query.fromHtml
@@ -32,7 +32,7 @@ suite =
                 \s ->
                     FieldSet.config
                         |> FieldSet.withContent
-                            [ Grid.simpleOneColRow [ Html.text s ]
+                            [ Grid.oneColRowFullWidth [ Html.text s ]
                             ]
                         |> FieldSet.render
                         |> Query.fromHtml
@@ -47,7 +47,7 @@ suite =
                 \s ->
                     FieldSet.config
                         |> FieldSet.withFooter
-                            [ Grid.simpleOneColRow [ Html.text s ]
+                            [ Grid.oneColRowFullWidth [ Html.text s ]
                             ]
                         |> FieldSet.render
                         |> Query.fromHtml

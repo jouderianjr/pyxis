@@ -10,7 +10,6 @@ import Pyxis.Components.Form as Form
 import Pyxis.Components.Form.FieldSet as FieldSet
 import Pyxis.Components.Form.Grid as Grid
 import Pyxis.Components.Form.Grid.Col as Col
-import Pyxis.Components.Form.Grid.Row as Row
 
 
 docs : ElmBook.Chapter.Chapter sharedState
@@ -34,23 +33,23 @@ Form.config
     |> Form.withFieldSets
         [ FieldSet.config
             |> FieldSet.withHeader
-                [ Grid.simpleOneColRow
+                [ Grid.oneColRowFullWidth
                     [ columnContent "Fieldset header"
                     ]
                 ]
             |> FieldSet.withContent
-                [ Grid.simpleOneColRow
+                [ Grid.oneColRowFullWidth
                     [ columnContent "Fieldset row 1"
                     ]
-                , Grid.simpleOneColRow
+                , Grid.oneColRowFullWidth
                     [ columnContent "Fieldset row 2"
                     ]
-                , Grid.simpleOneColRow
+                , Grid.oneColRowFullWidth
                     [ columnContent "Fieldset row n"
                     ]
                 ]
             |> FieldSet.withFooter
-                [ Grid.simpleOneColRow
+                [ Grid.oneColRowFullWidth
                     [ columnContent "Fieldset footer"
                     ]
                 ]
@@ -99,7 +98,7 @@ It is recommended to use this setting for horizontal forms on single or multiple
 ```
 Grid.render
     []
-    [ Grid.simpleOneColRow [ columnContent "Lorem ipsum dolor sit amet." ] ]
+    [ Grid.oneColRowFullWidth [ columnContent "Lorem ipsum dolor sit amet." ] ]
 ```
 
 ### Medium Row
@@ -107,13 +106,24 @@ Grid.render
 Medium dimensions (720px) are recommended to use this setting for vertical development forms with the possibility
 of placing components not belonging to the same group side by side.
 
+If the Medium Row contain only one column you can use `Grid.oneColRowMedium` utility function.
+
 <component with-label="Row Medium" />
 
 ```
+-- With utility function
+Grid.render
+    []
+    [ Grid.oneColRowMedium
+        [ columnContent "Lorem ipsum dolor sit amet." ]
+    ]
+
+-- Without utility function
 Grid.render
     []
     [ Grid.row [ Row.mediumSize ]
-        [ Grid.simpleCol [ columnContent "Lorem ipsum dolor sit amet." ]
+        [ Grid.col []
+            [ columnContent "Lorem ipsum dolor sit amet." ]
         ]
     ]
 ```
@@ -123,13 +133,24 @@ Grid.render
 Small dimensions (360px) are recommended to use this setting for vertical development
 forms with the possibility of tiling only components of the same group.
 
+If the Small Row contain only one column you can use `Grid.oneColRowSmall` utility function.
+
 <component with-label="Row Small" />
 
 ```
+-- With utility function
+Grid.render
+    []
+    [ Grid.oneColRowSmall
+        [ columnContent "Lorem ipsum dolor sit amet." ]
+    ]
+
+-- Without utility function
 Grid.render
     []
     [ Grid.row [ Row.smallSize ]
-        [ Grid.simpleCol [ columnContent "Lorem ipsum dolor sit amet." ]
+        [ Grid.col []
+            [ columnContent "Lorem ipsum dolor sit amet." ]
         ]
     ]
 ```
@@ -227,23 +248,23 @@ componentsList =
             |> Form.withFieldSets
                 [ FieldSet.config
                     |> FieldSet.withHeader
-                        [ Grid.simpleOneColRow
+                        [ Grid.oneColRowFullWidth
                             [ columnContent "Fieldset header"
                             ]
                         ]
                     |> FieldSet.withContent
-                        [ Grid.simpleOneColRow
+                        [ Grid.oneColRowFullWidth
                             [ columnContent "Fieldset row 1"
                             ]
-                        , Grid.simpleOneColRow
+                        , Grid.oneColRowFullWidth
                             [ columnContent "Fieldset row 2"
                             ]
-                        , Grid.simpleOneColRow
+                        , Grid.oneColRowFullWidth
                             [ columnContent "Fieldset row n"
                             ]
                         ]
                     |> FieldSet.withFooter
-                        [ Grid.simpleOneColRow
+                        [ Grid.oneColRowFullWidth
                             [ columnContent "Fieldset footer"
                             ]
                         ]
@@ -253,22 +274,20 @@ componentsList =
     , ( "Row"
       , Grid.render
             []
-            [ Grid.simpleOneColRow [ columnContent "Lorem ipsum dolor sit amet." ] ]
+            [ Grid.oneColRowFullWidth [ columnContent "Lorem ipsum dolor sit amet." ] ]
       )
     , ( "Row Medium"
       , Grid.render
             []
-            [ Grid.row [ Row.mediumSize ]
-                [ Grid.simpleCol [ columnContent "Lorem ipsum dolor sit amet." ]
-                ]
+            [ Grid.oneColRowMedium
+                [ columnContent "Lorem ipsum dolor sit amet." ]
             ]
       )
     , ( "Row Small"
       , Grid.render
             []
-            [ Grid.row [ Row.smallSize ]
-                [ Grid.simpleCol [ columnContent "Lorem ipsum dolor sit amet." ]
-                ]
+            [ Grid.oneColRowSmall
+                [ columnContent "Lorem ipsum dolor sit amet." ]
             ]
       )
     , ( "Multi-column Row"
@@ -334,12 +353,12 @@ componentsList =
             |> Form.withFieldSets
                 [ FieldSet.config
                     |> FieldSet.withContent
-                        [ Grid.simpleOneColRow
+                        [ Grid.oneColRowFullWidth
                             [ columnContent "Form content"
                             ]
                         ]
                     |> FieldSet.withFooter
-                        [ Grid.simpleOneColRow
+                        [ Grid.oneColRowFullWidth
                             [ Button.primary
                                 |> Button.withType Button.submit
                                 |> Button.withText "Submit"
